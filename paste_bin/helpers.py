@@ -62,3 +62,9 @@ async def read_paste_content(paste_path: Path) -> AsyncGenerator[bytes, None]:
         _ = await fo.readline()
         async for line in fo:
             yield line
+
+
+def get_form_datetime(value: str) -> datetime | None:
+    if value:
+        print("value:", value)
+        return datetime.fromisoformat(value)

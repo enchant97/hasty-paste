@@ -1,5 +1,13 @@
 {% extends "/base.jinja" %}
 {% block title %}New{% endblock %}
 {% block main %}
+<form action="{{ url_for('front_end.post_new_paste') }}" method="post">
+    <label for="expires-at">Expires At</label>
+    <input type="datetime-local" name="expires-at" id="expires-at">
+    <label for="long-id">Long ID</label>
+    <input type="checkbox" name="long-id" id="long-id" value="1">
+    <textarea name="paste-content" id="paste-content" rows="10" placeholder="enter content here..." required></textarea>
+    <button type="submit">Create</button>
+</form>
 
 {% endblock %}
