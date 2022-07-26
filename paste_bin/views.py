@@ -61,6 +61,7 @@ async def get_view_paste(paste_id: str):
     return await render_template(
         "view.jinja",
         paste_content=content,
+        meta=paste_meta,
     )
 
 
@@ -81,5 +82,6 @@ async def get_raw_paste(paste_id: str):
     content = helpers.read_paste_content(paste_path)
 
     response = await make_response(content)
+    response.mimetype="text/plain"
 
     return response

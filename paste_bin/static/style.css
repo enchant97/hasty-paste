@@ -119,4 +119,5 @@ button:hover,
     background-color: var(--bg-sub-col);
     padding: .9rem;
     border-radius: var(--border-radius);
+    margin-bottom: .4rem;
 }
