@@ -1,4 +1,5 @@
 from datetime import datetime
+from pathlib import Path
 from unittest import TestCase
 
 from paste_bin import helpers
@@ -22,6 +23,19 @@ class TestCreatePasteId(TestCase):
 
     def test_valid_long(self):
         self.assertEqual(len(helpers.create_paste_id(True)), 40)
+
+
+class TestCreatePastePath(TestCase):
+    def test_valid(self):
+        root = Path("pastes")
+        paste_id = "1234ABCDabcd"
+        expected_result = root.joinpath(paste_id[:2], paste_id[2:])
+        self.assertEqual(helpers.create_paste_path(root, paste_id), expected_result)
+
+    def test_invalid_id(self):
+        root = Path("pastes")
+        paste_id = "12"
+        self.assertRaises(ValueError, helpers.create_paste_path, root, paste_id)
 
 
 class TestGetFormDatetime(TestCase):

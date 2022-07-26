@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from quart import (Blueprint, make_response, redirect, render_template,
-                   request, url_for, abort)
+from quart import (Blueprint, abort, make_response, redirect, render_template,
+                   request, url_for)
 
 from . import helpers
 from .config import get_settings
@@ -35,7 +35,7 @@ async def post_new_paste():
     )
 
     root_path = get_settings().PASTE_ROOT
-    paste_path = helpers.create_paste_path(root_path, paste_meta.paste_id)
+    paste_path = helpers.create_paste_path(root_path, paste_meta.paste_id, True)
 
     await helpers.write_paste(paste_path, paste_meta, paste_content.encode())
 
@@ -45,8 +45,10 @@ async def post_new_paste():
 @front_end.get("/<paste_id>")
 async def get_view_paste(paste_id: str):
     root_path = get_settings().PASTE_ROOT
-    # TODO make a check path func
     paste_path = helpers.create_paste_path(root_path, paste_id)
+
+    if not paste_path.is_file():
+        abort(404)
 
     paste_meta = await helpers.read_paste_meta(paste_path)
 
@@ -64,8 +66,10 @@ async def get_view_paste(paste_id: str):
 @front_end.get("/<paste_id>/raw")
 async def get_raw_paste(paste_id: str):
     root_path = get_settings().PASTE_ROOT
-    # TODO make a check path func
     paste_path = helpers.create_paste_path(root_path, paste_id)
+
+    if not paste_path.is_file():
+        abort(404)
 
     paste_meta = await helpers.read_paste_meta(paste_path)
 
