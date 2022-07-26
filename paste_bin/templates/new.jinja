@@ -1,7 +1,7 @@
 {% extends "/base.jinja" %}
 {% block title %}New{% endblock %}
 {% block main %}
-<form action="{{ url_for('front_end.post_new_paste') }}" method="post">
+<form class="panel" action="{{ url_for('front_end.post_new_paste') }}" method="post">
     <label for="expires-at">Expires At</label>
     <input type="datetime-local" name="expires-at" id="expires-at">
     <label for="long-id">Long ID</label>

@@ -5,13 +5,19 @@
     <meta charset="UTF-8">
     <title>{% block title %}{% endblock %} - Paste Bin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Mono&family=Open+Sans&family=Roboto&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
     <header>
         <h1>{{ self.title() }}</h1>
         <nav>
-
+            <a class="bnt" href="{{ url_for('.get_index') }}">Home</a>
+            <a class="bnt" href="{{ url_for('.get_new_paste') }}">New Paste</a>
         </nav>
     </header>
     <main>

@@ -1,0 +1,122 @@
+:root {
+    color-scheme: dark;
+    --font-dark: var(--font-light);
+    --font-light: #bebebe;
+    --bg-col: #262626;
+    --bg-sub-col: #2e2e2e;
+    --bnt-col: #3d3d3d;
+    --border-radius: 12px;
+    --header-font: 'Roboto', sans-serif;
+    --main-font: 'Open Sans', sans-serif;
+    --code-font: 'Fira Mono', monospace;
+}
+
+body {
+    background-color: var(--bg-col);
+    margin: auto;
+    max-width: 1200px;
+    padding: .5rem;
+}
+
+h1,
+h2,
+h3,
+h4 {
+    font-family: var(--header-font);
+    color: var(--font-dark);
+}
+
+div,
+a,
+button,
+p,
+label,
+input,
+footer,
+textarea {
+    font-size: 1rem;
+    font-family: var(--main-font);
+    color: var(--font-dark);
+}
+
+pre code {
+    font-size: .9rem;
+    font-family: var(--code-font);
+    color: var(--font-dark);
+}
+
+pre {
+    overflow-x: scroll;
+}
+
+pre>code {
+    pointer-events: none;
+    counter-increment: linenumber;
+}
+
+pre>code:before {
+    content: counter(linenumber);
+    margin-right: .5rem;
+}
+
+header {
+    display: flex;
+}
+
+header nav {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+}
+
+input,
+textarea {
+    background-color: var(--bnt-col);
+    border: none;
+    padding: .6rem;
+}
+
+input[type=checkbox] {
+    margin-right: auto;
+}
+
+textarea {
+    resize: vertical;
+}
+
+footer {
+    text-align: center;
+    margin-top: 100px;
+    border-top-style: solid;
+    padding-top: 10px;
+}
+
+.bnt,
+button {
+    border-radius: var(--border-radius);
+    padding: 10px;
+    color: var(--font-light);
+    text-decoration: none;
+    background-color: var(--bnt-col);
+    border: none;
+    transition-duration: 300ms;
+}
+
+button:hover,
+.bnt:hover {
+    background-color: black;
+    cursor: pointer;
+}
+
+.panel {
+    background-color: var(--bg-sub-col);
+    padding: .9rem;
+    border-radius: var(--border-radius);
+}

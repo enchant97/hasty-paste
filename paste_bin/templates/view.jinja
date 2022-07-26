@@ -1,8 +1,8 @@
 {% extends "/base.jinja" %}
 {% block title %}View{% endblock %}
 {% block main %}
-<code id="paste-content">
-{% for line in paste_content %}<pre>{{ line.decode()|e }}</pre>{% endfor %}
-</code>
+<div class="panel">
+    <pre id="paste-content">{%- for line in paste_content -%}<code>{{ line.decode()|e }}</code>{%- endfor -%}</pre>
+</div>
 
 {% endblock %}
