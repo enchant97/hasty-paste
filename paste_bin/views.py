@@ -53,6 +53,7 @@ async def get_view_paste(paste_id: str):
     paste_meta = await helpers.read_paste_meta(paste_path)
 
     if paste_meta.is_expired:
+        paste_path.unlink(True)
         abort(404)
 
     content = helpers.read_paste_content(paste_path)
@@ -74,6 +75,7 @@ async def get_raw_paste(paste_id: str):
     paste_meta = await helpers.read_paste_meta(paste_path)
 
     if paste_meta.is_expired:
+        paste_path.unlink(True)
         abort(404)
 
     content = helpers.read_paste_content(paste_path)
