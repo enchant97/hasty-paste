@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %} - Paste Bin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    <header>
+        <h1>{{ self.title() }}</h1>
+        <nav>
+
+        </nav>
+    </header>
+    <main>
+        {% block main %}
+        {% endblock %}
+    </main>
+    <footer>
+        Running Paste Bin, provided by <strong><a href="https://github.com/enchant97">enchant97</a></strong>
+    </footer>
+</body>
+
+</html>
