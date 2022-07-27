@@ -26,7 +26,7 @@ def get_paste_meta(meta_line: bytes) -> PasteMeta:
 def create_paste_id(long: bool = False) -> str:
     if long:
         return secrets.token_hex(20)
-    return secrets.token_hex(8)
+    return secrets.token_hex(5)
 
 
 def create_paste_path(root_path: Path, paste_id: str, mkdir: bool = False) -> Path:

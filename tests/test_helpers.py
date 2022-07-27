@@ -19,7 +19,7 @@ class TestGetPasteMeta(TestCase):
 
 class TestCreatePasteId(TestCase):
     def test_valid_short(self):
-        self.assertEqual(len(helpers.create_paste_id()), 16)
+        self.assertEqual(len(helpers.create_paste_id()), 10)
 
     def test_valid_long(self):
         self.assertEqual(len(helpers.create_paste_id(True)), 40)
