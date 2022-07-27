@@ -1,12 +1,18 @@
 from datetime import datetime
 from pathlib import Path
-from unittest import TestCase
+from tempfile import TemporaryDirectory
+from unittest import IsolatedAsyncioTestCase, TestCase
 
 from paste_bin import helpers
 
+TEST_DATA_PATH = Path("data/tests")
 VALID_PASTE_META = b'{"paste_id": "601cdec402c931ad", "creation_dt": ' + \
                    b'"2022-07-26T18:55:17.497161", "expire_dt": null}'
 VALID_DT_ISO_STRING = "2022-07-26T18:55:17.497161"
+VALID_META_OBJ = helpers.PasteMeta(
+    paste_id="te1200aa",
+    creation_dt=datetime.utcnow(),
+)
 
 
 class TestGetPasteMeta(TestCase):
@@ -26,16 +32,84 @@ class TestCreatePasteId(TestCase):
 
 
 class TestCreatePastePath(TestCase):
+    def setUp(self):
+        TEST_DATA_PATH.mkdir(parents=True, exist_ok=True)
+
     def test_valid(self):
-        root = Path("pastes")
-        paste_id = "1234ABCDabcd"
-        expected_result = root.joinpath(paste_id[:2], paste_id[2:])
-        self.assertEqual(helpers.create_paste_path(root, paste_id), expected_result)
+        with TemporaryDirectory(dir=TEST_DATA_PATH) as root:
+            root = Path(root)
+            paste_id = "1234ABCD"
+            expected_result = root.joinpath(paste_id[:2], paste_id[2:])
+            self.assertEqual(helpers.create_paste_path(root, paste_id), expected_result)
+            self.assertFalse(root.joinpath(paste_id[:2]).is_dir())
+
+    def test_valid_mkdir(self):
+        with TemporaryDirectory(dir=TEST_DATA_PATH) as root:
+            root = Path(root)
+            paste_id = "1234ABCE"
+            expected_result = root.joinpath(paste_id[:2], paste_id[2:])
+            self.assertEqual(helpers.create_paste_path(root, paste_id, True), expected_result)
+            self.assertTrue(root.joinpath(paste_id[:2]).is_dir())
 
     def test_invalid_id(self):
-        root = Path("pastes")
-        paste_id = "12"
-        self.assertRaises(ValueError, helpers.create_paste_path, root, paste_id)
+        with TemporaryDirectory(dir=TEST_DATA_PATH) as root:
+            root = Path(root)
+            paste_id = "12"
+            self.assertRaises(ValueError, helpers.create_paste_path, root, paste_id, False)
+            self.assertRaises(ValueError, helpers.create_paste_path, root, paste_id, True)
+
+
+class TestWritePaste(IsolatedAsyncioTestCase):
+    def setUp(self):
+        TEST_DATA_PATH.mkdir(parents=True, exist_ok=True)
+
+    async def test_valid_bytes(self):
+        with TemporaryDirectory(dir=TEST_DATA_PATH) as root:
+            root = Path(root)
+            file_path = root / VALID_META_OBJ.paste_id
+            await helpers.write_paste(file_path, VALID_META_OBJ, b"testing")
+            self.assertTrue(file_path.is_file())
+
+    async def test_valid_generator(self):
+        async def generate_content():
+            yield b"testing"
+
+        with TemporaryDirectory(dir=TEST_DATA_PATH) as root:
+            root = Path(root)
+            file_path = root / VALID_META_OBJ.paste_id
+            await helpers.write_paste(file_path, VALID_META_OBJ, generate_content())
+            self.assertTrue(file_path.is_file())
+
+
+class TestReadPasteMeta(IsolatedAsyncioTestCase):
+    def setUp(self):
+        TEST_DATA_PATH.mkdir(parents=True, exist_ok=True)
+
+    async def test_valid(self):
+        with TemporaryDirectory(dir=TEST_DATA_PATH) as root:
+            root = Path(root)
+            file_path = root / "file"
+            with open(file_path, "wt") as fo:
+                fo.write(VALID_META_OBJ.json() + "\n")
+            meta = await helpers.read_paste_meta(file_path)
+            self.assertEqual(meta.paste_id, VALID_META_OBJ.paste_id)
+
+
+class TestReadPasteContent(IsolatedAsyncioTestCase):
+    def setUp(self):
+        TEST_DATA_PATH.mkdir(parents=True, exist_ok=True)
+
+    async def test_valid(self):
+        with TemporaryDirectory(dir=TEST_DATA_PATH) as root:
+            root = Path(root)
+            file_path = root / "file"
+            content = "hello"
+            with open(file_path, "wt") as fo:
+                fo.write(f"\n{content}")
+            reader = helpers.read_paste_content(file_path)
+            line = await reader.__anext__()
+            self.assertEqual(line.decode(), content)
+            await reader.aclose()
 
 
 class TestGetFormDatetime(TestCase):
