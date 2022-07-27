@@ -11,6 +11,7 @@ A paste bin written in Python using Quart.
 - Dark theme
 - No JavaScript needed
 - Uses minimal resources
+- REST API
 
 ## Flat File Info
 This app uses a flat file system for storing pastes, allowing for easier setup and backups. If you want to export/import from other systems this section will talk about the format of this system.

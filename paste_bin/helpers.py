@@ -19,6 +19,12 @@ class PasteMeta(BaseModel):
         return False
 
 
+class PasteMetaCreate(BaseModel):
+    content: bytes
+    long_id: bool = False
+    expire_dt: datetime | None = None
+
+
 def get_paste_meta(meta_line: bytes) -> PasteMeta:
     return PasteMeta.parse_raw(meta_line)
 
