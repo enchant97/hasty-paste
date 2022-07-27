@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import IsolatedAsyncioTestCase, TestCase
@@ -19,8 +19,30 @@ class TestGetPasteMeta(TestCase):
     def test_valid(self):
         self.assertIsInstance(
             helpers.get_paste_meta(VALID_PASTE_META),
-            helpers.PasteMeta
+            helpers.PasteMeta,
         )
+
+    def test_is_expired(self):
+        now = datetime.utcnow()
+        before = now - timedelta(weeks=1)
+        after = now + timedelta(weeks=1)
+        meta = helpers.PasteMeta(
+            paste_id="te1200aa",
+            creation_dt=now,
+            expire_dt=after,
+        )
+        self.assertFalse(meta.is_expired)
+        meta_no_expiry = helpers.PasteMeta(
+            paste_id="te1200aa",
+            creation_dt=now,
+        )
+        self.assertFalse(meta_no_expiry.is_expired)
+        meta_expired = helpers.PasteMeta(
+            paste_id="te1200aa",
+            creation_dt=now,
+            expire_dt=before,
+        )
+        self.assertTrue(meta_expired.is_expired)
 
 
 class TestCreatePasteId(TestCase):
