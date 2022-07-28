@@ -83,6 +83,7 @@ textarea {
     background-color: var(--bnt-col);
     border: none;
     padding: .6rem;
+    border-radius: var(--border-radius);
 }
 
 input[type=checkbox] {
