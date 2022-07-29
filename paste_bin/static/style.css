@@ -124,3 +124,21 @@ button:hover,
     border-radius: var(--border-radius);
     margin-bottom: .4rem;
 }
+
+.index-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.index-logo img {
+    max-width: 30%;
+}
+
+.index-logo h2 {
+    font-size: 3rem;
+}
+
+.index-logo p {
+    font-size: 1.4rem;
+}
