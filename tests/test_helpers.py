@@ -77,8 +77,20 @@ class TestCreatePastePath(TestCase):
         with TemporaryDirectory(dir=TEST_DATA_PATH) as root:
             root = Path(root)
             paste_id = "12"
-            self.assertRaises(ValueError, helpers.create_paste_path, root, paste_id, False)
-            self.assertRaises(ValueError, helpers.create_paste_path, root, paste_id, True)
+            self.assertRaises(
+                helpers.PasteIdException,
+                helpers.create_paste_path,
+                root,
+                paste_id,
+                False,
+            )
+            self.assertRaises(
+                helpers.PasteIdException,
+                helpers.create_paste_path,
+                root,
+                paste_id,
+                True,
+            )
 
 
 class TestWritePaste(IsolatedAsyncioTestCase):

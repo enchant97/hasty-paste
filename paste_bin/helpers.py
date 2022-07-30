@@ -7,6 +7,14 @@ from aiofiles import open as aio_open
 from pydantic import BaseModel
 
 
+class PasteException(Exception):
+    pass
+
+
+class PasteIdException(PasteException):
+    pass
+
+
 class PasteMeta(BaseModel):
     paste_id: str
     creation_dt: datetime
@@ -37,7 +45,7 @@ def create_paste_id(long: bool = False) -> str:
 
 def create_paste_path(root_path: Path, paste_id: str, mkdir: bool = False) -> Path:
     if len(paste_id) < 3:
-        raise ValueError("paste_id too short, must be at least 3 characters long")
+        raise PasteIdException("paste_id too short, must be at least 3 characters long")
     full_path = root_path / paste_id[:2]
     if mkdir:
         full_path.mkdir(parents=True, exist_ok=True)
