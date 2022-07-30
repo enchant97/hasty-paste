@@ -5,6 +5,8 @@ from functools import wraps
 from pathlib import Path
 
 from aiofiles import open as aio_open
+from aiofiles import os as aio_os
+from aiofiles import ospath as aio_ospath
 from pydantic import BaseModel
 from quart import Response, abort, make_response
 
@@ -101,14 +103,17 @@ async def try_get_paste(
     ) -> tuple[Path, PasteMeta]:
     paste_path = create_paste_path(root_path, paste_id)
 
-    if not paste_path.is_file():
+    if not await aio_ospath.isfile(paste_path):
         raise PasteDoesNotExistException(f"paste not found with id of {paste_id}")
 
     paste_meta = await read_paste_meta(paste_path)
 
     if paste_meta.is_expired:
         if auto_remove:
-            paste_path.unlink(True)
+            try:
+                await aio_os.remove(paste_path)
+            except FileNotFoundError:
+                pass
         raise PasteExpiredException(f"paste has expired with id of {paste_id}")
 
     return paste_path, paste_meta
