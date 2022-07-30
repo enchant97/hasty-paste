@@ -125,7 +125,7 @@ async def try_get_paste(
         root_path: Path,
         paste_id: str,
         auto_remove: bool = True,
-    ) -> tuple[Path, PasteMeta]:
+        ) -> tuple[Path, PasteMeta]:
     paste_path = create_paste_path(root_path, paste_id)
 
     if not await aio_ospath.isfile(paste_path):
@@ -148,11 +148,11 @@ async def try_get_paste_with_content_response(
         root_path: Path,
         paste_id: str,
         auto_remove: bool = True,
-    ) -> tuple[Path, PasteMeta, Response]:
+        ) -> tuple[Path, PasteMeta, Response]:
     paste_path, paste_meta = await try_get_paste(root_path, paste_id, auto_remove)
 
     response = await make_response(read_paste_content(paste_path))
-    response.mimetype="text/plain"
+    response.mimetype = "text/plain"
 
     return paste_path, paste_meta, response
 
