@@ -1,3 +1,4 @@
+import logging
 import secrets
 from collections.abc import AsyncGenerator
 from datetime import datetime
@@ -9,6 +10,8 @@ from aiofiles import os as aio_os
 from aiofiles import ospath as aio_ospath
 from pydantic import BaseModel, ValidationError
 from quart import Response, abort, make_response
+
+logger = logging.getLogger("paste_bin")
 
 CURRENT_PASTE_META_VERSION = 1
 
@@ -76,9 +79,11 @@ def get_paste_meta(meta_line: str | bytes) -> PasteMeta:
         version = PasteMetaVersion.parse_raw(meta_line).version
         # NOTE this allows for future support if the meta format was to change
         if version != CURRENT_PASTE_META_VERSION:
+            logger.error("failed to load paste meta, version not supported: '%s'", meta_line)
             raise PasteMetaVersionInvalid(f"paste is not a valid version number of '{version}'")
         return PasteMeta.parse_raw(meta_line)
     except ValidationError as err:
+        logger.error("failed to load paste meta, validation did not pass: '%s'", meta_line)
         raise PasteMetaUnprocessable("paste meta cannot be loaded") from err
 
 
@@ -190,12 +195,15 @@ async def try_get_paste(
     paste_path = create_paste_path(root_path, paste_id)
 
     if not await aio_ospath.isfile(paste_path):
+        logger.info("paste id of '%s' not found on filesystem", paste_id)
         raise PasteDoesNotExistException(f"paste not found with id of {paste_id}")
 
     paste_meta = await read_paste_meta(paste_path)
 
     if paste_meta.is_expired:
+        logger.info("paste id of '%s' found to be expired", paste_id)
         if auto_remove:
+            logger.info("running auto removal of paste with id of '%s'", paste_id)
             try:
                 await aio_os.remove(paste_path)
             except FileNotFoundError:
@@ -236,8 +244,16 @@ def handle_paste_exceptions(func):
     async def wrapper(*args, **kwargs):
         try:
             return await func(*args, **kwargs)
-        except PasteException:
+        except PasteException as err:
+            logger.debug(
+                "catching PasteException in request and aborting with 404",
+                exc_info=err
+            )
             abort(404)
-        except PasteMetaException:
+        except PasteMetaException as err:
+            logger.debug(
+                "catching PasteMetaException in request and aborting with 500",
+                exc_info=err
+            )
             abort(500)
     return wrapper

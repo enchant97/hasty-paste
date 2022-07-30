@@ -1,3 +1,5 @@
+import logging
+
 from quart import Quart
 from quart_schema import QuartSchema
 from web_health_checker.contrib import quart as health_check
@@ -5,6 +7,7 @@ from web_health_checker.contrib import quart as health_check
 from . import views
 from .config import get_settings
 
+logger = logging.getLogger("paste_bin")
 app = Quart(__name__)
 quart_schema = QuartSchema(
     openapi_path="/api/openapi.json",
@@ -16,6 +19,9 @@ quart_schema = QuartSchema(
 
 def create_app():
     settings = get_settings()
+
+    logging.basicConfig()
+    logger.setLevel(logging.getLevelName(settings.LOG_LEVEL))
 
     settings.PASTE_ROOT.mkdir(parents=True, exist_ok=True)
 
