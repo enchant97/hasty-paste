@@ -17,6 +17,15 @@ A paste bin written in Python using Quart.
 ## Docs
 Docs are located in the [/docs](docs/index.md) directory.
 
+## Branches
+| Name         | Description            | State         |
+| :----------- | :--------------------- | :------------ |
+| main         | Work ready for release | Stable        |
+| next         | Work for next version  | Very Unstable |
+| historical-X | Historical versions    | Unsupported   |
+
+> Choose a tag/release for most stable if running project
+
 ## License
 This project is Copyright (c) 2022 Leo Spratt, licences shown below:
 
