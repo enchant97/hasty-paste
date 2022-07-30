@@ -1,11 +1,12 @@
 import secrets
 from collections.abc import AsyncGenerator
 from datetime import datetime
+from functools import wraps
 from pathlib import Path
 
 from aiofiles import open as aio_open
 from pydantic import BaseModel
-from quart import Response, make_response
+from quart import Response, abort, make_response
 
 
 class PasteException(Exception):
@@ -124,3 +125,13 @@ async def try_get_paste_with_content_response(
     response.mimetype="text/plain"
 
     return paste_path, paste_meta, response
+
+
+def handle_paste_exceptions(func):
+    @wraps(func)
+    async def wrapper(*args, **kwargs):
+        try:
+            return await func(*args, **kwargs)
+        except PasteException:
+            abort(404)
+    return wrapper
