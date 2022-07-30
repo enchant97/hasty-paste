@@ -63,7 +63,15 @@ class PasteMetaCreate(BaseModel):
     expire_dt: datetime | None = None
 
 
-def get_paste_meta(meta_line: bytes) -> PasteMeta:
+def get_paste_meta(meta_line: str | bytes) -> PasteMeta:
+    """
+    Processes a meta line and converts it into a object.
+
+        :param meta_line: The meta line to process
+        :raises PasteMetaVersionInvalid: Raised when the meta version is detected to be unsupported
+        :raises PasteMetaUnprocessable: Raised when the meta is not valid
+        :return: The valid meta object
+    """
     try:
         version = PasteMetaVersion.parse_raw(meta_line).version
         # NOTE this allows for future support if the meta format was to change
@@ -75,12 +83,30 @@ def get_paste_meta(meta_line: bytes) -> PasteMeta:
 
 
 def create_paste_id(long: bool = False) -> str:
+    """
+    Creates a paste id, if in 'long' mode will
+    generate a very long id meant to
+    reduce chance of a brute force attack
+
+        :param long: Whether to use the long id, defaults to False
+        :return: The generated id
+    """
     if long:
         return secrets.token_urlsafe(30)
     return secrets.token_urlsafe(7)
 
 
 def create_paste_path(root_path: Path, paste_id: str, mkdir: bool = False) -> Path:
+    """
+    Combines a the paste root with a paste's id to form the full path.
+    Will also optionally ensure the directories are created
+
+        :param root_path: The root path to use as a base
+        :param paste_id: The paste's id
+        :param mkdir: Creates the directories if not found, defaults to False
+        :raises PasteIdException: If the given id was invalid
+        :return: The combined path
+    """
     if len(paste_id) < 3:
         raise PasteIdException("paste_id too short, must be at least 3 characters long")
     full_path = root_path / paste_id[:2]
@@ -93,6 +119,13 @@ async def write_paste(
         paste_path: Path,
         paste_meta: PasteMeta,
         content: AsyncGenerator[bytes, None] | bytes):
+    """
+    Writes a new paste
+
+        :param paste_path: The full paste path
+        :param paste_meta: The pastes meta
+        :param content: The paste content
+    """
     async with aio_open(paste_path, "wb") as fo:
         await fo.write(paste_meta.json().encode() + b"\n")
         if isinstance(content, AsyncGenerator):
@@ -103,12 +136,24 @@ async def write_paste(
 
 
 async def read_paste_meta(paste_path: Path) -> PasteMeta:
+    """
+    Read just the paste's meta from file
+
+        :param paste_path: The full paste path
+        :return: The meta
+    """
     async with aio_open(paste_path, "rb") as fo:
         meta = get_paste_meta(await fo.readline())
         return meta
 
 
 async def read_paste_content(paste_path: Path) -> AsyncGenerator[bytes, None]:
+    """
+    Read just the paste's content from file
+
+        :param paste_path: The full paste path
+        :yield: The paste content as bytes
+    """
     async with aio_open(paste_path, "rb") as fo:
         # TODO use tell+seek+read to save memory while checking for newline
         _ = await fo.readline()
@@ -117,6 +162,12 @@ async def read_paste_content(paste_path: Path) -> AsyncGenerator[bytes, None]:
 
 
 def get_form_datetime(value: str) -> datetime | None:
+    """
+    Handle loading a datetime from form input
+
+        :param value: The form value
+        :return: The processed datetime or None
+    """
     if value:
         return datetime.fromisoformat(value)
 
@@ -126,6 +177,16 @@ async def try_get_paste(
         paste_id: str,
         auto_remove: bool = True,
         ) -> tuple[Path, PasteMeta]:
+    """
+    Try to process the paste meta
+
+        :param root_path: The root path
+        :param paste_id: The paste's id
+        :param auto_remove: Whether to auto remove the paste on expiry, defaults to True
+        :raises PasteDoesNotExistException: When the paste is not found
+        :raises PasteExpiredException: When the paste has expired
+        :return: The paste's full path and it's loaded meta
+    """
     paste_path = create_paste_path(root_path, paste_id)
 
     if not await aio_ospath.isfile(paste_path):
@@ -149,6 +210,15 @@ async def try_get_paste_with_content_response(
         paste_id: str,
         auto_remove: bool = True,
         ) -> tuple[Path, PasteMeta, Response]:
+    """
+    An extension of `try_get_paste()`,
+    will also return the paste contents in a response
+
+        :param root_path: The root path
+        :param paste_id: The paste's id
+        :param auto_remove: Whether to auto remove the paste on expiry, defaults to True
+        :return: The paste's full path, it's meta and the content response
+    """
     paste_path, paste_meta = await try_get_paste(root_path, paste_id, auto_remove)
 
     response = await make_response(read_paste_content(paste_path))
@@ -158,6 +228,10 @@ async def try_get_paste_with_content_response(
 
 
 def handle_paste_exceptions(func):
+    """
+    Used as a decorator, to handle
+    `PasteException` and `PasteMetaException` errors
+    """
     @wraps(func)
     async def wrapper(*args, **kwargs):
         try:
