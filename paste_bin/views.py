@@ -61,16 +61,8 @@ async def post_new_paste():
 @handle_paste_exceptions
 async def get_view_paste(paste_id: str):
     root_path = get_settings().PASTE_ROOT
-    paste_path = helpers.create_paste_path(root_path, paste_id)
 
-    if not paste_path.is_file():
-        abort(404)
-
-    paste_meta = await helpers.read_paste_meta(paste_path)
-
-    if paste_meta.is_expired:
-        paste_path.unlink(True)
-        abort(404)
+    paste_path, paste_meta = await helpers.try_get_paste(root_path, paste_id)
 
     content = helpers.read_paste_content(paste_path)
 
@@ -86,21 +78,11 @@ async def get_view_paste(paste_id: str):
 @handle_paste_exceptions
 async def get_raw_paste(paste_id: str):
     root_path = get_settings().PASTE_ROOT
-    paste_path = helpers.create_paste_path(root_path, paste_id)
 
-    if not paste_path.is_file():
-        abort(404)
-
-    paste_meta = await helpers.read_paste_meta(paste_path)
-
-    if paste_meta.is_expired:
-        paste_path.unlink(True)
-        abort(404)
-
-    content = helpers.read_paste_content(paste_path)
-
-    response = await make_response(content)
-    response.mimetype="text/plain"
+    _, _, response = await helpers.try_get_paste_with_content_response(
+        root_path,
+        paste_id,
+    )
 
     return response
 
@@ -122,6 +104,7 @@ async def post_api_paste_new(data: helpers.PasteMetaCreate):
     paste_path = helpers.create_paste_path(root_path, paste_meta.paste_id, True)
 
     await helpers.write_paste(paste_path, paste_meta, data.content)
+
     return paste_meta
 
 
@@ -132,16 +115,8 @@ async def get_api_paste_raw(paste_id: str):
     Get the paste raw file, if one exists
     """
     root_path = get_settings().PASTE_ROOT
-    paste_path = helpers.create_paste_path(root_path, paste_id)
 
-    if not paste_path.is_file():
-        abort(404)
-
-    paste_meta = await helpers.read_paste_meta(paste_path)
-
-    if paste_meta.is_expired:
-        paste_path.unlink(True)
-        abort(404)
+    paste_path, _, = await helpers.try_get_paste(root_path, paste_id)
 
     return await send_file(paste_path)
 
@@ -154,16 +129,8 @@ async def get_api_paste_meta(paste_id: str):
     Get the paste meta, if one exists
     """
     root_path = get_settings().PASTE_ROOT
-    paste_path = helpers.create_paste_path(root_path, paste_id)
 
-    if not paste_path.is_file():
-        abort(404)
-
-    paste_meta = await helpers.read_paste_meta(paste_path)
-
-    if paste_meta.is_expired:
-        paste_path.unlink(True)
-        abort(404)
+    _, paste_meta = await helpers.try_get_paste(root_path, paste_id)
 
     return paste_meta
 
@@ -175,20 +142,10 @@ async def get_api_paste_content(paste_id: str):
     Get the paste content, if one exists
     """
     root_path = get_settings().PASTE_ROOT
-    paste_path = helpers.create_paste_path(root_path, paste_id)
 
-    if not paste_path.is_file():
-        abort(404)
-
-    paste_meta = await helpers.read_paste_meta(paste_path)
-
-    if paste_meta.is_expired:
-        paste_path.unlink(True)
-        abort(404)
-
-    content = helpers.read_paste_content(paste_path)
-
-    response = await make_response(content)
-    response.mimetype="text/plain"
+    _, _, response = await helpers.try_get_paste_with_content_response(
+        root_path,
+        paste_id,
+    )
 
     return response

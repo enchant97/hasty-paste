@@ -5,6 +5,7 @@ from pathlib import Path
 
 from aiofiles import open as aio_open
 from pydantic import BaseModel
+from quart import Response, make_response
 
 
 class PasteException(Exception):
@@ -12,6 +13,14 @@ class PasteException(Exception):
 
 
 class PasteIdException(PasteException):
+    pass
+
+
+class PasteDoesNotExistException(PasteException):
+    pass
+
+
+class PasteExpiredException(PasteException):
     pass
 
 
@@ -82,3 +91,36 @@ async def read_paste_content(paste_path: Path) -> AsyncGenerator[bytes, None]:
 def get_form_datetime(value: str) -> datetime | None:
     if value:
         return datetime.fromisoformat(value)
+
+
+async def try_get_paste(
+        root_path: Path,
+        paste_id: str,
+        auto_remove: bool = True,
+    ) -> tuple[Path, PasteMeta]:
+    paste_path = create_paste_path(root_path, paste_id)
+
+    if not paste_path.is_file():
+        raise PasteDoesNotExistException(f"paste not found with id of {paste_id}")
+
+    paste_meta = await read_paste_meta(paste_path)
+
+    if paste_meta.is_expired:
+        if auto_remove:
+            paste_path.unlink(True)
+        raise PasteExpiredException(f"paste has expired with id of {paste_id}")
+
+    return paste_path, paste_meta
+
+
+async def try_get_paste_with_content_response(
+        root_path: Path,
+        paste_id: str,
+        auto_remove: bool = True,
+    ) -> tuple[Path, PasteMeta, Response]:
+    paste_path, paste_meta = await try_get_paste(root_path, paste_id, auto_remove)
+
+    response = await make_response(read_paste_content(paste_path))
+    response.mimetype="text/plain"
+
+    return paste_path, paste_meta, response
