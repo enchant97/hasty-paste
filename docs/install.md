@@ -1,5 +1,5 @@
 # Install
-This section will demonstrate how Paste Bin can be installed and configured.
+This section will demonstrate how Hasty Paste can be installed and configured.
 
 ## Configuration
 All configs shown here should be given as environment variables.
@@ -26,7 +26,7 @@ This will assume you have both Docker and Docker Compose installed.
 2. Create file called `docker-compose.yml` inside folder
 3. Copy example compose file shown below
 4. Run `docker compose up -d` inside folder
-5. Paste Bin is now running
+5. Hasty Paste is now running
 
 ```yml
 version: "3"
@@ -34,7 +34,7 @@ version: "3"
 services:
   paste-bin:
     container_name: paste-bin
-    image: ghcr.io/enchant97/paste-bin:1
+    image: ghcr.io/enchant97/hasty-paste:1
     restart: unless-stopped
     volumes:
       - data:/app/data
@@ -54,7 +54,7 @@ This will assume the supported Python version is installed and accessible.
 4. Run the app
 
 ```
-git clone https://github.com/enchant97/paste-bin
+git clone https://github.com/enchant97/hasty-paste
 
 cd paste-bin
 

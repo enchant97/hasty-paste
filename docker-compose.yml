@@ -1,9 +1,9 @@
 version: "3"
 
 services:
-  paste_bin:
+  paste-bin:
     container_name: paste-bin
-    image: ghcr.io/enchant97/paste-bin:latest
+    image: ghcr.io/enchant97/hasty-paste:latest
     restart: unless-stopped
     volumes:
       - data:/app/data

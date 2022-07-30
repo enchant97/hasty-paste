@@ -1,5 +1,5 @@
-# Paste Bin
-A paste bin written in Python using Quart.
+# Hasty Paste
+A fast and minimal paste bin, written in Python using Quart.
 
 > Please note this project is still in development, not suitable for production
 
@@ -25,6 +25,9 @@ Docs are located in the [/docs](docs/index.md) directory.
 | historical-X | Historical versions    | Unsupported   |
 
 > Choose a tag/release for most stable if running project
+
+## Why Is It Called "Hasty Paste"?
+The name was chosen not because the project is written badly, but because you use it so fast without a care in the world and "Fast Paste" was already taken!
 
 ## License
 This project is Copyright (c) 2022 Leo Spratt, licences shown below:
