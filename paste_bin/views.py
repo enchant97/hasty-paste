@@ -1,5 +1,5 @@
 from datetime import datetime
-
+from functools import wraps
 from quart import (Blueprint, abort, make_response, redirect, render_template,
                    request, send_file, url_for)
 from quart_schema import hide_route, validate_request, validate_response
@@ -9,6 +9,16 @@ from .config import get_settings
 
 front_end = Blueprint("front_end", __name__)
 api = Blueprint("api", __name__, url_prefix="/api")
+
+
+def handle_paste_exceptions(func):
+    @wraps(func)
+    async def wrapper(*args, **kwargs):
+        try:
+            return await func(*args, **kwargs)
+        except helpers.PasteException:
+            abort(404)
+    return wrapper
 
 
 @front_end.get("/")
@@ -48,6 +58,7 @@ async def post_new_paste():
 
 @front_end.get("/<paste_id>")
 @hide_route
+@handle_paste_exceptions
 async def get_view_paste(paste_id: str):
     root_path = get_settings().PASTE_ROOT
     paste_path = helpers.create_paste_path(root_path, paste_id)
@@ -72,6 +83,7 @@ async def get_view_paste(paste_id: str):
 
 @front_end.get("/<paste_id>/raw")
 @hide_route
+@handle_paste_exceptions
 async def get_raw_paste(paste_id: str):
     root_path = get_settings().PASTE_ROOT
     paste_path = helpers.create_paste_path(root_path, paste_id)
@@ -114,6 +126,7 @@ async def post_api_paste_new(data: helpers.PasteMetaCreate):
 
 
 @api.get("/pastes/<paste_id>")
+@handle_paste_exceptions
 async def get_api_paste_raw(paste_id: str):
     """
     Get the paste raw file, if one exists
@@ -135,6 +148,7 @@ async def get_api_paste_raw(paste_id: str):
 
 @api.get("/pastes/<paste_id>/meta")
 @validate_response(helpers.PasteMeta)
+@handle_paste_exceptions
 async def get_api_paste_meta(paste_id: str):
     """
     Get the paste meta, if one exists
@@ -155,6 +169,7 @@ async def get_api_paste_meta(paste_id: str):
 
 
 @api.get("/pastes/<paste_id>/content")
+@handle_paste_exceptions
 async def get_api_paste_content(paste_id: str):
     """
     Get the paste content, if one exists
