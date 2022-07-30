@@ -19,6 +19,8 @@ def create_app():
 
     settings.PASTE_ROOT.mkdir(parents=True, exist_ok=True)
 
+    app.config["MAX_CONTENT_LENGTH"] = settings.MAX_BODY_SIZE
+
     app.register_blueprint(views.front_end)
     app.register_blueprint(health_check.blueprint, url_prefix="/api")
     app.register_blueprint(views.api)

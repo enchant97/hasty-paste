@@ -6,6 +6,7 @@ from pydantic import BaseSettings
 
 class Settings(BaseSettings):
     PASTE_ROOT: Path
+    MAX_BODY_SIZE: int = 2*(10**6)
 
 
 @cache
