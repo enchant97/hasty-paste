@@ -7,11 +7,17 @@ from pathlib import Path
 from aiofiles import open as aio_open
 from aiofiles import os as aio_os
 from aiofiles import ospath as aio_ospath
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 from quart import Response, abort, make_response
+
+CURRENT_PASTE_META_VERSION = 1
 
 
 class PasteException(Exception):
+    pass
+
+
+class PasteMetaException(Exception):
     pass
 
 
@@ -27,7 +33,19 @@ class PasteExpiredException(PasteException):
     pass
 
 
-class PasteMeta(BaseModel):
+class PasteMetaUnprocessable(PasteMetaException):
+    pass
+
+
+class PasteMetaVersionInvalid(PasteMetaException):
+    pass
+
+
+class PasteMetaVersion(BaseModel):
+    version: int = CURRENT_PASTE_META_VERSION
+
+
+class PasteMeta(PasteMetaVersion):
     paste_id: str
     creation_dt: datetime
     expire_dt: datetime | None = None
@@ -46,7 +64,14 @@ class PasteMetaCreate(BaseModel):
 
 
 def get_paste_meta(meta_line: bytes) -> PasteMeta:
-    return PasteMeta.parse_raw(meta_line)
+    try:
+        version = PasteMetaVersion.parse_raw(meta_line).version
+        # NOTE this allows for future support if the meta format was to change
+        if version != CURRENT_PASTE_META_VERSION:
+            raise PasteMetaVersionInvalid(f"paste is not a valid version number of '{version}'")
+        return PasteMeta.parse_raw(meta_line)
+    except ValidationError as err:
+        raise PasteMetaUnprocessable("paste meta cannot be loaded") from err
 
 
 def create_paste_id(long: bool = False) -> str:
@@ -139,4 +164,6 @@ def handle_paste_exceptions(func):
             return await func(*args, **kwargs)
         except PasteException:
             abort(404)
+        except PasteMetaException:
+            abort(500)
     return wrapper
