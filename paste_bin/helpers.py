@@ -55,7 +55,7 @@ class PasteMeta(PasteMetaVersion):
 
     @property
     def is_expired(self) -> bool:
-        if self.expire_dt is not None and self.expire_dt < datetime.utcnow():
+        if self.expire_dt is not None and self.expire_dt.replace(tzinfo=None) < datetime.utcnow():
             return True
         return False
 
