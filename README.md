@@ -1,8 +1,6 @@
 # Hasty Paste
 A fast and minimal paste bin, written in Python using Quart.
 
-> Please note this project is still in development, not suitable for production
-
 ## Features
 - Quickly paste and save, to share some text
 - Publicly accessible, no auth needed
@@ -13,6 +11,7 @@ A fast and minimal paste bin, written in Python using Quart.
 - Uses minimal resources
 - REST API
 - No Database needed, everything stored as flat-files
+- Lightweight Docker image (uses Alpine Linux)
 
 ## Showcase
 [![Showcase Image](docs/assets/showcase.png)](docs/assets/showcase.png)
