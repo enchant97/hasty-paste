@@ -5,6 +5,7 @@
 <div class="panel">
     <a class="bnt" href="{{ url_for('.get_raw_paste', paste_id=meta.paste_id) }}">View Raw</a>
     <a class="bnt" href="{{ url_for('.get_raw_paste', paste_id=meta.paste_id) }}" download="paste.txt">Download</a>
+    <button onclick="copy_to_clipboard(location.href)">Copy Share Link</button>
 </div>
 
 <div class="panel">{{ insert_paste_content(paste_content, "paste-content") }}</div>
