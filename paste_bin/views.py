@@ -17,6 +17,12 @@ async def get_index():
     return await render_template("index.jinja")
 
 
+@front_end.get("/favicon.ico")
+@hide_route
+async def get_favicon():
+    return redirect(url_for("static", filename="icon.svg"), 301)
+
+
 @front_end.get("/new")
 @hide_route
 async def get_new_paste():
