@@ -1,6 +1,14 @@
 # Install
 This section will demonstrate how Hasty Paste can be installed and configured.
 
+## Important Notes
+Please read these notes before continuing.
+
+- Running on a filesystem that is case-insensitive is **not** supported
+- Running multiple instances is supported, you could even use rsync to sync between multiple file systems.
+- The paste root directory must have read/write permissions for the user running the app
+- Access to add and read pastes is public, use a reverse proxy to add authentication
+
 ## Configuration
 All configs shown here should be given as environment variables.
 

@@ -15,6 +15,9 @@ It is a place to quickly paste some text and share it. Mostly used for sharing d
 - REST API
 - No Database needed, everything stored as flat-files
 
+## Showcase
+[![Showcase Image](assets/showcase.png)](assets/showcase.png)
+
 ## Why Is It Called "Hasty Paste"?
 The name was chosen not because the project is written badly, but because you use it so fast without a care in the world and "Fast Paste" was already taken!
 

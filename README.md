@@ -14,6 +14,9 @@ A fast and minimal paste bin, written in Python using Quart.
 - REST API
 - No Database needed, everything stored as flat-files
 
+## Showcase
+[![Showcase Image](docs/assets/showcase.png)](docs/assets/showcase.png)
+
 ## Docs
 Docs are located in the [/docs](docs/index.md) directory.
 
