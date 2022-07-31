@@ -84,16 +84,32 @@ class TestViewPaste(QuartAppTestCase):
         self.assertIn(content, data)
 
     async def test_invalid_not_found(self):
-        client = self.new_client()
-        response = await client.get(f"/testing123")
+        paste_id = "testing123"
+        routes = (
+            f"/{paste_id}",
+            f"/{paste_id}/raw",
+        )
 
-        self.assertEqual(404, response.status_code)
+        for route in routes:
+            with self.subTest():
+                client = self.new_client()
+                response = await client.get(route)
+
+                self.assertEqual(404, response.status_code)
 
     async def test_invalid_too_short(self):
-        client = self.new_client()
-        response = await client.get(f"/1")
+        paste_id = "1"
+        routes = (
+            f"/{paste_id}",
+            f"/{paste_id}/raw",
+        )
 
-        self.assertEqual(404, response.status_code)
+        for route in routes:
+            with self.subTest():
+                client = self.new_client()
+                response = await client.get(route)
+
+                self.assertEqual(404, response.status_code)
 
     async def test_valid_raw(self):
         content = b"test valid view raw"
@@ -105,14 +121,84 @@ class TestViewPaste(QuartAppTestCase):
         self.assertNotIn(b"View", data)
         self.assertIn(content, data)
 
-    async def test_invalid_raw_not_found(self):
+
+class TestApiNewPaste(QuartAppTestCase):
+    async def test_valid(self):
         client = self.new_client()
-        response = await client.get(f"/testing123/raw")
+        response = await client.post(
+            "/api/pastes",
+            headers={
+                "Content-Type": "application/json",
+            },
+            data=helpers.PasteMetaCreate(
+                content="test api create",
+            ).json(),
+        )
 
-        self.assertEqual(404, response.status_code)
+        self.assertEqual(200, response.status_code)
 
-    async def test_invalid_raw_too_short(self):
+        data = await response.get_json()
+
+        paste_id = data["paste_id"]
+        paste_path = helpers.create_paste_path(TEST_DATA_PATH, paste_id)
+
+        self.assertTrue(paste_path.is_file())
+
+
+class TestApiView(QuartAppTestCase):
+    async def test_valid_raw(self):
+        content = b"test valid api view raw"
+        paste_id = await write_test_paste(content)
         client = self.new_client()
-        response = await client.get(f"/1/raw")
+        response = await client.get(f"/api/pastes/{paste_id}")
+        data = await response.get_data(as_text=False)
 
-        self.assertEqual(404, response.status_code)
+        self.assertIn(content, data)
+
+    async def test_valid_meta(self):
+        content = b"test valid api view meta"
+        paste_id = await write_test_paste(content)
+        client = self.new_client()
+        response = await client.get(f"/api/pastes/{paste_id}/meta")
+        data = await response.get_data(as_text=True)
+
+        self.assertIn(paste_id, data)
+
+    async def test_valid_content(self):
+        content = b"test valid api view content"
+        paste_id = await write_test_paste(content)
+        client = self.new_client()
+        response = await client.get(f"/api/pastes/{paste_id}/content")
+        data = await response.get_data(as_text=False)
+
+        self.assertEqual(content, data)
+
+    async def test_invalid_not_found(self):
+        paste_id = "testing123"
+        routes = (
+            f"/api/pastes/{paste_id}",
+            f"/api/pastes/{paste_id}/meta",
+            f"/api/pastes/{paste_id}/content"
+        )
+
+        for route in routes:
+            with self.subTest():
+                client = self.new_client()
+                response = await client.get(route)
+
+                self.assertEqual(404, response.status_code)
+
+    async def test_invalid_too_short(self):
+        paste_id = "1"
+        routes = (
+            f"/api/pastes/{paste_id}",
+            f"/api/pastes/{paste_id}/meta",
+            f"/api/pastes/{paste_id}/content"
+        )
+
+        for route in routes:
+            with self.subTest():
+                client = self.new_client()
+                response = await client.get(route)
+
+                self.assertEqual(404, response.status_code)

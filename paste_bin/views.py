@@ -93,7 +93,7 @@ async def post_api_paste_new(data: helpers.PasteMetaCreate):
     root_path = get_settings().PASTE_ROOT
     paste_path = helpers.create_paste_path(root_path, paste_meta.paste_id, True)
 
-    await helpers.write_paste(paste_path, paste_meta, data.content)
+    await helpers.write_paste(paste_path, paste_meta, data.content.encode())
 
     return paste_meta
 

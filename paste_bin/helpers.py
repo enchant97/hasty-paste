@@ -61,7 +61,7 @@ class PasteMeta(PasteMetaVersion):
 
 
 class PasteMetaCreate(BaseModel):
-    content: bytes
+    content: str
     long_id: bool = False
     expire_dt: datetime | None = None
 
