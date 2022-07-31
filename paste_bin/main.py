@@ -17,6 +17,15 @@ quart_schema = QuartSchema(
 )
 
 
+def _reset_app():
+    """
+    reset the internals for use only when running unit tests
+    """
+    global app, quart_schema
+    app = Quart(__name__)
+    get_settings.cache_clear()
+
+
 def create_app():
     settings = get_settings()
 
