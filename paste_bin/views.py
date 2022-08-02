@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from quart import (Blueprint, redirect, render_template, request, send_file,
                    url_for)
@@ -26,7 +26,22 @@ async def get_favicon():
 @front_end.get("/new")
 @hide_route
 async def get_new_paste():
-    return await render_template("new.jinja")
+    settings = get_settings()
+    default_expires_at = None
+
+    if settings.DEFAULT_EXPIRE_TIME:
+        default_expires_at = datetime.now()
+        default_expires_at += timedelta(
+            minutes=settings.DEFAULT_EXPIRE_TIME__MINUTES,
+            hours=settings.DEFAULT_EXPIRE_TIME__HOURS,
+            days=settings.DEFAULT_EXPIRE_TIME__DAYS,
+        )
+        default_expires_at = default_expires_at.isoformat(timespec="minutes")
+
+    return await render_template(
+        "new.jinja",
+        default_expires_at=default_expires_at,
+    )
 
 
 @front_end.post("/new")
