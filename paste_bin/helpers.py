@@ -16,6 +16,7 @@ from pygments.lexers import (find_lexer_class_by_name, get_all_lexers,
 from pygments.util import ClassNotFound as PygmentsClassNotFound
 from quart import Response, abort, make_response
 from quart.utils import run_sync
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 logger = logging.getLogger("paste_bin")
 
@@ -128,6 +129,51 @@ def create_paste_path(root_path: Path, paste_id: str, mkdir: bool = False) -> Pa
     return full_path / paste_id[2:]
 
 
+def get_id_from_paste_path(root_path: Path, paste_path: Path) -> str:
+    """
+    Deconstruct a paste path, returing the full paste id
+
+        :param root_path: The root pastes path
+        :param paste_path: The paste file location
+        :return: The paste id
+    """
+    return "".join(paste_path.relative_to(root_path).parts)
+
+
+def get_all_paste_id_parts(root_path: Path) -> Generator[str, None, None]:
+    """
+    Yields each paste id part found
+
+        :param root_path: The root pastes path
+        :yield: A pastes id part
+    """
+    for part in root_path.glob("*"):
+        yield part.name
+
+
+def get_all_paste_ids_from_part(root_path: Path, id_part: str) -> Generator[str, None, None]:
+    """
+    Yield each paste id from a id part directory
+
+        :param root_path: The root pastes path
+        :param id_part: The id part
+        :yield: The full paste id
+    """
+    for part in root_path.joinpath(id_part).glob("*"):
+        yield id_part + part.name
+
+
+def get_all_paste_ids(root_path: Path) -> Generator[str, None, None]:
+    for id_part in get_all_paste_id_parts(root_path):
+        for full_id in get_all_paste_ids_from_part(root_path, id_part):
+            yield full_id
+
+
+def get_paste_ids_as_csv(root_path: Path) -> Generator[str, None, None]:
+    for paste_id in get_all_paste_ids(root_path):
+            yield paste_id + "\n"
+
+
 async def write_paste(
         paste_path: Path,
         paste_meta: PasteMeta,
@@ -174,7 +220,7 @@ async def read_paste_content(paste_path: Path) -> AsyncGenerator[bytes, None]:
             yield line
 
 
-def get_form_datetime(value: str) -> datetime | None:
+def get_form_datetime(value: str | None) -> datetime | None:
     """
     Handle loading a datetime from form input
 
@@ -225,7 +271,7 @@ async def try_get_paste_with_content_response(
         root_path: Path,
         paste_id: str,
         auto_remove: bool = True,
-        ) -> tuple[Path, PasteMeta, Response]:
+        ) -> tuple[Path, PasteMeta, Response | WerkzeugResponse]:
     """
     An extension of `try_get_paste()`,
     will also return the paste contents in a response
@@ -241,6 +287,13 @@ async def try_get_paste_with_content_response(
     response.mimetype = "text/plain"
 
     return paste_path, paste_meta, response
+
+
+async def list_paste_ids_response(root_path: Path) -> Response | WerkzeugResponse:
+    response = await make_response(get_paste_ids_as_csv(root_path))
+    response.mimetype = "text/csv"
+
+    return response
 
 
 def handle_paste_exceptions(func):

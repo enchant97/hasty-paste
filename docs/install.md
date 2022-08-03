@@ -12,20 +12,21 @@ Please read these notes before continuing.
 ## Configuration
 All configs shown here should be given as environment variables.
 
-| Name                         | Description                                   | Default       | Docker Default |
-| :--------------------------- | :-------------------------------------------- | :------------ | :------------- |
-| PASTE_ROOT                   | Where the paste flat file system will be kept |               | /app/data      |
-| DEFAULT_EXPIRE_TIME          | Enable a default expire time in web ui        | False         | False          |
-| DEFAULT_EXPIRE_TIME__MINUTES | Default minutes in ui for expiry if enabled   | 0             | 0              |
-| DEFAULT_EXPIRE_TIME__HOURS   | Default hours in ui for expiry if enabled     | 1             | 1              |
-| DEFAULT_EXPIRE_TIME__DAYS    | Default days in ui for expiry if enabled      | 0             | 0              |
-|                              |                                               |               |                |
-| MAX_BODY_SIZE                | The max body size, given in bytes             | 2000000       | 2000000        |
-| LOG_LEVEL                    | What log level to use                         | "WARNING"     | "WARNING"      |
-|                              |                                               |               |                |
-| WORKERS                      | Number of separate processes to spawn         | (Docker Only) | 1              |
-| CERT_FILE                    | SSL certificate file path (public)            | (Docker Only) | -              |
-| KEY_FILE                     | SSL key file path (private)                   | (Docker Only) | -              |
+| Name                         | Description                                        | Default       | Docker Default |
+| :--------------------------- | :------------------------------------------------- | :------------ | :------------- |
+| PASTE_ROOT                   | Where the paste flat file system will be kept      |               | /app/data      |
+| ENABLE_PUBLIC_LIST           | Whether to enable public access for listing pastes | False         | False          |
+| DEFAULT_EXPIRE_TIME          | Enable a default expire time in web ui             | False         | False          |
+| DEFAULT_EXPIRE_TIME__MINUTES | Default minutes in ui for expiry if enabled        | 0             | 0              |
+| DEFAULT_EXPIRE_TIME__HOURS   | Default hours in ui for expiry if enabled          | 1             | 1              |
+| DEFAULT_EXPIRE_TIME__DAYS    | Default days in ui for expiry if enabled           | 0             | 0              |
+|                              |                                                    |               |                |
+| MAX_BODY_SIZE                | The max body size, given in bytes                  | 2000000       | 2000000        |
+| LOG_LEVEL                    | What log level to use                              | "WARNING"     | "WARNING"      |
+|                              |                                                    |               |                |
+| WORKERS                      | Number of separate processes to spawn              | (Docker Only) | 1              |
+| CERT_FILE                    | SSL certificate file path (public)                 | (Docker Only) | -              |
+| KEY_FILE                     | SSL key file path (private)                        | (Docker Only) | -              |
 
 > Default values indicated with '-' are not required
 

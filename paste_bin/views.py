@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
-from quart import (Blueprint, abort, redirect, render_template, request,
-                   send_file, url_for)
+from quart import (Blueprint, abort, make_response, redirect, render_template,
+                   request, send_file, url_for)
 from quart_schema import hide_route, validate_request, validate_response
 
 from . import helpers
@@ -130,7 +130,7 @@ async def post_api_paste_new(data: helpers.PasteMetaCreate):
         paste_id=helpers.create_paste_id(data.long_id),
         creation_dt=datetime.utcnow(),
         expire_dt=data.expire_dt,
-        lexer_name = data.lexer_name,
+        lexer_name=data.lexer_name,
     )
 
     root_path = get_settings().PASTE_ROOT
@@ -139,6 +139,21 @@ async def post_api_paste_new(data: helpers.PasteMetaCreate):
     await helpers.write_paste(paste_path, paste_meta, data.content.encode())
 
     return paste_meta
+
+
+@api.get("/pastes/")
+async def get_api_paste_ids():
+    """
+    Get all paste id's, requires `ENABLE_PUBLIC_LIST` to be True
+    """
+    if not get_settings().ENABLE_PUBLIC_LIST:
+        abort(403)
+
+    root_path = get_settings().PASTE_ROOT
+
+    response = await helpers.list_paste_ids_response(root_path)
+
+    return response
 
 
 @api.get("/pastes/<paste_id>")

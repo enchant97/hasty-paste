@@ -6,6 +6,7 @@ from pydantic import BaseSettings
 
 class Settings(BaseSettings):
     PASTE_ROOT: Path
+    ENABLE_PUBLIC_LIST: bool = False
     DEFAULT_EXPIRE_TIME: bool = False
     DEFAULT_EXPIRE_TIME__MINUTES: int = 0
     DEFAULT_EXPIRE_TIME__HOURS: int = 1

@@ -1,3 +1,4 @@
+import shutil
 from datetime import datetime, timedelta
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -99,6 +100,19 @@ class TestCreatePastePath(TestCase):
                 paste_id,
                 True,
             )
+
+
+class TestGetIdFromPastePath(TestCase):
+    def test_valid(self):
+        part_1 = "12"
+        part_2 = "agfew"
+        expected_output = part_1 + part_2
+        root = Path("pastes/")
+        test_input = root / part_1 / part_2
+
+        actual_output = helpers.get_id_from_paste_path(root, test_input)
+
+        self.assertEqual(expected_output, actual_output)
 
 
 class TestWritePaste(IsolatedAsyncioTestCase):
