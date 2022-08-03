@@ -163,3 +163,11 @@ class TestGetFormDatetime(TestCase):
 
     def test_invalid(self):
         self.assertRaises(ValueError, helpers.get_form_datetime, "202A-07-26")
+
+
+class TestIsValidLexerName(TestCase):
+    def test_true(self):
+        self.assertTrue(helpers.is_valid_lexer_name("python"))
+
+    def test_false(self):
+        self.assertFalse(helpers.is_valid_lexer_name("testing123"))
