@@ -41,26 +41,6 @@ textarea {
     color: var(--font-dark);
 }
 
-pre code {
-    font-size: .9rem;
-    font-family: var(--code-font);
-    color: var(--font-dark);
-}
-
-pre {
-    overflow-x: scroll;
-}
-
-pre>code {
-    pointer-events: none;
-    counter-increment: linenumber;
-}
-
-pre>code:before {
-    content: counter(linenumber);
-    margin-right: .5rem;
-}
-
 header {
     display: flex;
 }
@@ -141,4 +121,18 @@ button:hover,
 
 .index-logo p {
     font-size: 1.4rem;
+}
+
+.highlighted-code pre {
+    font-size: .9rem;
+    font-family: var(--code-font);
+    color: var(--font-dark);
+    overflow-x: scroll;
+}
+
+.highlighted-code pre span.linenos {
+    user-select: none;
+    pointer-events: none;
+    padding-right: .8rem;
+    padding-left: .2rem;
 }

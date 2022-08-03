@@ -7,6 +7,13 @@
         %}value="{{ default_expires_at }}" {% endif %}>
     <label for="long-id">Long ID</label>
     <input type="checkbox" name="long-id" id="long-id" value="1">
+    <label for="highlighter-name">Syntax Highlighting</label>
+    <select id="highlighter-name" name="highlighter-name">
+        <option value="">** No Highlighting **</option>
+        {%- for name in get_highlighter_names() -%}
+        <option value="{{ name }}">{{ name }}</option>
+        {%- endfor -%}
+    </select>
     <textarea name="paste-content" id="paste-content" rows="10" placeholder="enter content here..." required
         autofocus></textarea>
     <button type="submit">Create</button>
