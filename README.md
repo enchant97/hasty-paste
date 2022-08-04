@@ -7,6 +7,7 @@ A fast and minimal paste bin, written in Python using Quart.
 - Randomly generated id's, optional "long" id to reduce brute force attacks
 - Add expiring pastes
 - Dark theme
+- Optional syntax highlighting
 - No JavaScript needed
 - Uses minimal resources
 - REST API

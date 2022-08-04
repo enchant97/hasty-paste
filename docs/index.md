@@ -10,10 +10,12 @@ It is a place to quickly paste some text and share it. Mostly used for sharing d
 - Randomly generated id's, optional "long" id to reduce brute force attacks
 - Add expiring pastes
 - Dark theme
+- Optional syntax highlighting
 - No JavaScript needed
 - Uses minimal resources
 - REST API
 - No Database needed, everything stored as flat-files
+- Lightweight Docker image (uses Alpine Linux)
 
 ## Showcase
 [![Showcase Image](assets/showcase.png)](assets/showcase.png)
