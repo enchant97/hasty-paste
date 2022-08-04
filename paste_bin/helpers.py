@@ -1,6 +1,6 @@
 import logging
 import secrets
-from collections.abc import AsyncGenerator
+from collections.abc import AsyncGenerator, Generator
 from datetime import datetime
 from functools import wraps
 from pathlib import Path
@@ -9,7 +9,14 @@ from aiofiles import open as aio_open
 from aiofiles import os as aio_os
 from aiofiles import ospath as aio_ospath
 from pydantic import BaseModel, ValidationError
+from pygments import highlight
+from pygments.formatters import HtmlFormatter
+from pygments.lexers import (find_lexer_class_by_name, get_all_lexers,
+                             get_lexer_by_name)
+from pygments.util import ClassNotFound as PygmentsClassNotFound
 from quart import Response, abort, make_response
+from quart.utils import run_sync
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 logger = logging.getLogger("paste_bin")
 
@@ -52,6 +59,7 @@ class PasteMeta(PasteMetaVersion):
     paste_id: str
     creation_dt: datetime
     expire_dt: datetime | None = None
+    lexer_name: str | None = None
 
     @property
     def is_expired(self) -> bool:
@@ -64,6 +72,7 @@ class PasteMetaCreate(BaseModel):
     content: str
     long_id: bool = False
     expire_dt: datetime | None = None
+    lexer_name: str | None = None
 
 
 def get_paste_meta(meta_line: str | bytes) -> PasteMeta:
@@ -120,6 +129,51 @@ def create_paste_path(root_path: Path, paste_id: str, mkdir: bool = False) -> Pa
     return full_path / paste_id[2:]
 
 
+def get_id_from_paste_path(root_path: Path, paste_path: Path) -> str:
+    """
+    Deconstruct a paste path, returing the full paste id
+
+        :param root_path: The root pastes path
+        :param paste_path: The paste file location
+        :return: The paste id
+    """
+    return "".join(paste_path.relative_to(root_path).parts)
+
+
+def get_all_paste_id_parts(root_path: Path) -> Generator[str, None, None]:
+    """
+    Yields each paste id part found
+
+        :param root_path: The root pastes path
+        :yield: A pastes id part
+    """
+    for part in root_path.glob("*"):
+        yield part.name
+
+
+def get_all_paste_ids_from_part(root_path: Path, id_part: str) -> Generator[str, None, None]:
+    """
+    Yield each paste id from a id part directory
+
+        :param root_path: The root pastes path
+        :param id_part: The id part
+        :yield: The full paste id
+    """
+    for part in root_path.joinpath(id_part).glob("*"):
+        yield id_part + part.name
+
+
+def get_all_paste_ids(root_path: Path) -> Generator[str, None, None]:
+    for id_part in get_all_paste_id_parts(root_path):
+        for full_id in get_all_paste_ids_from_part(root_path, id_part):
+            yield full_id
+
+
+def get_paste_ids_as_csv(root_path: Path) -> Generator[str, None, None]:
+    for paste_id in get_all_paste_ids(root_path):
+            yield paste_id + "\n"
+
+
 async def write_paste(
         paste_path: Path,
         paste_meta: PasteMeta,
@@ -166,7 +220,7 @@ async def read_paste_content(paste_path: Path) -> AsyncGenerator[bytes, None]:
             yield line
 
 
-def get_form_datetime(value: str) -> datetime | None:
+def get_form_datetime(value: str | None) -> datetime | None:
     """
     Handle loading a datetime from form input
 
@@ -217,7 +271,7 @@ async def try_get_paste_with_content_response(
         root_path: Path,
         paste_id: str,
         auto_remove: bool = True,
-        ) -> tuple[Path, PasteMeta, Response]:
+        ) -> tuple[Path, PasteMeta, Response | WerkzeugResponse]:
     """
     An extension of `try_get_paste()`,
     will also return the paste contents in a response
@@ -233,6 +287,13 @@ async def try_get_paste_with_content_response(
     response.mimetype = "text/plain"
 
     return paste_path, paste_meta, response
+
+
+async def list_paste_ids_response(root_path: Path) -> Response | WerkzeugResponse:
+    response = await make_response(get_paste_ids_as_csv(root_path))
+    response.mimetype = "text/csv"
+
+    return response
 
 
 def handle_paste_exceptions(func):
@@ -257,3 +318,62 @@ def handle_paste_exceptions(func):
             )
             abort(500)
     return wrapper
+
+
+def get_highlighter_names() -> Generator[str, None, None]:
+    """
+    Return all highlighter names
+
+        :yield: Each highlighter name
+    """
+    for lexer in get_all_lexers():
+        yield lexer[0]
+
+
+def is_valid_lexer_name(lexer_name: str) -> bool:
+    """
+    Check whether the given name is a valid lexer name
+
+        :param lexer_name: The name to check
+        :return: Whether it is valid
+    """
+    try:
+        _ = find_lexer_class_by_name(lexer_name)
+        return True
+    except PygmentsClassNotFound:
+        return False
+
+
+def highlight_content(content: str, lexer_name: str) -> str:
+    """
+    Highlight some content with a given lexer,
+    will fallback to default lexer if given one is not found
+
+        :param content: The content to highlight
+        :param lexer_name: The lexer to use
+        :return: The highlighted content as html
+    """
+    lexer = get_lexer_by_name("text", stripall=True)
+
+    if lexer_name:
+        try:
+            lexer = get_lexer_by_name(lexer_name, stripall=True)
+        except PygmentsClassNotFound:
+            logger.debug("skipping code highlighting as no lexer was found by '%s'", lexer_name)
+
+    formatter = HtmlFormatter(linenos="inline", cssclass="highlighted-code")
+
+    return highlight(content, lexer, formatter)
+
+
+@run_sync
+def highlight_content_async_wrapped(content: str, lexer_name: str) -> str:
+    """
+    Same as `highlight_content()` however is wrapped in Quart's `run_sync()`
+    decorator to ensure event loop is not blocked
+
+        :param content: The content to highlight
+        :param lexer_name: The lexer to use
+        :return: The highlighted content as html
+    """
+    return highlight_content(content, lexer_name)

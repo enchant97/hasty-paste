@@ -39,6 +39,19 @@ Create a new paste.
 }
 ```
 
+### GET /api/pastes/
+Returns a stream of paste id's, requires `ENABLE_PUBLIC_LIST` config to be True.
+
+#### Response, 200
+```
+1a00222g
+1a00dfda
+...
+```
+
+#### Response, 403
+The public list has been disabled.
+
 ### GET /api/pastes/{paste id}
 Returns the raw paste file, direct from [flat file](flat-file-format.md).
 

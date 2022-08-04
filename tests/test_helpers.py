@@ -1,3 +1,4 @@
+import shutil
 from datetime import datetime, timedelta
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -101,6 +102,19 @@ class TestCreatePastePath(TestCase):
             )
 
 
+class TestGetIdFromPastePath(TestCase):
+    def test_valid(self):
+        part_1 = "12"
+        part_2 = "agfew"
+        expected_output = part_1 + part_2
+        root = Path("pastes/")
+        test_input = root / part_1 / part_2
+
+        actual_output = helpers.get_id_from_paste_path(root, test_input)
+
+        self.assertEqual(expected_output, actual_output)
+
+
 class TestWritePaste(IsolatedAsyncioTestCase):
     def setUp(self):
         TEST_DATA_PATH.mkdir(parents=True, exist_ok=True)
@@ -163,3 +177,11 @@ class TestGetFormDatetime(TestCase):
 
     def test_invalid(self):
         self.assertRaises(ValueError, helpers.get_form_datetime, "202A-07-26")
+
+
+class TestIsValidLexerName(TestCase):
+    def test_true(self):
+        self.assertTrue(helpers.is_valid_lexer_name("python"))
+
+    def test_false(self):
+        self.assertFalse(helpers.is_valid_lexer_name("testing123"))

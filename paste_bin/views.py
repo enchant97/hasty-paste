@@ -1,7 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
-from quart import (Blueprint, redirect, render_template, request, send_file,
-                   url_for)
+from quart import (Blueprint, abort, make_response, redirect, render_template,
+                   request, send_file, url_for)
 from quart_schema import hide_route, validate_request, validate_response
 
 from . import helpers
@@ -26,7 +26,23 @@ async def get_favicon():
 @front_end.get("/new")
 @hide_route
 async def get_new_paste():
-    return await render_template("new.jinja")
+    settings = get_settings()
+    default_expires_at = None
+
+    if settings.DEFAULT_EXPIRE_TIME:
+        default_expires_at = datetime.now()
+        default_expires_at += timedelta(
+            minutes=settings.DEFAULT_EXPIRE_TIME__MINUTES,
+            hours=settings.DEFAULT_EXPIRE_TIME__HOURS,
+            days=settings.DEFAULT_EXPIRE_TIME__DAYS,
+        )
+        default_expires_at = default_expires_at.isoformat(timespec="minutes")
+
+    return await render_template(
+        "new.jinja",
+        default_expires_at=default_expires_at,
+        get_highlighter_names=helpers.get_highlighter_names,
+    )
 
 
 @front_end.post("/new")
@@ -37,11 +53,19 @@ async def post_new_paste():
     paste_content = form["paste-content"].replace("\r\n", "\n")
     expires_at = form.get("expires-at", None, helpers.get_form_datetime)
     long_id = form.get("long-id", False, bool)
+    lexer_name = form.get("highlighter-name", None)
+
+    if lexer_name == "":
+        lexer_name = None
+
+    if lexer_name and not helpers.is_valid_lexer_name(lexer_name):
+        abort(400)
 
     paste_meta = helpers.PasteMeta(
         paste_id=helpers.create_paste_id(long_id),
         creation_dt=datetime.utcnow(),
         expire_dt=expires_at,
+        lexer_name=lexer_name,
     )
 
     root_path = get_settings().PASTE_ROOT
@@ -61,6 +85,14 @@ async def get_view_paste(paste_id: str):
     paste_path, paste_meta = await helpers.try_get_paste(root_path, paste_id)
 
     content = helpers.read_paste_content(paste_path)
+
+    content = "".join([line.decode() async for line in content])
+
+    lexer_name = paste_meta.lexer_name
+    if not lexer_name:
+        lexer_name = "text"
+
+    content = await helpers.highlight_content_async_wrapped(content, lexer_name)
 
     return await render_template(
         "view.jinja",
@@ -90,10 +122,15 @@ async def post_api_paste_new(data: helpers.PasteMetaCreate):
     """
     Create a new paste
     """
+    if data.lexer_name and not helpers.is_valid_lexer_name(data.lexer_name):
+        # TODO return a better error response
+        abort(400)
+
     paste_meta = helpers.PasteMeta(
         paste_id=helpers.create_paste_id(data.long_id),
         creation_dt=datetime.utcnow(),
         expire_dt=data.expire_dt,
+        lexer_name=data.lexer_name,
     )
 
     root_path = get_settings().PASTE_ROOT
@@ -102,6 +139,21 @@ async def post_api_paste_new(data: helpers.PasteMetaCreate):
     await helpers.write_paste(paste_path, paste_meta, data.content.encode())
 
     return paste_meta
+
+
+@api.get("/pastes/")
+async def get_api_paste_ids():
+    """
+    Get all paste id's, requires `ENABLE_PUBLIC_LIST` to be True
+    """
+    if not get_settings().ENABLE_PUBLIC_LIST:
+        abort(403)
+
+    root_path = get_settings().PASTE_ROOT
+
+    response = await helpers.list_paste_ids_response(root_path)
+
+    return response
 
 
 @api.get("/pastes/<paste_id>")

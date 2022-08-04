@@ -1,4 +1,3 @@
-{% from "/macros.jinja" import insert_paste_content %}
 {% extends "/base.jinja" %}
 {% block title %}View{% endblock %}
 {% block main %}
@@ -8,6 +7,6 @@
     <button onclick="copy_to_clipboard(location.href)">Copy Share Link</button>
 </div>
 
-<div class="panel">{{ insert_paste_content(paste_content, "paste-content") }}</div>
+<div class="panel">{{ paste_content | safe }}</div>
 
 {% endblock %}

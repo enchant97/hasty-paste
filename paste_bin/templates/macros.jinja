@@ -1,3 +1,0 @@
-{%- macro insert_paste_content(content, id) -%}
-<pre id="{{ id }}">{%- for line in content -%}<code>{{ line.decode()|e }}</code>{%- endfor -%}</pre>
-{%- endmacro -%}
