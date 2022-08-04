@@ -35,7 +35,8 @@ p,
 label,
 input,
 footer,
-textarea {
+textarea,
+select {
     font-size: 1rem;
     font-family: var(--main-font);
     color: var(--font-dark);
@@ -59,7 +60,8 @@ form {
 }
 
 input,
-textarea {
+textarea,
+select {
     background-color: var(--bnt-col);
     border: none;
     padding: .6rem;
