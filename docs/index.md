@@ -27,3 +27,4 @@ The name was chosen not because the project is written badly, but because you us
 - [Install](install.md)
 - [Flat File Format](flat-file-format.md)
 - [REST API](rest-api.md)
+- [Contributing](contributing.md)
