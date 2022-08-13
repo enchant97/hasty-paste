@@ -50,6 +50,7 @@ async def get_new_paste():
         "new.jinja",
         default_expires_at=default_expires_at,
         get_highlighter_names=helpers.get_highlighter_names,
+        show_long_id_checkbox=True if settings.DEFAULT_USE_LONG_ID is None else False,
     )
 
 
@@ -68,6 +69,10 @@ async def post_new_paste():
 
     if lexer_name and not helpers.is_valid_lexer_name(lexer_name):
         abort(400)
+
+    # use default long id if enabled
+    if get_settings().DEFAULT_USE_LONG_ID is not None:
+        long_id = get_settings().DEFAULT_USE_LONG_ID
 
     paste_meta = helpers.PasteMeta(
         paste_id=helpers.create_paste_id(long_id),
