@@ -4,3 +4,21 @@ async function copy_to_clipboard(text) {
         await navigator.clipboard.writeText(text);
     }
 }
+
+function validate_new_post_form() {
+    let data_list = document.getElementById("highlighter-names");
+    let highlighter_name = document.getElementById("highlighter-name");
+    let highlighter_value = highlighter_name.value.toLowerCase();
+    highlighter_name.value = highlighter_value;
+
+    for (let i = 0; i < data_list.options.length; i++) {
+        if (data_list.options[i].value === highlighter_value) {
+            return true;
+        }
+    }
+
+    alert("Unknown highlighter name");
+    highlighter_name.focus();
+
+    return false;
+}

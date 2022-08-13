@@ -1,7 +1,8 @@
 {% extends "/base.jinja" %}
 {% block title %}New{% endblock %}
 {% block main %}
-<form class="panel" action="{{ url_for('front_end.post_new_paste') }}" method="post">
+<form class="panel" action="{{ url_for('front_end.post_new_paste') }}" method="post"
+    onsubmit="return validate_new_post_form()">
     <div class="other-fields">
         <div>
             <label for="expires-at">Expiry</label>
@@ -10,12 +11,13 @@
         </div>
         <div>
             <label for="highlighter-name">Syntax Highlighting</label>
-            <select id="highlighter-name" name="highlighter-name">
-                <option value="">** No Highlighting **</option>
+            <input type="text" name="highlighter-name" id="highlighter-name" list="highlighter-names"
+                placeholder="** No Highlighting **" autocorrect="off" autocapitalize="off" autocomplete="off">
+            <datalist id="highlighter-names">
                 {%- for name in get_highlighter_names() -%}
-                <option value="{{ name }}">{{ name }}</option>
-                {%- endfor -%}
-            </select>
+                <option value="{{ name }}">
+                    {%- endfor -%}
+            </datalist>
         </div>
         <div>
             <label for="long-id">Long ID</label>
