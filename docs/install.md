@@ -17,6 +17,7 @@ All configs shown here should be given as environment variables.
 | Name                         | Description                                        | Default       | Docker Default |
 | :--------------------------- | :------------------------------------------------- | :------------ | :------------- |
 | PASTE_ROOT                   | Where the paste flat file system will be kept      |               | /app/data      |
+| NEW_AT_INDEX                 | Index page displays new paste page instead         | False         | False          |
 | ENABLE_PUBLIC_LIST           | Whether to enable public access for listing pastes | False         | False          |
 | DEFAULT_EXPIRE_TIME          | Enable a default expire time in web ui             | False         | False          |
 | DEFAULT_EXPIRE_TIME__MINUTES | Default minutes in ui for expiry if enabled        | 0             | 0              |

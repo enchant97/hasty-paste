@@ -1,0 +1,18 @@
+<section class="panel index-logo">
+    <img src="{{ url_for('static', filename='icon.svg') }}" alt="app icon">
+    <h2>Hasty Paste</h2>
+    <p>A fast and minimal paste bin.</p>
+</section>
+
+<section class="panel">
+    <h2>Features</h2>
+    <ul>
+        <li>Quickly paste and save, to share some text</li>
+        <li>No JavaScript needed</li>
+        <li>No auth needed</li>
+        <li>Uses minimal resources</li>
+        <li>Add expiring pastes</li>
+        <li>Dark theme</li>
+        <li><a href="{{ url_for('swagger_ui') }}">REST API</a></li>
+    </ul>
+</section>

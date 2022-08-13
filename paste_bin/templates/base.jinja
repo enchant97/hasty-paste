@@ -19,8 +19,8 @@
     <header>
         <h1>{{ self.title() }}</h1>
         <nav>
-            <a class="bnt" href="{{ url_for('.get_index') }}">Home</a>
-            <a class="bnt" href="{{ url_for('.get_new_paste') }}">New Paste</a>
+            <a class="bnt" href="{{ url_for('front_end.get_about') }}">About</a>
+            <a class="bnt" href="{{ url_for('front_end.get_new_paste') }}">New Paste</a>
         </nav>
     </header>
     <main>

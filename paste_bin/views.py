@@ -14,7 +14,15 @@ api = Blueprint("api", __name__, url_prefix="/api")
 @front_end.get("/")
 @hide_route
 async def get_index():
+    if get_settings().NEW_AT_INDEX:
+        return await get_new_paste()
     return await render_template("index.jinja")
+
+
+@front_end.get("/about")
+@hide_route
+async def get_about():
+    return await render_template("about.jinja")
 
 
 @front_end.get("/favicon.ico")
