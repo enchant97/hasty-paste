@@ -59,6 +59,19 @@ form {
     gap: .4rem;
 }
 
+form .other-fields {
+    display: flex;
+    gap: .4rem;
+    flex-direction: row;
+    justify-content: center;
+}
+
+form .other-fields div {
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+}
+
 input,
 textarea,
 select {
@@ -137,4 +150,10 @@ button:hover,
     pointer-events: none;
     padding-right: .8rem;
     padding-left: .2rem;
+}
+
+@media (max-width: 750px) {
+    form .other-fields {
+        flex-direction: column;
+    }
 }
