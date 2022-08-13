@@ -327,7 +327,8 @@ def get_highlighter_names() -> Generator[str, None, None]:
         :yield: Each highlighter name
     """
     for lexer in get_all_lexers():
-        yield lexer[0]
+        if lexer[1]:
+            yield lexer[1][0]
 
 
 def is_valid_lexer_name(lexer_name: str) -> bool:
