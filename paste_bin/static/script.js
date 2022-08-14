@@ -9,6 +9,9 @@ function validate_new_post_form() {
     let data_list = document.getElementById("highlighter-names");
     let highlighter_name = document.getElementById("highlighter-name");
     let highlighter_value = highlighter_name.value.toLowerCase();
+
+    if (highlighter_name === "") { return true; }
+
     highlighter_name.value = highlighter_value;
 
     for (let i = 0; i < data_list.options.length; i++) {
