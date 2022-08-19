@@ -5,6 +5,10 @@
     onsubmit="return validate_new_post_form()">
     <div class="other-fields">
         <div>
+            <label for="title">Title</label>
+            <input type="text" name="title", id="title" maxlength="32" placeholder="optional title...">
+        </div>
+        <div>
             <label for="expires-at">Expiry</label>
             <input type="datetime-local" name="expires-at" id="expires-at" {% if default_expires_at
                 %}value="{{ default_expires_at }}" {% endif %}>

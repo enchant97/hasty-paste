@@ -76,6 +76,10 @@ async def post_new_paste():
     expires_at = form.get("expires-at", None, helpers.get_form_datetime)
     long_id = form.get("long-id", False, bool)
     lexer_name = form.get("highlighter-name", None)
+    title = form.get("title", "", str).strip()
+    if len(title) > 32:
+        abort(400)
+    title = None if title == "" else title
 
     if lexer_name == "":
         lexer_name = None
@@ -92,6 +96,7 @@ async def post_new_paste():
         creation_dt=datetime.utcnow(),
         expire_dt=expires_at,
         lexer_name=lexer_name,
+        title=title,
     )
 
     root_path = get_settings().PASTE_ROOT
@@ -157,6 +162,7 @@ async def post_api_paste_new(data: helpers.PasteMetaCreate):
         creation_dt=datetime.utcnow(),
         expire_dt=data.expire_dt,
         lexer_name=data.lexer_name,
+        title=data.title,
     )
 
     root_path = get_settings().PASTE_ROOT

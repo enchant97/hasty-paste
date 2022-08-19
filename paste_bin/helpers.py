@@ -8,7 +8,8 @@ from pathlib import Path
 from aiofiles import open as aio_open
 from aiofiles import os as aio_os
 from aiofiles import ospath as aio_ospath
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, ValidationError, constr
+from pydantic.types import ConstrainedStr
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import (find_lexer_class_by_name, get_all_lexers,
@@ -60,6 +61,7 @@ class PasteMeta(PasteMetaVersion):
     creation_dt: datetime
     expire_dt: datetime | None = None
     lexer_name: str | None = None
+    title: str | None = None
 
     @property
     def is_expired(self) -> bool:
@@ -73,6 +75,10 @@ class PasteMetaCreate(BaseModel):
     long_id: bool = False
     expire_dt: datetime | None = None
     lexer_name: str | None = None
+    title: ConstrainedStr | None = constr(
+        strip_whitespace=True,
+        max_length=32,
+    )
 
 
 def get_paste_meta(meta_line: str | bytes) -> PasteMeta:

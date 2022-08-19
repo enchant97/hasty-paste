@@ -1,5 +1,5 @@
 {% extends "/base.jinja" %}
-{% block title %}View{% endblock %}
+{% block title %}{{ meta.title or meta.paste_id | truncate(10) }}{% endblock %}
 {% block main %}
 <div class="panel">
     <a class="bnt" href="{{ url_for('front_end.get_raw_paste', paste_id=meta.paste_id) }}">View Raw</a>
