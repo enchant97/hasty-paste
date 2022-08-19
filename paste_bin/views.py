@@ -88,8 +88,7 @@ async def post_new_paste():
         abort(400)
 
     # use default long id if enabled
-    if get_settings().DEFAULT_USE_LONG_ID is not None:
-        long_id = get_settings().DEFAULT_USE_LONG_ID
+    long_id = True if get_settings().DEFAULT_USE_LONG_ID else False
 
     paste_meta = helpers.PasteMeta(
         paste_id=helpers.create_paste_id(long_id),
