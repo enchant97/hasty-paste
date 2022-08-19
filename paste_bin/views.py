@@ -157,12 +157,20 @@ async def post_api_paste_new(data: helpers.PasteMetaCreate):
         # TODO return a better error response
         abort(400)
 
+    # TODO validate in class instead
+    title = data.title
+    if title is not None:
+        title = title.strip()
+        if len(title) > 32:
+            abort(400)
+        title = None if title == "" else title
+
     paste_meta = helpers.PasteMeta(
         paste_id=helpers.create_paste_id(data.long_id),
         creation_dt=datetime.utcnow(),
         expire_dt=data.expire_dt,
         lexer_name=data.lexer_name,
-        title=data.title,
+        title=title,
     )
 
     root_path = get_settings().PASTE_ROOT
