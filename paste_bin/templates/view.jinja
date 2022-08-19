@@ -5,6 +5,7 @@
     <a class="bnt" href="{{ url_for('front_end.get_raw_paste', paste_id=meta.paste_id) }}">View Raw</a>
     <a class="bnt" href="{{ url_for('front_end.get_raw_paste', paste_id=meta.paste_id) }}" download="paste.txt">Download</a>
     <button onclick="copy_to_clipboard(location.href)">Copy Share Link</button>
+    <a class="bnt" href="{{ url_for('front_end.get_new_paste', clone_from=meta.paste_id) }}">Clone & Edit</a>
 </div>
 
 <div class="panel">{{ paste_content | safe }}</div>

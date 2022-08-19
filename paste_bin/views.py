@@ -36,6 +36,8 @@ async def get_favicon():
 async def get_new_paste():
     settings = get_settings()
     default_expires_at = None
+    root_path = get_settings().PASTE_ROOT
+    content = ""
 
     if settings.DEFAULT_EXPIRE_TIME:
         default_expires_at = datetime.now()
@@ -46,11 +48,22 @@ async def get_new_paste():
         )
         default_expires_at = default_expires_at.isoformat(timespec="minutes")
 
+    # allow paste to be cloned for editing as new paste
+    if (paste_id := request.args.get("clone_from")) is not None:
+        try:
+            paste_path, _ = await helpers.try_get_paste(root_path, paste_id)
+            content = helpers.read_paste_content(paste_path)
+            content = "".join([line.decode() async for line in content])
+        except (helpers.PasteException, helpers.PasteMetaException):
+            # skip clone, if paste errored failed
+            pass
+
     return await render_template(
         "new.jinja",
         default_expires_at=default_expires_at,
         get_highlighter_names=helpers.get_highlighter_names,
         show_long_id_checkbox=True if settings.DEFAULT_USE_LONG_ID is None else False,
+        content=content,
     )
 
 
