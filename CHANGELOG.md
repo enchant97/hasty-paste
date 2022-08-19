@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2022-08-19
+### Added
+- #18, add ability to clone a paste content into new paste
+- #20, add optional paste title
+- #22, override lexer name with `.<ext>` of paste URL
+### Fixed
+- Fixed not being able to select "No Highlighting" option
+
 ## [1.2.1] - 2022-08-14
 ### Fixed
 - Fixed not being able to select "No Highlighting" option
