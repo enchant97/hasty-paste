@@ -89,10 +89,11 @@ async def post_new_paste():
     return redirect(url_for(".get_view_paste", paste_id=paste_meta.paste_id))
 
 
-@front_end.get("/<paste_id>")
+@front_end.get("/<paste_id>", defaults={"lexer_name": None})
+@front_end.get("/<paste_id>.<lexer_name>")
 @hide_route
 @helpers.handle_paste_exceptions
-async def get_view_paste(paste_id: str):
+async def get_view_paste(paste_id: str, lexer_name: str | None):
     root_path = get_settings().PASTE_ROOT
 
     paste_path, paste_meta = await helpers.try_get_paste(root_path, paste_id)
@@ -101,9 +102,8 @@ async def get_view_paste(paste_id: str):
 
     content = "".join([line.decode() async for line in content])
 
-    lexer_name = paste_meta.lexer_name
     if not lexer_name:
-        lexer_name = "text"
+        lexer_name = paste_meta.lexer_name or "text"
 
     content = await helpers.highlight_content_async_wrapped(content, lexer_name)
 
