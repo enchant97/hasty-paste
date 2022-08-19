@@ -10,7 +10,7 @@ function validate_new_post_form() {
     let highlighter_name = document.getElementById("highlighter-name");
     let highlighter_value = highlighter_name.value.toLowerCase();
 
-    if (highlighter_name === "") { return true; }
+    if (highlighter_value === "") { return true; }
 
     highlighter_name.value = highlighter_value;
 
