@@ -1,8 +1,9 @@
-async function copy_to_clipboard(text) {
-    let result = await navigator.permissions.query({ name: "clipboard-write" });
-    if (result.state == "granted" || result.state == "prompt") {
-        await navigator.clipboard.writeText(text);
-    }
+function copy_to_clipboard(text) {
+    navigator.permissions.query({ name: "clipboard-write" }).then(async result => {
+        if (result.state == "granted" || result.state == "prompt") {
+            await navigator.clipboard.writeText(text);
+        }
+    }).catch(_ => navigator.clipboard.writeText(text));
 }
 
 function validate_new_post_form() {
