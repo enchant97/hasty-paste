@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.4
 ARG PYTHON_VERSION=3.10
 
 FROM python:${PYTHON_VERSION}-slim as builder
@@ -22,7 +23,7 @@ FROM python:${PYTHON_VERSION}-alpine
     ENV PORT="8000"
     ENV PASTE_ROOT="/app/data"
 
-    COPY --from=builder /app/.venv .venv
+    COPY --from=builder --link /app/.venv .venv
 
     COPY paste_bin paste_bin
 
