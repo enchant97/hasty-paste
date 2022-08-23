@@ -29,7 +29,7 @@ FROM python:${PYTHON_VERSION}-alpine
 
     COPY scripts/* ./
 
-    CMD /bin/sh run.sh
+    ENTRYPOINT ["/bin/sh", "entrypoint.sh"]
 
     HEALTHCHECK --interval=1m --start-period=15s \
         CMD /bin/sh health-check.sh
