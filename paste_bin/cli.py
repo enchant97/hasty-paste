@@ -104,11 +104,15 @@ async def main():
     cleanup_parser.add_argument("--older-than", help="select pastes created before given number of days", type=int)
 
     args = parser.parse_args()
-    print(args)
+
     if args.paste_root:
         print(paste_root)
     else:
-        await args.func(args)
+        try:
+            await args.func(args)
+        except AttributeError:
+            print("no command given, using '--help' to get help")
+
 
 
 if __name__ == "__main__":
