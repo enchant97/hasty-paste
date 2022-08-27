@@ -54,6 +54,13 @@ class TestGetPasteMeta(TestCase):
         self.assertTrue(meta_expired.is_expired)
 
 
+class TestGenId(TestCase):
+    def test_valid(self):
+        self.assertEqual(len(helpers.gen_id(0)), 0)
+        self.assertEqual(len(helpers.gen_id(5)), 5)
+        self.assertEqual(len(helpers.gen_id(100)), 100)
+
+
 class TestCreatePasteId(TestCase):
     def test_valid_short(self):
         self.assertEqual(len(helpers.create_paste_id()), 10)

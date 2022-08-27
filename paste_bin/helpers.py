@@ -1,5 +1,6 @@
 import logging
 import secrets
+import string
 from collections.abc import AsyncGenerator, Generator
 from datetime import datetime
 from functools import wraps
@@ -20,6 +21,7 @@ from werkzeug.wrappers import Response as WerkzeugResponse
 
 logger = logging.getLogger("paste_bin")
 
+PASTE_ID_CHARACTER_SET = string.ascii_letters + string.digits
 CURRENT_PASTE_META_VERSION = 1
 
 
@@ -98,6 +100,16 @@ def get_paste_meta(meta_line: str | bytes) -> PasteMeta:
         raise PasteMetaUnprocessable("paste meta cannot be loaded") from err
 
 
+def gen_id(n: int) -> str:
+    """
+    Generate a secure id from `PASTE_ID_CHARACTER_SET`
+
+        :param n: How many characters to generate
+        :return: the generated id
+    """
+    return "".join(secrets.choice(PASTE_ID_CHARACTER_SET) for _ in range(n))
+
+
 def create_paste_id(long: bool = False) -> str:
     """
     Creates a paste id, if in 'long' mode will
@@ -108,8 +120,8 @@ def create_paste_id(long: bool = False) -> str:
         :return: The generated id
     """
     if long:
-        return secrets.token_urlsafe(30)
-    return secrets.token_urlsafe(7)
+        return gen_id(40)
+    return gen_id(10)
 
 
 def create_paste_path(root_path: Path, paste_id: str, mkdir: bool = False) -> Path:
