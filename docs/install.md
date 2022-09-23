@@ -52,7 +52,7 @@ This will assume you have both Docker and Docker Compose installed.
 1. Create directory for app
 2. Create file called `docker-compose.yml` inside folder
 3. Copy example compose file shown below
-4. Run `docker compose up -d` inside folder
+4. Run `docker-compose up -d` inside folder
 5. Hasty Paste is now running
 
 ```yml
