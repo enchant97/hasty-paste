@@ -9,6 +9,7 @@ class BrandSettings(BaseModel):
     DESCRIPTION: str = "A fast and minimal paste bin."
     ICON: Path | None = None
     FAVICON: Path | None = None
+    CSS_FILE: Path | None = None
 
 
 class ExpireTimeDefaultSettings(BaseModel):

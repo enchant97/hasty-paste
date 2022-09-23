@@ -5,6 +5,14 @@ from ..config import get_settings
 blueprint = Blueprint("extra_static", __name__, url_prefix="/static")
 
 
+@blueprint.get("/brand.css")
+async def get_brand_css():
+    path = get_settings().BRANDING.CSS_FILE
+    if not path:
+        abort(404)
+    return await send_file(path)
+
+
 @blueprint.get("/brand-icon")
 async def get_brand_icon():
     path = get_settings().BRANDING.ICON

@@ -30,6 +30,7 @@ All configs shown here should be given as environment variables.
 | BRANDING__DESCRIPTION            | Customise the app description                                      | -             | -              |
 | BRANDING__ICON                   | Customise the app icon, provide as absolute filepath               | -             | -              |
 | BRANDING__FAVICON                | Customise the app favicon, provide as absolute filepath            | -             | -              |
+| BRANDING__CSS_FILE               | Customise the site theme, using a provided css file                | -             | -              |
 |                                  |                                                                    |               |                |
 | MAX_BODY_SIZE                    | The max body size, given in bytes                                  | 2000000       | 2000000        |
 | LOG_LEVEL                        | What log level to use                                              | "WARNING"     | "WARNING"      |
