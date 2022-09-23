@@ -32,17 +32,17 @@ async def get_favicon():
 @blueprint.get("/new")
 @hide_route
 async def get_new_paste():
-    settings = get_settings()
+    default_settings = get_settings().UI_DEFAULT
     default_expires_at = None
     root_path = get_settings().PASTE_ROOT
     content = ""
 
-    if settings.DEFAULT_EXPIRE_TIME:
+    if default_settings.EXPIRE_TIME.ENABLE:
         default_expires_at = datetime.now()
         default_expires_at += timedelta(
-            minutes=settings.DEFAULT_EXPIRE_TIME__MINUTES,
-            hours=settings.DEFAULT_EXPIRE_TIME__HOURS,
-            days=settings.DEFAULT_EXPIRE_TIME__DAYS,
+            minutes=default_settings.EXPIRE_TIME.MINUTES,
+            hours=default_settings.EXPIRE_TIME.HOURS,
+            days=default_settings.EXPIRE_TIME.DAYS,
         )
         default_expires_at = default_expires_at.isoformat(timespec="minutes")
 
@@ -60,7 +60,7 @@ async def get_new_paste():
         "new.jinja",
         default_expires_at=default_expires_at,
         get_highlighter_names=helpers.get_highlighter_names,
-        show_long_id_checkbox=True if settings.DEFAULT_USE_LONG_ID is None else False,
+        show_long_id_checkbox=True if default_settings.USE_LONG_ID is None else False,
         content=content,
     )
 
@@ -86,7 +86,7 @@ async def post_new_paste():
         abort(400)
 
     # use default long id if enabled
-    long_id = True if get_settings().DEFAULT_USE_LONG_ID else False
+    long_id = True if get_settings().UI_DEFAULT.USE_LONG_ID else False
 
     paste_meta = helpers.PasteMeta(
         paste_id=helpers.create_paste_id(long_id),
