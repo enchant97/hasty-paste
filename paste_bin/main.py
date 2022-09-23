@@ -4,10 +4,9 @@ from quart import Quart
 from quart_schema import QuartSchema
 from web_health_checker.contrib import quart as health_check
 
-from .views import api, frontend
-
 from . import __version__
 from .config import get_settings
+from .views import api, extra_static, frontend
 
 logger = logging.getLogger("paste_bin")
 app_version = ".".join(__version__.split(".")[0:2])
@@ -40,10 +39,12 @@ def create_app():
 
     app.config["MAX_CONTENT_LENGTH"] = settings.MAX_BODY_SIZE
     app.config["__version__"] = app_version
+    app.config["BRANDING"] = settings.BRANDING
 
     app.register_blueprint(frontend.blueprint)
     app.register_blueprint(health_check.blueprint, url_prefix="/api")
     app.register_blueprint(api.blueprint)
+    app.register_blueprint(extra_static.blueprint)
 
     quart_schema.init_app(app)
 

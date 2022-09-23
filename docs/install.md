@@ -25,6 +25,11 @@ All configs shown here should be given as environment variables.
 | DEFAULT_EXPIRE_TIME__HOURS   | Default hours in ui for expiry if enabled                          | 1             | 1              |
 | DEFAULT_EXPIRE_TIME__DAYS    | Default days in ui for expiry if enabled                           | 0             | 0              |
 |                              |                                                                    |               |                |
+| BRANDING__TITLE              | Customise the app title                                            | -             | -              |
+| BRANDING__DESCRIPTION        | Customise the app description                                      | -             | -              |
+| BRANDING__ICON               | Customise the app icon, provide as absolute filepath               | -             | -              |
+| BRANDING__FAVICON            | Customise the app favicon, provide as absolute filepath            | -             | -              |
+|                              |                                                                    |               |                |
 | MAX_BODY_SIZE                | The max body size, given in bytes                                  | 2000000       | 2000000        |
 | LOG_LEVEL                    | What log level to use                                              | "WARNING"     | "WARNING"      |
 |                              |                                                                    |               |                |

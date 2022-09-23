@@ -1,7 +1,14 @@
 from functools import cache
 from pathlib import Path
 
-from pydantic import BaseSettings
+from pydantic import BaseModel, BaseSettings
+
+
+class BrandSettings(BaseModel):
+    TITLE: str = "Hasty Paste"
+    DESCRIPTION: str = "A fast and minimal paste bin."
+    ICON: Path | None = None
+    FAVICON: Path | None = None
 
 
 class Settings(BaseSettings):
@@ -14,6 +21,8 @@ class Settings(BaseSettings):
     DEFAULT_EXPIRE_TIME__HOURS: int = 1
     DEFAULT_EXPIRE_TIME__DAYS: int = 0
 
+    BRANDING: BrandSettings = BrandSettings()
+
     MAX_BODY_SIZE: int = 2*(10**6)
     LOG_LEVEL: str = "WARNING"
 
@@ -21,6 +30,7 @@ class Settings(BaseSettings):
         case_sensitive = True
         env_file = '.env'
         env_file_encoding = 'utf-8'
+        env_nested_delimiter = '__'
 
 
 @cache

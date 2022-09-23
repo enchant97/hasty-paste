@@ -1,7 +1,11 @@
 <section class="panel index-logo">
+    {% if config.BRANDING.ICON %}
+    <img src="{{ url_for('extra_static.get_brand_icon') }}" alt="app icon">
+    {% else %}
     <img src="{{ url_for('static', filename='icon.svg') }}" alt="app icon">
-    <h2>Hasty Paste</h2>
-    <p>A fast and minimal paste bin.</p>
+    {% endif %}
+    <h2>{{ config.BRANDING.TITLE }}</h2>
+    <p>{{ config.BRANDING.DESCRIPTION }}</p>
 </section>
 
 <section class="panel">

@@ -3,9 +3,13 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}{% endblock %} - Hasty Paste</title>
+    <title>{% block title %}{% endblock %} - {{ config.BRANDING.TITLE }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% if config.BRANDING.FAVICON %}
+    <link rel="shortcut icon" href="{{ url_for('extra_static.get_brand_favicon') }}">
+    {% else %}
     <link rel="shortcut icon" href="{{ url_for('static', filename='icon.svg') }}" type="image/svg+xml">
+    {% endif %}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Mono&family=Open+Sans&family=Roboto&display=swap"
