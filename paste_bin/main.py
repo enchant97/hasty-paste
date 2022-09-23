@@ -35,6 +35,11 @@ def create_app():
     logging.basicConfig()
     logger.setLevel(logging.getLevelName(settings.LOG_LEVEL))
 
+    print(
+        "IMPORTANT NOTICE for users before V1.5: Paste id's with symbol" +
+        " characters are being deprecated and will be removed in the future, " +
+        "please use the \"Clone & Edit\" button to resave under new id (or just delete them)")
+
     settings.PASTE_ROOT.mkdir(parents=True, exist_ok=True)
 
     app.config["MAX_CONTENT_LENGTH"] = settings.MAX_BODY_SIZE

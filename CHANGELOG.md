@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2022-09-23
+### Added
+- #39, brand customisation
+### Changed
+- Only generate paste id's with A-Za-z0-9
+- Put config into groups
+- Update pip requirements
+  - quart-schema to ~=0.13.0
+  - pydantic[dotenv] to ~=1.10.2
+  - mkdocs-material to ~=8.5.3
+- Split routes into separate modules
+
 ## [1.4.0] - 2022-08-27
 ### Added
 - #21, Experimental management CLI
