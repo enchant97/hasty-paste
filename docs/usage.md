@@ -1,4 +1,17 @@
 # Usage
+## Paste URL
+Say we have a paste with the id of: `InRZdveK9g`. This is what the url would look like:
+
+```
+https://pastes.example.com/InRZdveK9g
+```
+
+What happens if you forget or want to change the syntax highlighting of the paste? We can add a file extension to the end of the paste URL:
+
+```
+https://pastes.example.com/InRZdveK9g.py
+```
+
 ## CLI
 Hasty Paste provides a management CLI.
 
