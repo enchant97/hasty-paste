@@ -42,8 +42,12 @@ def create_app():
 
     settings.PASTE_ROOT.mkdir(parents=True, exist_ok=True)
 
+    if not settings.BRANDING.HIDE_VERSION:
+        app.config["__version__"] = app_version
+    else:
+        quart_schema.version = ""
+
     app.config["MAX_CONTENT_LENGTH"] = settings.MAX_BODY_SIZE
-    app.config["__version__"] = app_version
     app.config["BRANDING"] = settings.BRANDING
 
     app.register_blueprint(frontend.blueprint)

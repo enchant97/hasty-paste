@@ -10,6 +10,7 @@ class BrandSettings(BaseModel):
     ICON: Path | None = None
     FAVICON: Path | None = None
     CSS_FILE: Path | None = None
+    HIDE_VERSION: bool = False
 
 
 class ExpireTimeDefaultSettings(BaseModel):
