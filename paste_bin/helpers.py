@@ -9,7 +9,7 @@ from pathlib import Path
 from aiofiles import open as aio_open
 from aiofiles import os as aio_os
 from aiofiles import ospath as aio_ospath
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, ValidationError, validator
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import (find_lexer_class_by_name, get_all_lexers,
@@ -77,6 +77,18 @@ class PasteMetaCreate(BaseModel):
     expire_dt: datetime | None = None
     lexer_name: str | None = None
     title: str | None = None
+
+    @validator("title")
+    def validate_title(cls, title: str | None):
+        if title is not None and len(title) > 32:
+            raise ValueError("title must be < 32")
+        return title
+
+    @validator("lexer_name")
+    def validate_lexer_name(cls, lexer_name: str | None):
+        if lexer_name is not None and not is_valid_lexer_name(lexer_name):
+            raise ValueError("not valid lexer name")
+        return lexer_name
 
 
 def get_paste_meta(meta_line: str | bytes) -> PasteMeta:

@@ -16,21 +16,13 @@ async def post_api_paste_new(data: helpers.PasteMetaCreate):
     """
     Create a new paste
     """
-    if data.lexer_name and not helpers.is_valid_lexer_name(data.lexer_name):
-        # TODO return a better error response
-        abort(400)
-
-    # TODO validate in class instead
-    title = data.title
-    if title is not None:
-        title = title.strip()
-        if len(title) > 32:
-            abort(400)
-        title = None if title == "" else title
+    paste_id = helpers.create_paste_id(data.long_id)
+    title = None if data.title == "" else data.title
+    creation_dt = datetime.utcnow()
 
     paste_meta = helpers.PasteMeta(
-        paste_id=helpers.create_paste_id(data.long_id),
-        creation_dt=datetime.utcnow(),
+        paste_id=paste_id,
+        creation_dt=creation_dt,
         expire_dt=data.expire_dt,
         lexer_name=data.lexer_name,
         title=title,
