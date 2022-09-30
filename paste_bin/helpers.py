@@ -76,7 +76,7 @@ class PasteMetaCreate(BaseModel):
     long_id: bool = False
     expire_dt: datetime | None = None
     lexer_name: str | None = None
-    title: str | None
+    title: str | None = None
 
 
 def get_paste_meta(meta_line: str | bytes) -> PasteMeta:
