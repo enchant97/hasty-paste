@@ -2,7 +2,7 @@ import logging
 import secrets
 import string
 from collections.abc import AsyncGenerator, Generator
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import wraps
 from pathlib import Path
 
@@ -18,6 +18,8 @@ from pygments.util import ClassNotFound as PygmentsClassNotFound
 from quart import Response, abort, make_response
 from quart.utils import run_sync
 from werkzeug.wrappers import Response as WerkzeugResponse
+
+from .config import DefaultsSettings
 
 logger = logging.getLogger("paste_bin")
 
@@ -404,3 +406,14 @@ def highlight_content_async_wrapped(content: str, lexer_name: str) -> str:
         :return: The highlighted content as html
     """
     return highlight_content(content, lexer_name)
+
+
+def make_default_expires_at(defaults: DefaultsSettings) -> datetime | None:
+    if defaults.EXPIRE_TIME.ENABLE:
+        default_expires_at = datetime.now()
+        default_expires_at += timedelta(
+            minutes=defaults.EXPIRE_TIME.MINUTES,
+            hours=defaults.EXPIRE_TIME.HOURS,
+            days=defaults.EXPIRE_TIME.DAYS,
+        )
+        return default_expires_at

@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from quart import Blueprint, abort, redirect, render_template, request, url_for
 from quart_schema import hide_route
@@ -37,14 +37,8 @@ async def get_new_paste():
     root_path = get_settings().PASTE_ROOT
     content = ""
 
-    if default_settings.EXPIRE_TIME.ENABLE:
-        default_expires_at = datetime.now()
-        default_expires_at += timedelta(
-            minutes=default_settings.EXPIRE_TIME.MINUTES,
-            hours=default_settings.EXPIRE_TIME.HOURS,
-            days=default_settings.EXPIRE_TIME.DAYS,
-        )
-        default_expires_at = default_expires_at.isoformat(timespec="minutes")
+    if (expiry := helpers.make_default_expires_at(default_settings)) is not None:
+        default_expires_at = expiry.isoformat(timespec="minutes")
 
     # allow paste to be cloned for editing as new paste
     if (paste_id := request.args.get("clone_from")) is not None:
