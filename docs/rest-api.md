@@ -30,13 +30,26 @@ Create a new paste.
 }
 ```
 
-#### Response, 200
+#### Response, 201
 ```json
 {
   "creation_dt": "2022-07-28T11:22:20.080Z",
   "expire_dt": "2022-07-28T11:22:20.080Z",
   "paste_id": "string"
 }
+```
+
+### POST /api/pastes/simple
+Create a new paste without any settings, suitable for easier use with curl from the command line.
+
+#### Request
+```
+Hello World!
+```
+
+#### Response, 201
+```
+1a00222g
 ```
 
 ### GET /api/pastes/
