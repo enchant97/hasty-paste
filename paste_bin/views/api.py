@@ -1,6 +1,8 @@
 from datetime import datetime
 
-from quart import Blueprint, abort, send_file
+from async_timeout import timeout
+from quart import Blueprint, abort, current_app, request, send_file
+from quart.wrappers import Body
 from quart_schema import validate_request, validate_response
 
 from .. import helpers
@@ -11,7 +13,7 @@ blueprint = Blueprint("api", __name__, url_prefix="/api")
 
 @blueprint.post("/pastes")
 @validate_request(helpers.PasteMetaCreate)
-@validate_response(helpers.PasteMeta)
+@validate_response(helpers.PasteMeta, status_code=201)
 async def post_api_paste_new(data: helpers.PasteMetaCreate):
     """
     Create a new paste
@@ -33,7 +35,36 @@ async def post_api_paste_new(data: helpers.PasteMetaCreate):
 
     await helpers.write_paste(paste_path, paste_meta, data.content.encode())
 
-    return paste_meta
+    return paste_meta, 201
+
+
+@blueprint.post("/pastes/simple")
+async def post_api_paste_new_simple():
+    """
+    Create a new paste without any fancy features,
+    could be used easily with curl by a user.
+
+    Just send the paste content in the request body,
+    after paste creation the paste id will be returned in the response body.
+    """
+    use_long_id = get_settings().UI_DEFAULT.USE_LONG_ID is not None or False
+    paste_id = helpers.create_paste_id(use_long_id)
+    creation_dt = datetime.utcnow()
+
+    paste_meta = helpers.PasteMeta(
+        paste_id=paste_id,
+        creation_dt=creation_dt,
+    )
+
+    root_path = get_settings().PASTE_ROOT
+    paste_path = helpers.create_paste_path(root_path, paste_meta.paste_id, True)
+
+    body: Body = request.body
+    # NOTE timeout required as directly using body is not protected by Quart
+    async with timeout(current_app.config["BODY_TIMEOUT"]):
+        await helpers.write_paste(paste_path, paste_meta, body)
+
+    return paste_meta.paste_id, 201
 
 
 @blueprint.get("/pastes/")

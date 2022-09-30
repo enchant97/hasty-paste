@@ -17,6 +17,7 @@ from pygments.lexers import (find_lexer_class_by_name, get_all_lexers,
 from pygments.util import ClassNotFound as PygmentsClassNotFound
 from quart import Response, abort, make_response
 from quart.utils import run_sync
+from quart.wrappers import Body
 from werkzeug.wrappers import Response as WerkzeugResponse
 
 from .config import DefaultsSettings
@@ -205,7 +206,7 @@ def get_paste_ids_as_csv(root_path: Path) -> Generator[str, None, None]:
 async def write_paste(
         paste_path: Path,
         paste_meta: PasteMeta,
-        content: AsyncGenerator[bytes, None] | bytes):
+        content: AsyncGenerator[bytes, None] | Body | bytes):
     """
     Writes a new paste
 
@@ -215,7 +216,7 @@ async def write_paste(
     """
     async with aio_open(paste_path, "wb") as fo:
         await fo.write(paste_meta.json().encode() + b"\n")
-        if isinstance(content, AsyncGenerator):
+        if isinstance(content, (AsyncGenerator, Body)):
             async for chunk in content:
                 await fo.write(chunk)
         else:

@@ -135,11 +135,27 @@ class TestApiNewPaste(QuartAppTestCase):
             ).json(),
         )
 
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(201, response.status_code)
 
         data = await response.get_json()
 
         paste_id = data["paste_id"]
+        paste_path = helpers.create_paste_path(TEST_DATA_PATH, paste_id)
+
+        self.assertTrue(paste_path.is_file())
+
+
+class TestApiNewSimplePaste(QuartAppTestCase):
+    async def test_valid(self):
+        client = self.new_client()
+        response = await client.post(
+            "/api/pastes/simple",
+            data="test paste simple api create"
+        )
+
+        self.assertEqual(201, response.status_code)
+
+        paste_id = await response.get_data(True)
         paste_path = helpers.create_paste_path(TEST_DATA_PATH, paste_id)
 
         self.assertTrue(paste_path.is_file())
