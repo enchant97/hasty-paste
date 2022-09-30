@@ -37,7 +37,7 @@ async def get_new_paste():
     root_path = get_settings().PASTE_ROOT
     content = ""
 
-    if (expiry := helpers.make_default_expires_at(default_settings)) is not None:
+    if (expiry := helpers.make_default_expires_at(default_settings.EXPIRE_TIME)) is not None:
         default_expires_at = expiry.isoformat(timespec="minutes")
 
     # allow paste to be cloned for editing as new paste

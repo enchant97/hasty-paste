@@ -20,7 +20,7 @@ from quart.utils import run_sync
 from quart.wrappers import Body
 from werkzeug.wrappers import Response as WerkzeugResponse
 
-from .config import DefaultsSettings
+from .config import ExpireTimeDefaultSettings
 
 logger = logging.getLogger("paste_bin")
 
@@ -409,12 +409,12 @@ def highlight_content_async_wrapped(content: str, lexer_name: str) -> str:
     return highlight_content(content, lexer_name)
 
 
-def make_default_expires_at(defaults: DefaultsSettings) -> datetime | None:
-    if defaults.EXPIRE_TIME.ENABLE:
+def make_default_expires_at(settings: ExpireTimeDefaultSettings) -> datetime | None:
+    if settings.ENABLE:
         default_expires_at = datetime.now()
         default_expires_at += timedelta(
-            minutes=defaults.EXPIRE_TIME.MINUTES,
-            hours=defaults.EXPIRE_TIME.HOURS,
-            days=defaults.EXPIRE_TIME.DAYS,
+            minutes=settings.MINUTES,
+            hours=settings.HOURS,
+            days=settings.DAYS,
         )
         return default_expires_at

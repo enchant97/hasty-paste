@@ -48,12 +48,14 @@ async def post_api_paste_new_simple():
     after paste creation the paste id will be returned in the response body.
     """
     use_long_id = get_settings().UI_DEFAULT.USE_LONG_ID is not None or False
+    expiry_settings = get_settings().UI_DEFAULT.EXPIRE_TIME
     paste_id = helpers.create_paste_id(use_long_id)
     creation_dt = datetime.utcnow()
 
     paste_meta = helpers.PasteMeta(
         paste_id=paste_id,
         creation_dt=creation_dt,
+        expire_dt=helpers.make_default_expires_at(expiry_settings),
     )
 
     root_path = get_settings().PASTE_ROOT
