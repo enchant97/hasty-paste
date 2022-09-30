@@ -1,10 +1,9 @@
-import shutil
 from datetime import datetime, timedelta
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import IsolatedAsyncioTestCase, TestCase
 
-from paste_bin import helpers
+from paste_bin import config, helpers
 
 TEST_DATA_PATH = Path("data/tests")
 VALID_PASTE_META = b'{"paste_id": "601cdec402c931ad", "creation_dt": ' + \
@@ -192,3 +191,27 @@ class TestIsValidLexerName(TestCase):
 
     def test_false(self):
         self.assertFalse(helpers.is_valid_lexer_name("testing123"))
+
+
+class TestMakeDefaultExpiresAt(TestCase):
+    def test_disabled(self):
+        conf = config.ExpireTimeDefaultSettings(
+            ENABLE=False,
+        )
+        result = helpers.make_default_expires_at(conf)
+        self.assertIsNone(result)
+
+    def test_enabled(self):
+        conf = config.ExpireTimeDefaultSettings(
+            ENABLE=True,
+            MINUTES=0,
+            HOURS=0,
+            DAYS=1,
+        )
+        expected = datetime.now() + timedelta(days=1)
+        result = helpers.make_default_expires_at(conf)
+        self.assertIsNotNone(result)
+        self.assertEqual(
+            expected.isoformat(timespec="hours"),
+            result.isoformat(timespec="hours"),  # type: ignore
+        )
