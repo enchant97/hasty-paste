@@ -40,6 +40,8 @@ async def post_api_paste_new(data: helpers.PasteMetaCreate):
 
     await helpers.write_paste(paste_path, paste_meta, data.content.encode())
 
+    get_cache().push_paste_meta(paste_id, paste_meta)
+
     return paste_meta, 201
 
 
@@ -71,6 +73,8 @@ async def post_api_paste_new_simple():
     async with timeout(current_app.config["BODY_TIMEOUT"]):
         await helpers.write_paste(paste_path, paste_meta, body)
 
+    get_cache().push_paste_meta(paste_id, paste_meta)
+
     return paste_meta.paste_id, 201
 
 
@@ -96,6 +100,20 @@ async def get_api_paste_raw(paste_id: str):
     Get the paste raw file, if one exists
     """
     root_path = get_settings().PASTE_ROOT
+    paste_path = helpers.create_paste_path(root_path, paste_id)
+
+    try:
+        # get the paste, using cache if possible
+        if (cached_meta := get_cache().get_paste_meta(paste_id)) is not None:
+            logger.debug("accessing paste '%s' meta from cache", paste_id)
+            cached_meta.raise_if_expired()
+        else:
+            await helpers.try_get_paste(root_path, paste_id)
+
+    except helpers.PasteExpiredException as err:
+        # register the paste for removal
+        current_app.add_background_task(helpers.safe_remove_paste, paste_path, paste_id)
+        raise err
 
     paste_path, _, = await helpers.try_get_paste(root_path, paste_id)
 
@@ -110,8 +128,23 @@ async def get_api_paste_meta(paste_id: str):
     Get the paste meta, if one exists
     """
     root_path = get_settings().PASTE_ROOT
+    paste_path = helpers.create_paste_path(root_path, paste_id)
 
-    _, paste_meta = await helpers.try_get_paste(root_path, paste_id)
+    paste_meta = None
+
+    try:
+        # get the paste, using cache if possible
+        if (cached_meta := get_cache().get_paste_meta(paste_id)) is not None:
+            logger.debug("accessing paste '%s' meta from cache", paste_id)
+            paste_meta = cached_meta
+            paste_meta.raise_if_expired()
+        else:
+            _, paste_meta = await helpers.try_get_paste(root_path, paste_id)
+
+    except helpers.PasteExpiredException as err:
+        # register the paste for removal
+        current_app.add_background_task(helpers.safe_remove_paste, paste_path, paste_id)
+        raise err
 
     return paste_meta
 
