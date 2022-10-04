@@ -123,6 +123,7 @@ async def get_view_paste(paste_id: str, lexer_name: str | None):
             paste_meta.raise_if_expired()
         else:
             _, paste_meta = await helpers.try_get_paste(root_path, paste_id)
+            get_cache().push_paste_meta(paste_id, paste_meta)
 
     except helpers.PasteExpiredException as err:
         # register the paste for removal
@@ -142,6 +143,7 @@ async def get_view_paste(paste_id: str, lexer_name: str | None):
         else:
             raw_paste = helpers.read_paste_content(paste_path)
             raw_paste = b"".join([line async for line in raw_paste])
+            get_cache().push_paste_all(paste_id, raw=raw_paste)
 
         if not lexer_name:
             lexer_name = paste_meta.lexer_name or "text"
@@ -150,8 +152,7 @@ async def get_view_paste(paste_id: str, lexer_name: str | None):
             raw_paste.decode(),
             lexer_name
         )
-
-    get_cache().push_paste_all(paste_id, paste_meta, rendered_paste, raw_paste)
+        get_cache().push_paste_all(paste_id, html=rendered_paste)
 
     return await render_template(
         "view.jinja",
@@ -177,6 +178,7 @@ async def get_raw_paste(paste_id: str):
             paste_meta.raise_if_expired()
         else:
             _, paste_meta = await helpers.try_get_paste(root_path, paste_id)
+            get_cache().push_paste_meta(paste_id, paste_meta)
 
     except helpers.PasteExpiredException as err:
         # register the paste for removal

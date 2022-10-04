@@ -93,6 +93,7 @@ async def get_api_paste_ids():
     return response
 
 
+# TODO deprecate this
 @blueprint.get("/pastes/<paste_id>")
 @helpers.handle_paste_exceptions
 async def get_api_paste_raw(paste_id: str):
@@ -108,7 +109,8 @@ async def get_api_paste_raw(paste_id: str):
             logger.debug("accessing paste '%s' meta from cache", paste_id)
             cached_meta.raise_if_expired()
         else:
-            await helpers.try_get_paste(root_path, paste_id)
+            _, paste_meta = await helpers.try_get_paste(root_path, paste_id)
+            get_cache().push_paste_meta(paste_id, paste_meta)
 
     except helpers.PasteExpiredException as err:
         # register the paste for removal
@@ -140,6 +142,7 @@ async def get_api_paste_meta(paste_id: str):
             paste_meta.raise_if_expired()
         else:
             _, paste_meta = await helpers.try_get_paste(root_path, paste_id)
+            get_cache().push_paste_meta(paste_id, paste_meta)
 
     except helpers.PasteExpiredException as err:
         # register the paste for removal
@@ -158,16 +161,14 @@ async def get_api_paste_content(paste_id: str):
     root_path = get_settings().PASTE_ROOT
     paste_path = helpers.create_paste_path(root_path, paste_id)
 
-    paste_meta = None
-
     try:
         # get the paste, using cache if possible
         if (cached_meta := get_cache().get_paste_meta(paste_id)) is not None:
             logger.debug("accessing paste '%s' meta from cache", paste_id)
-            paste_meta = cached_meta
-            paste_meta.raise_if_expired()
+            cached_meta.raise_if_expired()
         else:
             _, paste_meta = await helpers.try_get_paste(root_path, paste_id)
+            get_cache().push_paste_meta(paste_id, paste_meta)
 
     except helpers.PasteExpiredException as err:
         # register the paste for removal
@@ -179,6 +180,7 @@ async def get_api_paste_content(paste_id: str):
     if (cached_raw := get_cache().get_paste_raw(paste_id)) is not None:
         logger.debug("accessing paste '%s' raw content from cache", paste_id)
         raw_paste = cached_raw
+        get_cache().push_paste_all(paste_id, raw=raw_paste)
     else:
         raw_paste = helpers.read_paste_content(paste_path)
         raw_paste = b"".join([line async for line in raw_paste])
