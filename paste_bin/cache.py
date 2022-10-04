@@ -52,12 +52,17 @@ class InternalCache:
             # we inserted a new item, expire old items
             self._expire_old()
 
-    def push_paste_all(self, paste_id: str, meta: PasteMeta, html: str | None, raw: bytes | None):
-        to_cache = InternalCacheItem(
-            meta=meta,
-            rendered_paste=html,
-            raw_paste=raw,
-        )
+    def push_paste_all(
+            self,
+            paste_id: str,
+            meta: PasteMeta | None = None,
+            html: str | None = None,
+            raw: bytes | None = None):
+        # take value of existing cache if None
+        meta = meta if meta is not None else self.get_paste_meta(paste_id)
+        html = html if html is not None else self.get_paste_rendered(paste_id)
+        raw = raw if raw is not None else self.get_paste_raw(paste_id)
+        to_cache = InternalCacheItem(meta=meta, rendered_paste=html, raw_paste=raw)
         self._write_cache(paste_id, to_cache)
 
     def push_paste_meta(self, paste_id: str, meta: PasteMeta):
