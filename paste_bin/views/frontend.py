@@ -128,7 +128,7 @@ async def get_view_paste(paste_id: str, lexer_name: str | None):
         logger.debug("accessing paste '%s' rendered content from cache", paste_id)
         rendered_paste = cached_rendered
     else:
-        if (cached_raw := get_cache().get_paste_raw(paste_id)) is None:
+        if (cached_raw := get_cache().get_paste_raw(paste_id)) is not None:
             logger.debug("accessing paste '%s' raw content from cache", paste_id)
             raw_paste = cached_raw
         else:
