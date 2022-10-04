@@ -1,7 +1,8 @@
 import logging
 from datetime import datetime
 
-from quart import Blueprint, abort, redirect, render_template, request, url_for
+from quart import (Blueprint, abort, current_app, make_response, redirect,
+                   render_template, request, url_for)
 from quart_schema import hide_route
 
 from .. import helpers
@@ -68,7 +69,7 @@ async def get_new_paste():
 async def post_new_paste():
     form = await request.form
 
-    paste_content = form["paste-content"].replace("\r\n", "\n")
+    paste_content = (form["paste-content"].replace("\r\n", "\n")).encode()
     expires_at = form.get("expires-at", None, helpers.get_form_datetime)
     long_id = form.get("long-id", False, bool)
     lexer_name = form.get("highlighter-name", None)
@@ -97,9 +98,9 @@ async def post_new_paste():
     root_path = get_settings().PASTE_ROOT
     paste_path = helpers.create_paste_path(root_path, paste_meta.paste_id, True)
 
-    await helpers.write_paste(paste_path, paste_meta, paste_content.encode())
+    await helpers.write_paste(paste_path, paste_meta, paste_content)
 
-    get_cache().push_paste_meta(paste_meta.paste_id, paste_meta)
+    get_cache().push_paste_all(paste_meta.paste_id, paste_meta, raw=paste_content)
 
     return redirect(url_for(".get_view_paste", paste_id=paste_meta.paste_id))
 
@@ -110,16 +111,23 @@ async def post_new_paste():
 @helpers.handle_paste_exceptions
 async def get_view_paste(paste_id: str, lexer_name: str | None):
     root_path = get_settings().PASTE_ROOT
+    paste_path = helpers.create_paste_path(root_path, paste_id)
 
     paste_meta = None
-    paste_path = None
 
-    if (cached_meta := get_cache().get_paste_meta(paste_id)) is not None:
-        logger.debug("accessing paste '%s' meta from cache", paste_id)
-        paste_meta = cached_meta
-        paste_path = helpers.create_paste_path(root_path, paste_id)
-    else:
-        paste_path, paste_meta = await helpers.try_get_paste(root_path, paste_id)
+    try:
+        # get the paste, using cache if possible
+        if (cached_meta := get_cache().get_paste_meta(paste_id)) is not None:
+            logger.debug("accessing paste '%s' meta from cache", paste_id)
+            paste_meta = cached_meta
+            paste_meta.raise_if_expired()
+        else:
+            _, paste_meta = await helpers.try_get_paste(root_path, paste_id)
+
+    except helpers.PasteExpiredException as err:
+        # register the paste for removal
+        current_app.add_background_task(helpers.safe_remove_paste, paste_path, paste_id)
+        raise err
 
     raw_paste = None
     rendered_paste = None
@@ -133,12 +141,15 @@ async def get_view_paste(paste_id: str, lexer_name: str | None):
             raw_paste = cached_raw
         else:
             raw_paste = helpers.read_paste_content(paste_path)
-            raw_paste = "".join([line.decode() async for line in raw_paste])
+            raw_paste = b"".join([line async for line in raw_paste])
 
         if not lexer_name:
             lexer_name = paste_meta.lexer_name or "text"
 
-        rendered_paste = await helpers.highlight_content_async_wrapped(raw_paste, lexer_name)
+        rendered_paste = await helpers.highlight_content_async_wrapped(
+            raw_paste.decode(),
+            lexer_name
+        )
 
     get_cache().push_paste_all(paste_id, paste_meta, rendered_paste, raw_paste)
 
@@ -154,10 +165,35 @@ async def get_view_paste(paste_id: str, lexer_name: str | None):
 @helpers.handle_paste_exceptions
 async def get_raw_paste(paste_id: str):
     root_path = get_settings().PASTE_ROOT
+    paste_path = helpers.create_paste_path(root_path, paste_id)
 
-    _, _, response = await helpers.try_get_paste_with_content_response(
-        root_path,
-        paste_id,
-    )
+    paste_meta = None
+
+    try:
+        # get the paste, using cache if possible
+        if (cached_meta := get_cache().get_paste_meta(paste_id)) is not None:
+            logger.debug("accessing paste '%s' meta from cache", paste_id)
+            paste_meta = cached_meta
+            paste_meta.raise_if_expired()
+        else:
+            _, paste_meta = await helpers.try_get_paste(root_path, paste_id)
+
+    except helpers.PasteExpiredException as err:
+        # register the paste for removal
+        current_app.add_background_task(helpers.safe_remove_paste, paste_path, paste_id)
+        raise err
+
+    raw_paste = None
+
+    if (cached_raw := get_cache().get_paste_raw(paste_id)) is not None:
+        logger.debug("accessing paste '%s' raw content from cache", paste_id)
+        raw_paste = cached_raw
+    else:
+        raw_paste = helpers.read_paste_content(paste_path)
+        raw_paste = b"".join([line async for line in raw_paste])
+        get_cache().push_paste_all(paste_id, raw=raw_paste)
+
+    response = await make_response(raw_paste)
+    response.mimetype = "text/plain"
 
     return response

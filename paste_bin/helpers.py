@@ -73,6 +73,10 @@ class PasteMeta(PasteMetaVersion):
             return True
         return False
 
+    def raise_if_expired(self):
+        if self.is_expired:
+            raise PasteExpiredException(f"paste has expired with id of {paste_id}")
+
 
 class PasteMetaCreate(BaseModel):
     content: str
@@ -260,17 +264,31 @@ def get_form_datetime(value: str | None) -> datetime | None:
         return datetime.fromisoformat(value)
 
 
+async def safe_remove_paste(paste_path: Path, paste_id: str):
+    """
+    deletes a paste from disk,
+    skipping if it no longer exists
+
+        :param paste_path: The full path to paste
+        :param paste_id: The paste's id
+    """
+    logger.info("auto removing of paste with id of '%s'", paste_id)
+    try:
+        await aio_os.remove(paste_path)
+    except FileNotFoundError:
+        pass
+
+
 async def try_get_paste(
-        root_path: Path,
+        root_path: Path,  # TODO make this path_path
         paste_id: str,
-        auto_remove: bool = True,
+        **kw  # TODO remove
         ) -> tuple[Path, PasteMeta]:
     """
     Try to process the paste meta
 
         :param root_path: The root path
         :param paste_id: The paste's id
-        :param auto_remove: Whether to auto remove the paste on expiry, defaults to True
         :raises PasteDoesNotExistException: When the paste is not found
         :raises PasteExpiredException: When the paste has expired
         :return: The paste's full path and it's loaded meta
@@ -283,23 +301,15 @@ async def try_get_paste(
 
     paste_meta = await read_paste_meta(paste_path)
 
-    if paste_meta.is_expired:
-        logger.info("paste id of '%s' found to be expired", paste_id)
-        if auto_remove:
-            logger.info("running auto removal of paste with id of '%s'", paste_id)
-            try:
-                await aio_os.remove(paste_path)
-            except FileNotFoundError:
-                pass
-        raise PasteExpiredException(f"paste has expired with id of {paste_id}")
+    paste_meta.raise_if_expired()
 
     return paste_path, paste_meta
 
 
+# FIXME remove
 async def try_get_paste_with_content_response(
         root_path: Path,
         paste_id: str,
-        auto_remove: bool = True,
         ) -> tuple[Path, PasteMeta, Response | WerkzeugResponse]:
     """
     An extension of `try_get_paste()`,
@@ -307,10 +317,9 @@ async def try_get_paste_with_content_response(
 
         :param root_path: The root path
         :param paste_id: The paste's id
-        :param auto_remove: Whether to auto remove the paste on expiry, defaults to True
         :return: The paste's full path, it's meta and the content response
     """
-    paste_path, paste_meta = await try_get_paste(root_path, paste_id, auto_remove)
+    paste_path, paste_meta = await try_get_paste(root_path, paste_id)
 
     response = await make_response(read_paste_content(paste_path))
     response.mimetype = "text/plain"
