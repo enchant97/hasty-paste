@@ -1,4 +1,4 @@
-quart~=0.18.1
+quart==0.18.0
 quart-schema~=0.13.0
 async-timeout~=4.0.2
 web-health-checker~=1.3.1
