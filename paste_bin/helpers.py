@@ -75,7 +75,7 @@ class PasteMeta(PasteMetaVersion):
 
     def raise_if_expired(self):
         if self.is_expired:
-            raise PasteExpiredException(f"paste has expired with id of {paste_id}")
+            raise PasteExpiredException(f"paste has expired with id of {self.paste_id}")
 
 
 class PasteMetaCreate(BaseModel):
@@ -304,27 +304,6 @@ async def try_get_paste(
     paste_meta.raise_if_expired()
 
     return paste_path, paste_meta
-
-
-# FIXME remove
-async def try_get_paste_with_content_response(
-        root_path: Path,
-        paste_id: str,
-        ) -> tuple[Path, PasteMeta, Response | WerkzeugResponse]:
-    """
-    An extension of `try_get_paste()`,
-    will also return the paste contents in a response
-
-        :param root_path: The root path
-        :param paste_id: The paste's id
-        :return: The paste's full path, it's meta and the content response
-    """
-    paste_path, paste_meta = await try_get_paste(root_path, paste_id)
-
-    response = await make_response(read_paste_content(paste_path))
-    response.mimetype = "text/plain"
-
-    return paste_path, paste_meta, response
 
 
 async def list_paste_ids_response(root_path: Path) -> Response | WerkzeugResponse:

@@ -1,14 +1,19 @@
+import logging
 from datetime import datetime
 
 from async_timeout import timeout
-from quart import Blueprint, abort, current_app, request, send_file
+from quart import (Blueprint, abort, current_app, make_response, request,
+                   send_file)
 from quart.wrappers import Body
 from quart_schema import validate_request, validate_response
 
 from .. import helpers
+from ..cache import get_cache
 from ..config import get_settings
 
 blueprint = Blueprint("api", __name__, url_prefix="/api")
+
+logger = logging.getLogger("paste_bin")
 
 
 @blueprint.post("/pastes")
@@ -118,10 +123,35 @@ async def get_api_paste_content(paste_id: str):
     Get the paste content, if one exists
     """
     root_path = get_settings().PASTE_ROOT
+    paste_path = helpers.create_paste_path(root_path, paste_id)
 
-    _, _, response = await helpers.try_get_paste_with_content_response(
-        root_path,
-        paste_id,
-    )
+    paste_meta = None
+
+    try:
+        # get the paste, using cache if possible
+        if (cached_meta := get_cache().get_paste_meta(paste_id)) is not None:
+            logger.debug("accessing paste '%s' meta from cache", paste_id)
+            paste_meta = cached_meta
+            paste_meta.raise_if_expired()
+        else:
+            _, paste_meta = await helpers.try_get_paste(root_path, paste_id)
+
+    except helpers.PasteExpiredException as err:
+        # register the paste for removal
+        current_app.add_background_task(helpers.safe_remove_paste, paste_path, paste_id)
+        raise err
+
+    raw_paste = None
+
+    if (cached_raw := get_cache().get_paste_raw(paste_id)) is not None:
+        logger.debug("accessing paste '%s' raw content from cache", paste_id)
+        raw_paste = cached_raw
+    else:
+        raw_paste = helpers.read_paste_content(paste_path)
+        raw_paste = b"".join([line async for line in raw_paste])
+        get_cache().push_paste_all(paste_id, raw=raw_paste)
+
+    response = await make_response(raw_paste)
+    response.mimetype = "text/plain"
 
     return response
