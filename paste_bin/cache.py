@@ -35,7 +35,7 @@ class InternalCache:
             # remove all that are least accessed
             n_to_removed = self.cache_len - self._max_meta_size
             logger.debug("removing %s oldest items from cache", n_to_removed)
-            [popitem(last=True) for _ in range(n_to_removed)]
+            [self._cache.popitem(last=True) for _ in range(n_to_removed)]
 
     def _read_cache(self, paste_id: str) -> InternalCacheItem | None:
         if (cached := self._cache.get(paste_id)) is not None:
@@ -44,13 +44,12 @@ class InternalCache:
             return cached
 
     def _write_cache(self, paste_id: str, to_cache: InternalCacheItem):
+        # insert/overwrite cache
         self._cache[paste_id] = to_cache
-        if self._cache.get(paste_id) is not None:
-            # we want most used items at front, so least accessed are removed first
-            self._cache.move_to_end(paste_id, last=False)
-        else:
-            # we inserted a new item, expire old items
-            self._expire_old()
+        # we want most used items at front
+        self._cache.move_to_end(paste_id, last=False)
+        # expire old items
+        self._expire_old()
 
     def push_paste_all(
             self,

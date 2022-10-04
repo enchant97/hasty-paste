@@ -8,6 +8,7 @@ TEST_META_NO_EXPIRY = helpers.PasteMeta(
     creation_dt=datetime.utcnow(),
 )
 
+
 class TestInternalCache(TestCase):
     def test_cache_len(self):
         the_cache = cache.InternalCache(4)
@@ -23,6 +24,34 @@ class TestInternalCache(TestCase):
         the_cache.push_paste_meta(paste_id, TEST_META_NO_EXPIRY)
         self.assertEqual(the_cache._cache[paste_id].meta, TEST_META_NO_EXPIRY)
 
+    def test_cache_push_rollover(self):
+        the_cache = cache.InternalCache(3)
+
+        to_cache = [
+            helpers.PasteMeta(
+                paste_id="push-rollover-1",
+                creation_dt=datetime.utcnow(),
+            ),
+            helpers.PasteMeta(
+                paste_id="push-rollover-2",
+                creation_dt=datetime.utcnow(),
+            ),
+            helpers.PasteMeta(
+                paste_id="push-rollover-3",
+                creation_dt=datetime.utcnow(),
+            ),
+            helpers.PasteMeta(
+                paste_id="push-rollover-4",
+                creation_dt=datetime.utcnow(),
+            ),
+        ]
+
+        for item in to_cache:
+            the_cache.push_paste_meta(item.paste_id, item)
+
+        self.assertEqual(len(the_cache._cache), 3)
+        self.assertIsNone(the_cache._cache.get("push-rollover-1"))
+
     def test_cache_get(self):
         the_cache = cache.InternalCache(4)
         paste_id = "get_meta"
@@ -30,4 +59,5 @@ class TestInternalCache(TestCase):
         the_cache._cache[paste_id] = cache.InternalCacheItem(
             meta=TEST_META_NO_EXPIRY,
         )
-        self.assertEqual(the_cache.get_paste_meta(paste_id), TEST_META_NO_EXPIRY)
+        self.assertEqual(the_cache.get_paste_meta(
+            paste_id), TEST_META_NO_EXPIRY)
