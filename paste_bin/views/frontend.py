@@ -3,7 +3,7 @@ from datetime import datetime
 
 from quart import (Blueprint, abort, current_app, make_response, redirect,
                    render_template, request, url_for)
-from quart_schema import hide_route
+from quart_schema import hide
 
 from .. import helpers
 from ..cache import get_cache
@@ -15,7 +15,7 @@ logger = logging.getLogger("paste_bin")
 
 
 @blueprint.get("/")
-@hide_route
+@hide
 async def get_index():
     if get_settings().NEW_AT_INDEX:
         return await get_new_paste()
@@ -23,19 +23,19 @@ async def get_index():
 
 
 @blueprint.get("/about")
-@hide_route
+@hide
 async def get_about():
     return await render_template("about.jinja")
 
 
 @blueprint.get("/favicon.ico")
-@hide_route
+@hide
 async def get_favicon():
     return redirect(url_for("static", filename="icon.svg"), 301)
 
 
 @blueprint.get("/new")
-@hide_route
+@hide
 async def get_new_paste():
     default_settings = get_settings().UI_DEFAULT
     default_expires_at = None
@@ -65,7 +65,7 @@ async def get_new_paste():
 
 
 @blueprint.post("/new")
-@hide_route
+@hide
 async def post_new_paste():
     form = await request.form
 
@@ -107,7 +107,7 @@ async def post_new_paste():
 
 @blueprint.get("/<paste_id>", defaults={"lexer_name": None})
 @blueprint.get("/<paste_id>.<lexer_name>")
-@hide_route
+@hide
 @helpers.handle_paste_exceptions
 async def get_view_paste(paste_id: str, lexer_name: str | None):
     root_path = get_settings().PASTE_ROOT
@@ -162,7 +162,7 @@ async def get_view_paste(paste_id: str, lexer_name: str | None):
 
 
 @blueprint.get("/<paste_id>/raw")
-@hide_route
+@hide
 @helpers.handle_paste_exceptions
 async def get_raw_paste(paste_id: str):
     root_path = get_settings().PASTE_ROOT

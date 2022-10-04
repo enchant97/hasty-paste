@@ -16,8 +16,10 @@ quart_schema = QuartSchema(
     openapi_path="/api/openapi.json",
     swagger_ui_path="/api/docs",
     redoc_ui_path="/api/redocs",
-    title="Hasty Paste",
-    version=app_version,
+    info={
+        "title": "Hasty Paste",
+        "version": app_version,
+    },
 )
 
 
