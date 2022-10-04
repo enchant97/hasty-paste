@@ -1,12 +1,16 @@
+import logging
 from datetime import datetime
 
 from quart import Blueprint, abort, redirect, render_template, request, url_for
 from quart_schema import hide_route
 
 from .. import helpers
+from ..cache import get_cache
 from ..config import get_settings
 
 blueprint = Blueprint("front_end", __name__)
+
+logger = logging.getLogger("paste_bin")
 
 
 @blueprint.get("/")
@@ -95,6 +99,8 @@ async def post_new_paste():
 
     await helpers.write_paste(paste_path, paste_meta, paste_content.encode())
 
+    get_cache().push_paste_meta(paste_meta.paste_id, paste_meta)
+
     return redirect(url_for(".get_view_paste", paste_id=paste_meta.paste_id))
 
 
@@ -105,20 +111,40 @@ async def post_new_paste():
 async def get_view_paste(paste_id: str, lexer_name: str | None):
     root_path = get_settings().PASTE_ROOT
 
-    paste_path, paste_meta = await helpers.try_get_paste(root_path, paste_id)
+    paste_meta = None
+    paste_path = None
 
-    content = helpers.read_paste_content(paste_path)
+    if (cached_meta := get_cache().get_paste_meta(paste_id)) is not None:
+        logger.debug("accessing paste '%s' meta from cache", paste_id)
+        paste_meta = cached_meta
+        paste_path = helpers.create_paste_path(root_path, paste_id)
+    else:
+        paste_path, paste_meta = await helpers.try_get_paste(root_path, paste_id)
 
-    content = "".join([line.decode() async for line in content])
+    raw_paste = None
+    rendered_paste = None
 
-    if not lexer_name:
-        lexer_name = paste_meta.lexer_name or "text"
+    if (cached_rendered := get_cache().get_paste_rendered(paste_id)) is not None:
+        logger.debug("accessing paste '%s' rendered content from cache", paste_id)
+        rendered_paste = cached_rendered
+    else:
+        if (cached_raw := get_cache().get_paste_raw(paste_id)) is None:
+            logger.debug("accessing paste '%s' raw content from cache", paste_id)
+            raw_paste = cached_raw
+        else:
+            raw_paste = helpers.read_paste_content(paste_path)
+            raw_paste = "".join([line.decode() async for line in raw_paste])
 
-    content = await helpers.highlight_content_async_wrapped(content, lexer_name)
+        if not lexer_name:
+            lexer_name = paste_meta.lexer_name or "text"
+
+        rendered_paste = await helpers.highlight_content_async_wrapped(raw_paste, lexer_name)
+
+    get_cache().push_paste_all(paste_id, paste_meta, rendered_paste, raw_paste)
 
     return await render_template(
         "view.jinja",
-        paste_content=content,
+        paste_content=rendered_paste,
         meta=paste_meta,
     )
 

@@ -1,10 +1,11 @@
 import logging
 
-from quart import Quart
+from quart import Quart, g
 from quart_schema import QuartSchema
 from web_health_checker.contrib import quart as health_check
 
 from . import __version__
+from .cache import InternalCache, init_cache
 from .config import get_settings
 from .views import api, extra_static, frontend
 
@@ -56,5 +57,7 @@ def create_app():
     app.register_blueprint(extra_static.blueprint)
 
     quart_schema.init_app(app)
+
+    init_cache(InternalCache(4))
 
     return app
