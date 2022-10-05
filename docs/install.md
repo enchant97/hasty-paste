@@ -10,6 +10,7 @@ Please read these notes before continuing.
 - Access to add and read pastes is public, use a reverse proxy to add authentication
 - A HTTPS connection at endpoint is required for the "Copy Share Link" button
 - Use HTTPS otherwise paste links are exposed to man-in-the-middle attacks
+- If you have a high amount of clients, use Redis caching and set `WORKERS` to match the physical cpu cores
 
 ## Configuration
 All configs shown here should be given as environment variables.
@@ -25,6 +26,10 @@ All configs shown here should be given as environment variables.
 | UI_DEFAULT__EXPIRE_TIME__MINUTES | Default minutes in ui for expiry if enabled                        | 0             | 0              |
 | UI_DEFAULT__EXPIRE_TIME__HOURS   | Default hours in ui for expiry if enabled                          | 1             | 1              |
 | UI_DEFAULT__EXPIRE_TIME__DAYS    | Default days in ui for expiry if enabled                           | 0             | 0              |
+|                                  |                                                                    |               |                |
+| CACHE__ENABLE                    | Whether to enable caching of any type                              | True          | True           |
+| CACHE__MAX_INTERNAL_SIZE         | The max size of the internal cache                                 | 4             | 4              |
+| CACHE__REDIS_URI                 | Use redis for caching (disabled internal)                          | -             | -              |
 |                                  |                                                                    |               |                |
 | BRANDING__TITLE                  | Customise the app title                                            | -             | -              |
 | BRANDING__DESCRIPTION            | Customise the app description                                      | -             | -              |
@@ -46,6 +51,18 @@ All configs shown here should be given as environment variables.
 
 > If you are expecting heavy load set `WORKERS` to how many physical cpu cores are available.
 
+### Redis Uri
+The `CACHE__REDIS_URI` can only accept certain formats, these are shown below:
+
+- `redis://[[username]:[password]]@localhost:6379/0`
+- `rediss://[[username]:[password]]@localhost:6379/0`
+- `unix://[[username]:[password]]@/path/to/socket.sock?db=0`
+
+e.g
+
+```
+CACHE__REDIS_URI="redis://localhost:6379"
+```
 
 ## With Docker (Recommended)
 This will assume you have both Docker and Docker Compose installed.
@@ -75,6 +92,35 @@ volumes:
   data:
 ```
 
+### With Redis
+
+```yml
+version: "3"
+
+services:
+  redis:
+    container_name: redis
+    image: redis:alpine
+    restart: unless-stopped
+
+  paste-bin:
+    container_name: paste-bin
+    image: ghcr.io/enchant97/hasty-paste:1
+    restart: unless-stopped
+    volumes:
+      - data:/app/data
+    ports:
+      - 8000:8000
+    environment:
+      - "UI_DEFAULT__USE_LONG_ID=False"
+      - "CACHE__REDIS_URI=redis://redis:6379"
+    depends_on:
+      - redis
+
+volumes:
+  data:
+```
+
 ## Without Docker
 This will assume the supported Python version is installed and accessible.
 
@@ -97,4 +143,4 @@ pip install -r requirements.txt
 hypercorn 'paste_bin.main:create_app()' --bind 0.0.0.0:8000 --workers 1
 ```
 
-If you wish to configure Hypercorn the documentation can be found [here](https://pgjones.gitlab.io/hypercorn/), you could for example configure https or different bind methods.
+If you wish to configure Hypercorn the documentation can be found [here](https://hypercorn.readthedocs.io/), you could for example configure https or different bind methods.
