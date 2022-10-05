@@ -48,7 +48,8 @@ async def get_new_paste():
     # allow paste to be cloned for editing as new paste
     if (paste_id := request.args.get("clone_from")) is not None:
         try:
-            paste_path, _ = await helpers.try_get_paste(root_path, paste_id)
+            paste_path = helpers.create_paste_path(root_path, paste_id)
+            _ = await helpers.try_get_paste(paste_path, paste_id)
             content = helpers.read_paste_content(paste_path)
             content = "".join([line.decode() async for line in content])
         except (helpers.PasteException, helpers.PasteMetaException):
@@ -122,7 +123,7 @@ async def get_view_paste(paste_id: str, lexer_name: str | None):
             paste_meta = cached_meta
             paste_meta.raise_if_expired()
         else:
-            _, paste_meta = await helpers.try_get_paste(root_path, paste_id)
+            paste_meta = await helpers.try_get_paste(paste_path, paste_id)
             await get_cache().push_paste_meta(paste_id, paste_meta)
 
     except helpers.PasteExpiredException as err:
@@ -177,7 +178,7 @@ async def get_raw_paste(paste_id: str):
             paste_meta = cached_meta
             paste_meta.raise_if_expired()
         else:
-            _, paste_meta = await helpers.try_get_paste(root_path, paste_id)
+            paste_meta = await helpers.try_get_paste(paste_path, paste_id)
             await get_cache().push_paste_meta(paste_id, paste_meta)
 
     except helpers.PasteExpiredException as err:

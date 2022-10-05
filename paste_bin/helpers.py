@@ -284,22 +284,16 @@ async def safe_remove_paste(paste_path: Path, paste_id: str):
         pass
 
 
-async def try_get_paste(
-        root_path: Path,  # TODO make this path_path
-        paste_id: str,
-        **kw  # TODO remove
-) -> tuple[Path, PasteMeta]:
+async def try_get_paste(paste_path: Path, paste_id: str) -> PasteMeta:
     """
     Try to process the paste meta
 
-        :param root_path: The root path
+        :param paste_path: The full path to paste
         :param paste_id: The paste's id
         :raises PasteDoesNotExistException: When the paste is not found
         :raises PasteExpiredException: When the paste has expired
-        :return: The paste's full path and it's loaded meta
+        :return: The loaded meta
     """
-    paste_path = create_paste_path(root_path, paste_id)
-
     if not await aio_ospath.isfile(paste_path):
         logger.info("paste id of '%s' not found on filesystem", paste_id)
         raise PasteDoesNotExistException(
@@ -309,7 +303,7 @@ async def try_get_paste(
 
     paste_meta.raise_if_expired()
 
-    return paste_path, paste_meta
+    return paste_meta
 
 
 async def list_paste_ids_response(root_path: Path) -> Response | WerkzeugResponse:

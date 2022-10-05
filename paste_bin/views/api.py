@@ -109,15 +109,13 @@ async def get_api_paste_raw(paste_id: str):
             logger.debug("accessing paste '%s' meta from cache", paste_id)
             cached_meta.raise_if_expired()
         else:
-            _, paste_meta = await helpers.try_get_paste(root_path, paste_id)
+            paste_meta = await helpers.try_get_paste(paste_path, paste_id)
             await get_cache().push_paste_meta(paste_id, paste_meta)
 
     except helpers.PasteExpiredException as err:
         # register the paste for removal
         current_app.add_background_task(helpers.safe_remove_paste, paste_path, paste_id)
         raise err
-
-    paste_path, _, = await helpers.try_get_paste(root_path, paste_id)
 
     return await send_file(paste_path)
 
@@ -141,7 +139,7 @@ async def get_api_paste_meta(paste_id: str):
             paste_meta = cached_meta
             paste_meta.raise_if_expired()
         else:
-            _, paste_meta = await helpers.try_get_paste(root_path, paste_id)
+            paste_meta = await helpers.try_get_paste(paste_path, paste_id)
             await get_cache().push_paste_meta(paste_id, paste_meta)
 
     except helpers.PasteExpiredException as err:
@@ -167,7 +165,7 @@ async def get_api_paste_content(paste_id: str):
             logger.debug("accessing paste '%s' meta from cache", paste_id)
             cached_meta.raise_if_expired()
         else:
-            _, paste_meta = await helpers.try_get_paste(root_path, paste_id)
+            paste_meta = await helpers.try_get_paste(paste_path, paste_id)
             await get_cache().push_paste_meta(paste_id, paste_meta)
 
     except helpers.PasteExpiredException as err:
