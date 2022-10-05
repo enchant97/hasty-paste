@@ -47,8 +47,6 @@ def create_app():
 
     if not settings.BRANDING.HIDE_VERSION:
         app.config["__version__"] = app_version
-    else:
-        quart_schema.version = ""
 
     app.config["MAX_CONTENT_LENGTH"] = settings.MAX_BODY_SIZE
     app.config["BRANDING"] = settings.BRANDING
