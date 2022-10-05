@@ -60,6 +60,6 @@ def create_app():
 
     quart_schema.init_app(app)
 
-    init_cache(InternalCache(4))
+    init_cache(InternalCache(app, 4))
 
     return app

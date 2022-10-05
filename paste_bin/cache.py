@@ -3,6 +3,8 @@ from abc import ABC, abstractmethod
 from collections import OrderedDict
 from dataclasses import dataclass
 
+from quart import Quart
+
 from .helpers import PasteMeta
 
 logger = logging.getLogger("paste_bin")
@@ -12,6 +14,10 @@ class BaseCache(ABC):
     """
     The base cache class that all cache types should inherit from
     """
+    @abstractmethod
+    def __init__(self, app: Quart, **kw):
+        ...
+
     @property
     @abstractmethod
     def cache_len(self) -> int:
@@ -77,7 +83,7 @@ class InternalCache(BaseCache):
     _max_meta_size: int
     _cache: OrderedDict[str, InternalCacheItem]
 
-    def __init__(self, max_size: int):
+    def __init__(self, app, max_size: int = 5, **kw):
         self._max_meta_size = max_size
         self._cache = OrderedDict()
 
