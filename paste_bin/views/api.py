@@ -180,7 +180,6 @@ async def get_api_paste_content(paste_id: str):
     if (cached_raw := get_cache().get_paste_raw(paste_id)) is not None:
         logger.debug("accessing paste '%s' raw content from cache", paste_id)
         raw_paste = cached_raw
-        get_cache().push_paste_all(paste_id, raw=raw_paste)
     else:
         raw_paste = helpers.read_paste_content(paste_path)
         raw_paste = b"".join([line async for line in raw_paste])

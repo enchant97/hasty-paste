@@ -100,7 +100,7 @@ async def post_new_paste():
 
     await helpers.write_paste(paste_path, paste_meta, paste_content)
 
-    get_cache().push_paste_all(paste_meta.paste_id, paste_meta, raw=paste_content)
+    get_cache().push_paste_all(paste_meta.paste_id, meta=paste_meta, raw=paste_content)
 
     return redirect(url_for(".get_view_paste", paste_id=paste_meta.paste_id))
 

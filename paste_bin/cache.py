@@ -24,6 +24,8 @@ class BaseCache(ABC):
     def push_paste_all(
             self,
             paste_id: str,
+            /,
+            *,
             meta: PasteMeta | None = None,
             html: str | None = None,
             raw: bytes | None = None):
@@ -104,7 +106,7 @@ class InternalCache(BaseCache):
         # expire old items
         self._expire_old()
 
-    def push_paste_all(self, paste_id, meta, html, raw):
+    def push_paste_all(self, paste_id, /, *, meta=None, html=None, raw=None):
         # take value of existing cache if None
         meta = meta if meta is not None else self.get_paste_meta(paste_id)
         html = html if html is not None else self.get_paste_rendered(paste_id)
@@ -114,7 +116,7 @@ class InternalCache(BaseCache):
         self._write_cache(paste_id, to_cache)
 
     def push_paste_meta(self, paste_id, meta):
-        self.push_paste_all(paste_id, meta, None, None)
+        self.push_paste_all(paste_id, meta=meta, html=None, raw=None)
 
     def get_paste_meta(self, paste_id):
         cached = self._read_cache(paste_id)
