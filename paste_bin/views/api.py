@@ -40,7 +40,7 @@ async def post_api_paste_new(data: helpers.PasteMetaCreate):
 
     await helpers.write_paste(paste_path, paste_meta, data.content.encode())
 
-    get_cache().push_paste_meta(paste_id, paste_meta)
+    await get_cache().push_paste_meta(paste_id, paste_meta)
 
     return paste_meta, 201
 
@@ -73,7 +73,7 @@ async def post_api_paste_new_simple():
     async with timeout(current_app.config["BODY_TIMEOUT"]):
         await helpers.write_paste(paste_path, paste_meta, body)
 
-    get_cache().push_paste_meta(paste_id, paste_meta)
+    await get_cache().push_paste_meta(paste_id, paste_meta)
 
     return paste_meta.paste_id, 201
 
@@ -105,12 +105,12 @@ async def get_api_paste_raw(paste_id: str):
 
     try:
         # get the paste, using cache if possible
-        if (cached_meta := get_cache().get_paste_meta(paste_id)) is not None:
+        if (cached_meta := await get_cache().get_paste_meta(paste_id)) is not None:
             logger.debug("accessing paste '%s' meta from cache", paste_id)
             cached_meta.raise_if_expired()
         else:
             _, paste_meta = await helpers.try_get_paste(root_path, paste_id)
-            get_cache().push_paste_meta(paste_id, paste_meta)
+            await get_cache().push_paste_meta(paste_id, paste_meta)
 
     except helpers.PasteExpiredException as err:
         # register the paste for removal
@@ -136,13 +136,13 @@ async def get_api_paste_meta(paste_id: str):
 
     try:
         # get the paste, using cache if possible
-        if (cached_meta := get_cache().get_paste_meta(paste_id)) is not None:
+        if (cached_meta := await get_cache().get_paste_meta(paste_id)) is not None:
             logger.debug("accessing paste '%s' meta from cache", paste_id)
             paste_meta = cached_meta
             paste_meta.raise_if_expired()
         else:
             _, paste_meta = await helpers.try_get_paste(root_path, paste_id)
-            get_cache().push_paste_meta(paste_id, paste_meta)
+            await get_cache().push_paste_meta(paste_id, paste_meta)
 
     except helpers.PasteExpiredException as err:
         # register the paste for removal
@@ -163,12 +163,12 @@ async def get_api_paste_content(paste_id: str):
 
     try:
         # get the paste, using cache if possible
-        if (cached_meta := get_cache().get_paste_meta(paste_id)) is not None:
+        if (cached_meta := await get_cache().get_paste_meta(paste_id)) is not None:
             logger.debug("accessing paste '%s' meta from cache", paste_id)
             cached_meta.raise_if_expired()
         else:
             _, paste_meta = await helpers.try_get_paste(root_path, paste_id)
-            get_cache().push_paste_meta(paste_id, paste_meta)
+            await get_cache().push_paste_meta(paste_id, paste_meta)
 
     except helpers.PasteExpiredException as err:
         # register the paste for removal
@@ -177,13 +177,13 @@ async def get_api_paste_content(paste_id: str):
 
     raw_paste = None
 
-    if (cached_raw := get_cache().get_paste_raw(paste_id)) is not None:
+    if (cached_raw := await get_cache().get_paste_raw(paste_id)) is not None:
         logger.debug("accessing paste '%s' raw content from cache", paste_id)
         raw_paste = cached_raw
     else:
         raw_paste = helpers.read_paste_content(paste_path)
         raw_paste = b"".join([line async for line in raw_paste])
-        get_cache().push_paste_all(paste_id, raw=raw_paste)
+        await get_cache().push_paste_all(paste_id, raw=raw_paste)
 
     response = await make_response(raw_paste)
     response.mimetype = "text/plain"

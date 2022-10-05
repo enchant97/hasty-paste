@@ -100,7 +100,7 @@ async def post_new_paste():
 
     await helpers.write_paste(paste_path, paste_meta, paste_content)
 
-    get_cache().push_paste_all(paste_meta.paste_id, meta=paste_meta, raw=paste_content)
+    await get_cache().push_paste_all(paste_meta.paste_id, meta=paste_meta, raw=paste_content)
 
     return redirect(url_for(".get_view_paste", paste_id=paste_meta.paste_id))
 
@@ -117,13 +117,13 @@ async def get_view_paste(paste_id: str, lexer_name: str | None):
 
     try:
         # get the paste, using cache if possible
-        if (cached_meta := get_cache().get_paste_meta(paste_id)) is not None:
+        if (cached_meta := await get_cache().get_paste_meta(paste_id)) is not None:
             logger.debug("accessing paste '%s' meta from cache", paste_id)
             paste_meta = cached_meta
             paste_meta.raise_if_expired()
         else:
             _, paste_meta = await helpers.try_get_paste(root_path, paste_id)
-            get_cache().push_paste_meta(paste_id, paste_meta)
+            await get_cache().push_paste_meta(paste_id, paste_meta)
 
     except helpers.PasteExpiredException as err:
         # register the paste for removal
@@ -133,17 +133,17 @@ async def get_view_paste(paste_id: str, lexer_name: str | None):
     raw_paste = None
     rendered_paste = None
 
-    if (cached_rendered := get_cache().get_paste_rendered(paste_id)) is not None:
+    if (cached_rendered := await get_cache().get_paste_rendered(paste_id)) is not None:
         logger.debug("accessing paste '%s' rendered content from cache", paste_id)
         rendered_paste = cached_rendered
     else:
-        if (cached_raw := get_cache().get_paste_raw(paste_id)) is not None:
+        if (cached_raw := await get_cache().get_paste_raw(paste_id)) is not None:
             logger.debug("accessing paste '%s' raw content from cache", paste_id)
             raw_paste = cached_raw
         else:
             raw_paste = helpers.read_paste_content(paste_path)
             raw_paste = b"".join([line async for line in raw_paste])
-            get_cache().push_paste_all(paste_id, raw=raw_paste)
+            await get_cache().push_paste_all(paste_id, raw=raw_paste)
 
         if not lexer_name:
             lexer_name = paste_meta.lexer_name or "text"
@@ -152,7 +152,7 @@ async def get_view_paste(paste_id: str, lexer_name: str | None):
             raw_paste.decode(),
             lexer_name
         )
-        get_cache().push_paste_all(paste_id, html=rendered_paste)
+        await get_cache().push_paste_all(paste_id, html=rendered_paste)
 
     return await render_template(
         "view.jinja",
@@ -172,13 +172,13 @@ async def get_raw_paste(paste_id: str):
 
     try:
         # get the paste, using cache if possible
-        if (cached_meta := get_cache().get_paste_meta(paste_id)) is not None:
+        if (cached_meta := await get_cache().get_paste_meta(paste_id)) is not None:
             logger.debug("accessing paste '%s' meta from cache", paste_id)
             paste_meta = cached_meta
             paste_meta.raise_if_expired()
         else:
             _, paste_meta = await helpers.try_get_paste(root_path, paste_id)
-            get_cache().push_paste_meta(paste_id, paste_meta)
+            await get_cache().push_paste_meta(paste_id, paste_meta)
 
     except helpers.PasteExpiredException as err:
         # register the paste for removal
@@ -187,13 +187,13 @@ async def get_raw_paste(paste_id: str):
 
     raw_paste = None
 
-    if (cached_raw := get_cache().get_paste_raw(paste_id)) is not None:
+    if (cached_raw := await get_cache().get_paste_raw(paste_id)) is not None:
         logger.debug("accessing paste '%s' raw content from cache", paste_id)
         raw_paste = cached_raw
     else:
         raw_paste = helpers.read_paste_content(paste_path)
         raw_paste = b"".join([line async for line in raw_paste])
-        get_cache().push_paste_all(paste_id, raw=raw_paste)
+        await get_cache().push_paste_all(paste_id, raw=raw_paste)
 
     response = await make_response(raw_paste)
     response.mimetype = "text/plain"

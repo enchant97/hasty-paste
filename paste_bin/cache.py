@@ -18,16 +18,8 @@ class BaseCache(ABC):
     def __init__(self, app: Quart, **kw):
         ...
 
-    @property
     @abstractmethod
-    def cache_len(self) -> int:
-        """
-        returns how many items are in cache
-        """
-        ...
-
-    @abstractmethod
-    def push_paste_all(
+    async def push_paste_all(
             self,
             paste_id: str,
             /,
@@ -41,28 +33,28 @@ class BaseCache(ABC):
         ...
 
     @abstractmethod
-    def push_paste_meta(self, paste_id: str, meta: PasteMeta):
+    async def push_paste_meta(self, paste_id: str, meta: PasteMeta):
         """
         create of update the cached meta of a paste
         """
         ...
 
     @abstractmethod
-    def get_paste_meta(self, paste_id: str) -> PasteMeta:
+    async def get_paste_meta(self, paste_id: str) -> PasteMeta:
         """
         Get the cached paste meta, if in cache
         """
         ...
 
     @abstractmethod
-    def get_paste_rendered(self, paste_id: str) -> str | None:
+    async def get_paste_rendered(self, paste_id: str) -> str | None:
         """
         Get the cached rendered paste content, if in cache
         """
         ...
 
     @abstractmethod
-    def get_paste_raw(self, paste_id: str) -> bytes | None:
+    async def get_paste_raw(self, paste_id: str) -> bytes | None:
         """
         Get the cached raw paste content, if in cache
         """
@@ -89,6 +81,9 @@ class InternalCache(BaseCache):
 
     @property
     def cache_len(self) -> int:
+        """
+        returns how many items are in cache
+        """
         return len(self._cache)
 
     def _expire_old(self):
@@ -112,27 +107,27 @@ class InternalCache(BaseCache):
         # expire old items
         self._expire_old()
 
-    def push_paste_all(self, paste_id, /, *, meta=None, html=None, raw=None):
+    async def push_paste_all(self, paste_id, /, *, meta=None, html=None, raw=None):
         # take value of existing cache if None
-        meta = meta if meta is not None else self.get_paste_meta(paste_id)
-        html = html if html is not None else self.get_paste_rendered(paste_id)
-        raw = raw if raw is not None else self.get_paste_raw(paste_id)
+        meta = meta if meta is not None else await self.get_paste_meta(paste_id)
+        html = html if html is not None else await self.get_paste_rendered(paste_id)
+        raw = raw if raw is not None else await self.get_paste_raw(paste_id)
         to_cache = InternalCacheItem(
             meta=meta, rendered_paste=html, raw_paste=raw)
         self._write_cache(paste_id, to_cache)
 
-    def push_paste_meta(self, paste_id, meta):
-        self.push_paste_all(paste_id, meta=meta, html=None, raw=None)
+    async def push_paste_meta(self, paste_id, meta):
+        await self.push_paste_all(paste_id, meta=meta, html=None, raw=None)
 
-    def get_paste_meta(self, paste_id):
+    async def get_paste_meta(self, paste_id):
         cached = self._read_cache(paste_id)
         return None if cached is None else cached.meta
 
-    def get_paste_rendered(self, paste_id):
+    async def get_paste_rendered(self, paste_id):
         cached = self._read_cache(paste_id)
         return None if cached is None else cached.rendered_paste
 
-    def get_paste_raw(self, paste_id):
+    async def get_paste_raw(self, paste_id):
         cached = self._read_cache(paste_id)
         return None if cached is None else cached.raw_paste
 
