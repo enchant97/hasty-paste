@@ -1,10 +1,64 @@
 import logging
+from abc import ABC, abstractmethod
 from collections import OrderedDict
 from dataclasses import dataclass
 
 from .helpers import PasteMeta
 
 logger = logging.getLogger("paste_bin")
+
+
+class BaseCache(ABC):
+    """
+    The base cache class that all cache types should inherit from
+    """
+    @property
+    @abstractmethod
+    def cache_len(self) -> int:
+        """
+        returns how many items are in cache
+        """
+        ...
+
+    @abstractmethod
+    def push_paste_all(
+            self,
+            paste_id: str,
+            meta: PasteMeta | None = None,
+            html: str | None = None,
+            raw: bytes | None = None):
+        """
+        create or update parts (or all) of the cached paste
+        """
+        ...
+
+    @abstractmethod
+    def push_paste_meta(self, paste_id: str, meta: PasteMeta):
+        """
+        create of update the cached meta of a paste
+        """
+        ...
+
+    @abstractmethod
+    def get_paste_meta(self, paste_id: str) -> PasteMeta:
+        """
+        Get the cached paste meta, if in cache
+        """
+        ...
+
+    @abstractmethod
+    def get_paste_rendered(self, paste_id: str) -> str | None:
+        """
+        Get the cached rendered paste content, if in cache
+        """
+        ...
+
+    @abstractmethod
+    def get_paste_raw(self, paste_id: str) -> bytes | None:
+        """
+        Get the cached raw paste content, if in cache
+        """
+        ...
 
 
 @dataclass
@@ -14,8 +68,7 @@ class InternalCacheItem:
     raw_paste: bytes | None = None
 
 
-# TODO inherit from a base class, for adding different cache types
-class InternalCache:
+class InternalCache(BaseCache):
     """
     Basic internal cache, that does not need a separate service
     """
@@ -51,31 +104,27 @@ class InternalCache:
         # expire old items
         self._expire_old()
 
-    def push_paste_all(
-            self,
-            paste_id: str,
-            meta: PasteMeta | None = None,
-            html: str | None = None,
-            raw: bytes | None = None):
+    def push_paste_all(self, paste_id, meta, html, raw):
         # take value of existing cache if None
         meta = meta if meta is not None else self.get_paste_meta(paste_id)
         html = html if html is not None else self.get_paste_rendered(paste_id)
         raw = raw if raw is not None else self.get_paste_raw(paste_id)
-        to_cache = InternalCacheItem(meta=meta, rendered_paste=html, raw_paste=raw)
+        to_cache = InternalCacheItem(
+            meta=meta, rendered_paste=html, raw_paste=raw)
         self._write_cache(paste_id, to_cache)
 
-    def push_paste_meta(self, paste_id: str, meta: PasteMeta):
+    def push_paste_meta(self, paste_id, meta):
         self.push_paste_all(paste_id, meta, None, None)
 
-    def get_paste_meta(self, paste_id: str) -> PasteMeta:
+    def get_paste_meta(self, paste_id):
         cached = self._read_cache(paste_id)
         return None if cached is None else cached.meta
 
-    def get_paste_rendered(self, paste_id: str) -> str | None:
+    def get_paste_rendered(self, paste_id):
         cached = self._read_cache(paste_id)
         return None if cached is None else cached.rendered_paste
 
-    def get_paste_raw(self, paste_id: str) -> bytes | None:
+    def get_paste_raw(self, paste_id):
         cached = self._read_cache(paste_id)
         return None if cached is None else cached.raw_paste
 
@@ -83,10 +132,10 @@ class InternalCache:
 loaded_cache = None
 
 
-def init_cache(cache):
+def init_cache(cache: BaseCache):
     global loaded_cache
     loaded_cache = cache
 
 
-def get_cache() -> InternalCache:
+def get_cache() -> BaseCache:
     return loaded_cache
