@@ -27,6 +27,7 @@ class DefaultsSettings(BaseModel):
 
 class CacheSettings(BaseModel):
     ENABLE: bool = True
+    MAX_INTERNAL_SIZE: int = 4
     REDIS_URI: str | None = None
 
 
