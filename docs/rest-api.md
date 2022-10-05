@@ -66,9 +66,15 @@ Returns a stream of paste id's, requires `ENABLE_PUBLIC_LIST` config to be True.
 The public list has been disabled.
 
 ### GET /api/pastes/{paste id}
+
+> ⚠️ functionality will be changing to be just the raw paste in the future
+
 Returns the raw paste file, direct from [flat file](flat-file-format.md).
 
 ### GET /api/pastes{paste id}/content
+
+> ⚠️ This will be removed in the future
+
 Returns the pastes content.
 
 ### GET /api/pastes{paste id}/meta
