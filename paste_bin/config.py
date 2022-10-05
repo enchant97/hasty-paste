@@ -25,12 +25,18 @@ class DefaultsSettings(BaseModel):
     EXPIRE_TIME: ExpireTimeDefaultSettings = ExpireTimeDefaultSettings()
 
 
+class CacheSettings(BaseModel):
+    ENABLE: bool = True
+    REDIS_URI: str | None = None
+
+
 class Settings(BaseSettings):
     PASTE_ROOT: Path
     NEW_AT_INDEX: bool = False
     ENABLE_PUBLIC_LIST: bool = False
     UI_DEFAULT: DefaultsSettings = DefaultsSettings()
     BRANDING: BrandSettings = BrandSettings()
+    CACHE: CacheSettings = CacheSettings()
 
     MAX_BODY_SIZE: int = 2*(10**6)
     LOG_LEVEL: str = "WARNING"
