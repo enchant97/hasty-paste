@@ -35,7 +35,8 @@ async def command_cleanup(args):
         if args.y:
             confirm = "y"
         else:
-            confirm = input("Are you sure you want to delete ALL pastes? y/n: ")
+            confirm = input(
+                "Are you sure you want to delete ALL pastes? y/n: ")
         if confirm.startswith("y"):
             shutil.rmtree(paste_root)
             paste_root.mkdir(parents=True, exist_ok=True)
@@ -59,7 +60,8 @@ async def command_cleanup(args):
         if args.y:
             confirm = "y"
         else:
-            confirm = input(f"Are you sure you want to remove pastes created before '{older_than}'? y/n: ")
+            confirm = input(
+                f"Are you sure you want to remove pastes created before '{older_than}'? y/n: ")
 
         if not confirm.startswith("y"):
             return
@@ -87,21 +89,31 @@ async def main():
     paste_root = Path(paste_root)
 
     parser = argparse.ArgumentParser(description="The Hasty Paste Management CLI. " +
-        "Please be aware this CLI is experimental, usage may change without notice."
-    )
-    parser.add_argument("--paste-root", help="show the configured paste root", action="store_true")
+                                     "Please be aware this CLI is experimental, " +
+                                     "usage may change without notice."
+                                     )
+    parser.add_argument(
+        "--paste-root", help="show the configured paste root", action="store_true")
     parsers = parser.add_subparsers(help="Available Commands")
     view_parser = parsers.add_parser("view", description="View pastes")
     view_parser.set_defaults(func=command_view)
-    view_parser.add_argument("--list", help="list the paste id's", action="store_true")
-    view_parser.add_argument("--expired", help="only select expired", action="store_true")
-    view_parser.add_argument("--locate", help="show the filepath to paste(s)", action="store_true")
-    cleanup_parser = parsers.add_parser("cleanup", description="Cleanup pastes")
+    view_parser.add_argument(
+        "--list", help="list the paste id's", action="store_true")
+    view_parser.add_argument(
+        "--expired", help="only select expired", action="store_true")
+    view_parser.add_argument(
+        "--locate", help="show the filepath to paste(s)", action="store_true")
+    cleanup_parser = parsers.add_parser(
+        "cleanup", description="Cleanup pastes")
     cleanup_parser.set_defaults(func=command_cleanup)
-    cleanup_parser.add_argument("-y", help="always confirm dialogues", action="store_true")
-    cleanup_parser.add_argument("--all", help="select all pastes", action="store_true")
-    cleanup_parser.add_argument("--expired", help="select expired pastes", action="store_true")
-    cleanup_parser.add_argument("--older-than", help="select pastes created before given number of days", type=int)
+    cleanup_parser.add_argument(
+        "-y", help="always confirm dialogues", action="store_true")
+    cleanup_parser.add_argument(
+        "--all", help="select all pastes", action="store_true")
+    cleanup_parser.add_argument(
+        "--expired", help="select expired pastes", action="store_true")
+    cleanup_parser.add_argument(
+        "--older-than", help="select pastes created before given number of days", type=int)
 
     args = parser.parse_args()
 
@@ -112,7 +124,6 @@ async def main():
             await args.func(args)
         except AttributeError:
             print("no command given, using '--help' to get help")
-
 
 
 if __name__ == "__main__":

@@ -75,7 +75,8 @@ class PasteMeta(PasteMetaVersion):
 
     def raise_if_expired(self):
         if self.is_expired:
-            raise PasteExpiredException(f"paste has expired with id of {self.paste_id}")
+            raise PasteExpiredException(
+                f"paste has expired with id of {self.paste_id}")
 
 
 class PasteMetaCreate(BaseModel):
@@ -111,11 +112,14 @@ def get_paste_meta(meta_line: str | bytes) -> PasteMeta:
         version = PasteMetaVersion.parse_raw(meta_line).version
         # NOTE this allows for future support if the meta format was to change
         if version != CURRENT_PASTE_META_VERSION:
-            logger.error("failed to load paste meta, version not supported: '%s'", meta_line)
-            raise PasteMetaVersionInvalid(f"paste is not a valid version number of '{version}'")
+            logger.error(
+                "failed to load paste meta, version not supported: '%s'", meta_line)
+            raise PasteMetaVersionInvalid(
+                f"paste is not a valid version number of '{version}'")
         return PasteMeta.parse_raw(meta_line)
     except ValidationError as err:
-        logger.error("failed to load paste meta, validation did not pass: '%s'", meta_line)
+        logger.error(
+            "failed to load paste meta, validation did not pass: '%s'", meta_line)
         raise PasteMetaUnprocessable("paste meta cannot be loaded") from err
 
 
@@ -155,7 +159,8 @@ def create_paste_path(root_path: Path, paste_id: str, mkdir: bool = False) -> Pa
         :return: The combined path
     """
     if len(paste_id) < 3:
-        raise PasteIdException("paste_id too short, must be at least 3 characters long")
+        raise PasteIdException(
+            "paste_id too short, must be at least 3 characters long")
     full_path = root_path / paste_id[:2]
     if mkdir:
         full_path.mkdir(parents=True, exist_ok=True)
@@ -204,7 +209,7 @@ def get_all_paste_ids(root_path: Path) -> Generator[str, None, None]:
 
 def get_paste_ids_as_csv(root_path: Path) -> Generator[str, None, None]:
     for paste_id in get_all_paste_ids(root_path):
-            yield paste_id + "\n"
+        yield paste_id + "\n"
 
 
 async def write_paste(
@@ -283,7 +288,7 @@ async def try_get_paste(
         root_path: Path,  # TODO make this path_path
         paste_id: str,
         **kw  # TODO remove
-        ) -> tuple[Path, PasteMeta]:
+) -> tuple[Path, PasteMeta]:
     """
     Try to process the paste meta
 
@@ -297,7 +302,8 @@ async def try_get_paste(
 
     if not await aio_ospath.isfile(paste_path):
         logger.info("paste id of '%s' not found on filesystem", paste_id)
-        raise PasteDoesNotExistException(f"paste not found with id of {paste_id}")
+        raise PasteDoesNotExistException(
+            f"paste not found with id of {paste_id}")
 
     paste_meta = await read_paste_meta(paste_path)
 
@@ -377,7 +383,8 @@ def highlight_content(content: str, lexer_name: str) -> str:
         try:
             lexer = get_lexer_by_name(lexer_name, stripall=True)
         except PygmentsClassNotFound:
-            logger.debug("skipping code highlighting as no lexer was found by '%s'", lexer_name)
+            logger.debug(
+                "skipping code highlighting as no lexer was found by '%s'", lexer_name)
 
     formatter = HtmlFormatter(linenos="inline", cssclass="highlighted-code")
 

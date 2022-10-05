@@ -1,6 +1,6 @@
 import logging
 
-from quart import Quart, g
+from quart import Quart
 from quart_schema import QuartSchema
 from web_health_checker.contrib import quart as health_check
 
