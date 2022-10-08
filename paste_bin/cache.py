@@ -4,9 +4,13 @@ from collections import OrderedDict
 from dataclasses import dataclass
 
 from quart import Quart
-from redis.asyncio import Redis
 
-from .helpers import PasteMeta
+try:
+    from redis.asyncio import Redis
+except ImportError:
+    Redis = None
+
+from .helpers import OptionalRequirementMissing, PasteMeta
 
 logger = logging.getLogger("paste_bin")
 
@@ -161,6 +165,11 @@ class RedisCache(BaseCache):
 
     def __init__(self, app: Quart, redis_url: str):
         self._conn = None
+
+        if Redis is None:
+            raise OptionalRequirementMissing(
+                "redis requirement must be installed for redis cache"
+            )
 
         @app.while_serving
         async def handle_lifespan():

@@ -28,6 +28,10 @@ PASTE_ID_CHARACTER_SET = string.ascii_letters + string.digits
 CURRENT_PASTE_META_VERSION = 1
 
 
+class OptionalRequirementMissing(Exception):
+    pass
+
+
 class PasteException(Exception):
     pass
 

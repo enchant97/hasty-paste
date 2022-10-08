@@ -1,4 +1,5 @@
 import logging
+import sys
 
 from quart import Quart
 from quart_schema import QuartSchema
@@ -7,6 +8,7 @@ from web_health_checker.contrib import quart as health_check
 from . import __version__
 from .cache import FakeCache, InternalCache, RedisCache, init_cache
 from .config import get_settings
+from .helpers import OptionalRequirementMissing
 from .views import api, extra_static, frontend
 
 logger = logging.getLogger("paste_bin")
@@ -58,15 +60,19 @@ def create_app():
 
     quart_schema.init_app(app)
 
-    if settings.CACHE.ENABLE:
-        if redis_url := settings.CACHE.REDIS_URI:
-            logger.debug("using redis caching feature")
-            init_cache(RedisCache(app, redis_url))
+    try:
+        if settings.CACHE.ENABLE:
+            if redis_url := settings.CACHE.REDIS_URI:
+                logger.debug("using redis caching feature")
+                init_cache(RedisCache(app, redis_url))
+            else:
+                logger.debug("using internal caching feature")
+                init_cache(InternalCache(app, settings.CACHE.MAX_INTERNAL_SIZE))
         else:
-            logger.debug("using internal caching feature")
-            init_cache(InternalCache(app, settings.CACHE.MAX_INTERNAL_SIZE))
-    else:
-        logger.debug("caching disabled")
-        init_cache(FakeCache(app))
+            logger.debug("caching disabled")
+            init_cache(FakeCache(app))
+    except OptionalRequirementMissing as err:
+        logger.critical("%s", err.args[0])
+        sys.exit(1)
 
     return app
