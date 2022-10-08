@@ -7,7 +7,7 @@
 
 A fast and minimal paste bin, written in Python using Quart.
 
-> **IMPORTANT NOTICE** (users before V1.5): Paste id's with symbol characters are being deprecated and will be removed in the future, please use the "Clone & Edit" button to resave under new id (or just delete them).
+> **IMPORTANT NOTICE** Some deprecated features will be removed in V1.7, view [here](https://github.com/enchant97/hasty-paste/issues/50)
 
 ## Features
 - Quickly paste and save, to share some text
