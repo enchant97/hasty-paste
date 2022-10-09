@@ -126,11 +126,11 @@ async def post_new_paste():
     return redirect(url_for(".get_view_paste", paste_id=paste_meta.paste_id))
 
 
-@blueprint.get("/<paste_id>", defaults={"lexer_name": None})
-@blueprint.get("/<paste_id>.<lexer_name>")
+@blueprint.get("/<paste_id>", defaults={"override_lexer": None})
+@blueprint.get("/<paste_id>.<override_lexer>")
 @hide
 @helpers.handle_paste_exceptions
-async def get_view_paste(paste_id: str, lexer_name: str | None):
+async def get_view_paste(paste_id: str, override_lexer: str | None):
     root_path = get_settings().PASTE_ROOT
     paste_path = helpers.create_paste_path(root_path, paste_id)
 
@@ -154,7 +154,8 @@ async def get_view_paste(paste_id: str, lexer_name: str | None):
     raw_paste = None
     rendered_paste = None
 
-    if (cached_rendered := await get_cache().get_paste_rendered(paste_id)) is not None:
+    # HACK 'lexer_name is None', this should be fixed by caching overhaul in 1.7
+    if override_lexer is None and (cached_rendered := await get_cache().get_paste_rendered(paste_id)) is not None:
         logger.debug("accessing paste '%s' rendered content from cache", paste_id)
         rendered_paste = cached_rendered
     else:
@@ -166,14 +167,16 @@ async def get_view_paste(paste_id: str, lexer_name: str | None):
             raw_paste = b"".join([line async for line in raw_paste])
             await get_cache().push_paste_all(paste_id, raw=raw_paste)
 
-        if not lexer_name:
-            lexer_name = paste_meta.lexer_name or "text"
+        lexer_name = override_lexer or paste_meta.lexer_name or "text"
 
         rendered_paste = await helpers.highlight_content_async_wrapped(
             raw_paste.decode(),
             lexer_name
         )
-        await get_cache().push_paste_all(paste_id, html=rendered_paste)
+
+        # HACK override lexer content cannot be cached, should be fixed in 1.7
+        if override_lexer is None:
+            await get_cache().push_paste_all(paste_id, html=rendered_paste)
 
     return await render_template(
         "view.jinja",
