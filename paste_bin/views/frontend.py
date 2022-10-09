@@ -126,8 +126,8 @@ async def post_new_paste():
     return redirect(url_for(".get_view_paste", paste_id=paste_meta.paste_id))
 
 
-@blueprint.get("/<paste_id>", defaults={"lexer_name": None})
-@blueprint.get("/<paste_id>.<lexer_name>")
+@blueprint.get("/<id:paste_id>", defaults={"lexer_name": None})
+@blueprint.get("/<id:paste_id>.<lexer_name>")
 @hide
 @helpers.handle_paste_exceptions
 async def get_view_paste(paste_id: str, lexer_name: str | None):
@@ -182,7 +182,7 @@ async def get_view_paste(paste_id: str, lexer_name: str | None):
     )
 
 
-@blueprint.get("/<paste_id>/raw")
+@blueprint.get("/<id:paste_id>/raw")
 @hide
 @helpers.handle_paste_exceptions
 async def get_raw_paste(paste_id: str):

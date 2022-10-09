@@ -18,6 +18,7 @@ from pygments.util import ClassNotFound as PygmentsClassNotFound
 from quart import Response, abort, make_response
 from quart.utils import run_sync
 from quart.wrappers import Body
+from werkzeug.routing import BaseConverter
 from werkzeug.wrappers import Response as WerkzeugResponse
 
 from .config import ExpireTimeDefaultSettings
@@ -26,6 +27,7 @@ logger = logging.getLogger("paste_bin")
 
 PASTE_ID_CHARACTER_SET = string.ascii_letters + string.digits
 CURRENT_PASTE_META_VERSION = 1
+VALID_PASTE_ID_REGEX = r"[a-zA-Z0-9]+"
 
 
 class OptionalRequirementMissing(Exception):
@@ -411,3 +413,8 @@ def make_default_expires_at(settings: ExpireTimeDefaultSettings) -> datetime | N
             days=settings.DAYS,
         )
         return default_expires_at
+
+
+class PasteIdConverter(BaseConverter):
+    regex = VALID_PASTE_ID_REGEX
+    part_isolating = True

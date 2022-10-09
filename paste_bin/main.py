@@ -8,12 +8,13 @@ from web_health_checker.contrib import quart as health_check
 from . import __version__
 from .cache import FakeCache, InternalCache, RedisCache, init_cache
 from .config import get_settings
-from .helpers import OptionalRequirementMissing
+from .helpers import OptionalRequirementMissing, PasteIdConverter
 from .views import api, extra_static, frontend
 
 logger = logging.getLogger("paste_bin")
 app_version = ".".join(__version__.split(".")[0:2])
 app = Quart(__name__)
+app.url_map.converters["id"] = PasteIdConverter
 quart_schema = QuartSchema(
     openapi_path="/api/openapi.json",
     swagger_ui_path="/api/docs",
@@ -39,11 +40,6 @@ def create_app():
 
     logging.basicConfig()
     logger.setLevel(logging.getLevelName(settings.LOG_LEVEL))
-
-    print(
-        "IMPORTANT NOTICE for users before V1.5: Paste id's with symbol" +
-        " characters are being deprecated and will be removed in the future, " +
-        "please use the \"Clone & Edit\" button to resave under new id (or just delete them)")
 
     settings.PASTE_ROOT.mkdir(parents=True, exist_ok=True)
 
