@@ -18,6 +18,7 @@ Get the status of the server
 🆗
 ```
 
+
 ### POST /api/pastes
 Create a new paste.
 
@@ -39,6 +40,7 @@ Create a new paste.
 }
 ```
 
+
 ### POST /api/pastes/simple
 Create a new paste without any settings, suitable for easier use with curl from the command line.
 
@@ -52,6 +54,7 @@ Hello World!
 1a00222g
 ```
 
+
 ### GET /api/pastes/
 Returns a stream of paste id's, requires `ENABLE_PUBLIC_LIST` config to be True.
 
@@ -61,26 +64,25 @@ Returns a stream of paste id's, requires `ENABLE_PUBLIC_LIST` config to be True.
 1a00dfda
 ...
 ```
-
 #### Response, 403
 The public list has been disabled.
 
+
 ### GET /api/pastes/{paste id}
+Get the pastes raw content.
 
-> ⚠️ functionality will be changing to be just the raw paste in the future
+#### Response, 200
+The pastes raw content.
+#### Response, 404
+Paste with given id not found, or expired
 
-Returns the raw paste file, direct from [flat file](flat-file-format.md).
-
-### GET /api/pastes{paste id}/content
-
-> ⚠️ This will be removed in the future
-
-Returns the pastes content.
 
 ### GET /api/pastes{paste id}/meta
 Returns the paste's meta as JSON.
 
 #### Response, 200
+The paste's meta for given id.
+
 ```json
 {
   "creation_dt": "2022-07-28T11:22:20.080Z",
@@ -88,3 +90,5 @@ Returns the paste's meta as JSON.
   "paste_id": "string"
 }
 ```
+#### Response, 404
+Paste with given id not found, or expired

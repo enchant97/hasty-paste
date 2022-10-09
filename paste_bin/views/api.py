@@ -2,10 +2,9 @@ import logging
 from datetime import datetime
 
 from async_timeout import timeout
-from quart import (Blueprint, abort, current_app, make_response, request,
-                   send_file)
+from quart import Blueprint, abort, current_app, make_response, request
 from quart.wrappers import Body
-from quart_schema import validate_request, validate_response
+from quart_schema import tag, validate_request, validate_response
 
 from .. import helpers
 from ..cache import get_cache
@@ -17,6 +16,7 @@ logger = logging.getLogger("paste_bin")
 
 
 @blueprint.post("/pastes")
+@tag(("paste",))
 @validate_request(helpers.PasteMetaCreate)
 @validate_response(helpers.PasteMeta, status_code=201)
 async def post_api_paste_new(data: helpers.PasteMetaCreate):
@@ -46,6 +46,7 @@ async def post_api_paste_new(data: helpers.PasteMetaCreate):
 
 
 @blueprint.post("/pastes/simple")
+@tag(("paste",))
 async def post_api_paste_new_simple():
     """
     Create a new paste without any fancy features,
@@ -79,6 +80,7 @@ async def post_api_paste_new_simple():
 
 
 @blueprint.get("/pastes/")
+@tag(("paste",))
 async def get_api_paste_ids():
     """
     Get all paste id's, requires `ENABLE_PUBLIC_LIST` to be True
@@ -93,68 +95,12 @@ async def get_api_paste_ids():
     return response
 
 
-# TODO deprecate this
 @blueprint.get("/pastes/<paste_id>")
+@tag(("paste",))
 @helpers.handle_paste_exceptions
 async def get_api_paste_raw(paste_id: str):
     """
-    Get the paste raw file, if one exists
-    """
-    root_path = get_settings().PASTE_ROOT
-    paste_path = helpers.create_paste_path(root_path, paste_id)
-
-    try:
-        # get the paste, using cache if possible
-        if (cached_meta := await get_cache().get_paste_meta(paste_id)) is not None:
-            logger.debug("accessing paste '%s' meta from cache", paste_id)
-            cached_meta.raise_if_expired()
-        else:
-            paste_meta = await helpers.try_get_paste(paste_path, paste_id)
-            await get_cache().push_paste_meta(paste_id, paste_meta)
-
-    except helpers.PasteExpiredException as err:
-        # register the paste for removal
-        current_app.add_background_task(helpers.safe_remove_paste, paste_path, paste_id)
-        raise err
-
-    return await send_file(paste_path)
-
-
-@blueprint.get("/pastes/<paste_id>/meta")
-@validate_response(helpers.PasteMeta)
-@helpers.handle_paste_exceptions
-async def get_api_paste_meta(paste_id: str):
-    """
-    Get the paste meta, if one exists
-    """
-    root_path = get_settings().PASTE_ROOT
-    paste_path = helpers.create_paste_path(root_path, paste_id)
-
-    paste_meta = None
-
-    try:
-        # get the paste, using cache if possible
-        if (cached_meta := await get_cache().get_paste_meta(paste_id)) is not None:
-            logger.debug("accessing paste '%s' meta from cache", paste_id)
-            paste_meta = cached_meta
-            paste_meta.raise_if_expired()
-        else:
-            paste_meta = await helpers.try_get_paste(paste_path, paste_id)
-            await get_cache().push_paste_meta(paste_id, paste_meta)
-
-    except helpers.PasteExpiredException as err:
-        # register the paste for removal
-        current_app.add_background_task(helpers.safe_remove_paste, paste_path, paste_id)
-        raise err
-
-    return paste_meta
-
-
-@blueprint.get("/pastes/<paste_id>/content")
-@helpers.handle_paste_exceptions
-async def get_api_paste_content(paste_id: str):
-    """
-    Get the paste content, if one exists
+    Get the paste raw content, if one exists
     """
     root_path = get_settings().PASTE_ROOT
     paste_path = helpers.create_paste_path(root_path, paste_id)
@@ -187,3 +133,34 @@ async def get_api_paste_content(paste_id: str):
     response.mimetype = "text/plain"
 
     return response
+
+
+@blueprint.get("/pastes/<paste_id>/meta")
+@tag(("paste",))
+@validate_response(helpers.PasteMeta)
+@helpers.handle_paste_exceptions
+async def get_api_paste_meta(paste_id: str):
+    """
+    Get the paste meta, if one exists
+    """
+    root_path = get_settings().PASTE_ROOT
+    paste_path = helpers.create_paste_path(root_path, paste_id)
+
+    paste_meta = None
+
+    try:
+        # get the paste, using cache if possible
+        if (cached_meta := await get_cache().get_paste_meta(paste_id)) is not None:
+            logger.debug("accessing paste '%s' meta from cache", paste_id)
+            paste_meta = cached_meta
+            paste_meta.raise_if_expired()
+        else:
+            paste_meta = await helpers.try_get_paste(paste_path, paste_id)
+            await get_cache().push_paste_meta(paste_id, paste_meta)
+
+    except helpers.PasteExpiredException as err:
+        # register the paste for removal
+        current_app.add_background_task(helpers.safe_remove_paste, paste_path, paste_id)
+        raise err
+
+    return paste_meta
