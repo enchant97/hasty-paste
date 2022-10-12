@@ -27,6 +27,7 @@ class PasteHandler:
 
     async def create_paste(
             self,
+            long_id: bool,
             raw: AsyncGenerator[bytes, None] | Body | bytes,
             config: helpers.PasteMetaToCreate) -> str:
         """
@@ -36,7 +37,7 @@ class PasteHandler:
             :param config: The paste's config (meta without id)
             :return: The created paste's id
         """
-        paste_id = helpers.create_paste_id()
+        paste_id = helpers.create_paste_id(long_id)
         meta = config.into_meta(paste_id)
         await self._storage.write_paste(paste_id, cast(ASYNC_BYTES_GEN_TYPE, raw), meta)
         self.__run_in_background(self._cache.push_paste_all, paste_id, meta=meta)
@@ -107,4 +108,16 @@ class PasteHandler:
 
             :param paste_id: The paste's id
         """
-        await self._storage.delete_paste(paste_id)
+        self.__run_in_background(self._storage.delete_paste, paste_id)
+
+
+loaded_handler = None
+
+
+def init_handler(handler: PasteHandler):
+    global loaded_handler
+    loaded_handler = handler
+
+
+def get_handler() -> PasteHandler:
+    return loaded_handler

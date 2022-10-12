@@ -208,15 +208,3 @@ class RedisCache(BaseCache):
 
     async def get_paste_raw(self, paste_id):
         return await self._conn.get(f"{paste_id}__raw")
-
-
-loaded_cache = None
-
-
-def init_cache(cache: BaseCache):
-    global loaded_cache
-    loaded_cache = cache
-
-
-def get_cache() -> BaseCache:
-    return loaded_cache
