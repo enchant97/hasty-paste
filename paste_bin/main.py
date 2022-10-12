@@ -6,8 +6,8 @@ from quart_schema import QuartSchema
 from web_health_checker.contrib import quart as health_check
 
 from . import __version__
-from .cache import FakeCache, InternalCache, RedisCache
 from .config import get_settings
+from .core.cache import FakeCache, InternalCache, RedisCache
 from .core.paste_handler import PasteHandler, init_handler
 from .core.storage import DiskStorage
 from .helpers import OptionalRequirementMissing, PasteIdConverter

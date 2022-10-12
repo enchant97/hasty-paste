@@ -6,7 +6,7 @@ from quart import current_app
 from quart.wrappers import Body
 
 from .. import helpers
-from ..cache import BaseCache
+from .cache import BaseCache
 from .storage import BaseStorage
 
 ASYNC_BYTES_GEN_TYPE = AsyncGenerator[bytes, None]
