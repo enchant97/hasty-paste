@@ -1,1 +1,1 @@
-from .disk import BaseStorage
+from .disk import BaseStorage, DiskStorage

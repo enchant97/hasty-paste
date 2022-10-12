@@ -319,6 +319,7 @@ async def try_get_paste(paste_path: Path, paste_id: str) -> PasteMeta:
 
     paste_meta = await read_paste_meta(paste_path)
 
+    # HACK this should not be here, for V1.7 (PasteHandler should remove it)
     paste_meta.raise_if_expired()
 
     return paste_meta
