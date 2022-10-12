@@ -14,7 +14,6 @@ from .views import api, extra_static, frontend
 logger = logging.getLogger("paste_bin")
 app_version = ".".join(__version__.split(".")[0:2])
 app = Quart(__name__)
-app.url_map.converters["id"] = PasteIdConverter
 quart_schema = QuartSchema(
     openapi_path="/api/openapi.json",
     swagger_ui_path="/api/docs",
@@ -36,6 +35,8 @@ def _reset_app():
 
 
 def create_app():
+    app.url_map.converters["id"] = PasteIdConverter
+
     settings = get_settings()
 
     logging.basicConfig()
