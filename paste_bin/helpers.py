@@ -85,6 +85,18 @@ class PasteMeta(PasteMetaVersion):
                 f"paste has expired with id of {self.paste_id}")
 
 
+class PasteMetaToCreate(BaseModel):
+    expire_dt: datetime | None = None
+    lexer_name: str | None = None
+    title: str | None = None
+
+    def into_meta(self, paste_id: str) -> PasteMeta:
+        return PasteMeta(
+            paste_id=paste_id,
+            creation_dt=datetime.utcnow(),
+            **self.dict(),
+        )
+
 class PasteMetaCreate(BaseModel):
     content: str
     long_id: bool = False
