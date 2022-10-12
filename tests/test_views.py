@@ -163,13 +163,13 @@ class TestApiNewSimplePaste(QuartAppTestCase):
 
 class TestApiView(QuartAppTestCase):
     async def test_valid_raw(self):
-        content = b"test valid api view raw"
+        content = b"test valid api view content"
         paste_id = await write_test_paste(content)
         client = self.new_client()
         response = await client.get(f"/api/pastes/{paste_id}")
         data = await response.get_data(as_text=False)
 
-        self.assertIn(content, data)
+        self.assertEqual(content, data)
 
     async def test_valid_meta(self):
         content = b"test valid api view meta"
@@ -179,15 +179,6 @@ class TestApiView(QuartAppTestCase):
         data = await response.get_data(as_text=True)
 
         self.assertIn(paste_id, data)
-
-    async def test_valid_content(self):
-        content = b"test valid api view content"
-        paste_id = await write_test_paste(content)
-        client = self.new_client()
-        response = await client.get(f"/api/pastes/{paste_id}/content")
-        data = await response.get_data(as_text=False)
-
-        self.assertEqual(content, data)
 
     async def test_invalid_not_found(self):
         paste_id = "testing123"
