@@ -58,3 +58,10 @@ class RedisCache(BaseCache):
 
     async def get_paste_raw(self, paste_id):
         return await self._conn.get(f"{paste_id}__raw")
+
+    async def remove_paste(self, paste_id: str):
+        await self._conn.delete(
+            f"{paste_id}__meta",
+            f"{paste_id}__html",
+            f"{paste_id}__raw",
+        )

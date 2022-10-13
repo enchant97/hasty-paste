@@ -74,3 +74,6 @@ class InternalCache(BaseCache):
     async def get_paste_raw(self, paste_id):
         cached = self._read_cache(paste_id)
         return None if cached is None else cached.raw_paste
+
+    async def remove_paste(self, paste_id: str):
+        self._cache.pop(paste_id, None)

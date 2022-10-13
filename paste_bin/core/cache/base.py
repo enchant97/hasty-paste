@@ -46,3 +46,10 @@ class BaseCache(ABC):
         Get the cached raw paste content, if in cache
         """
         ...
+
+    @abstractmethod
+    async def remove_paste(self, paste_id: str):
+        """
+        Remove the cached paste, if in cache
+        """
+        ...

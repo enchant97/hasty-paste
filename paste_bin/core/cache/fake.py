@@ -19,3 +19,6 @@ class FakeCache(BaseCache):
 
     async def get_paste_raw(self, paste_id):
         pass
+
+    async def remove_paste(self, paste_id: str):
+        pass

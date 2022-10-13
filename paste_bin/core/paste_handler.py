@@ -66,8 +66,11 @@ class PasteHandler:
             :return: The paste's raw content
         """
         if (raw := await self._cache.get_paste_raw(paste_id)) is not None:
+            logger.debug("cache hit for raw-'%s'", paste_id)
             return raw
         if (raw := await self._storage.read_paste_raw(paste_id)) is not None:
+            logger.debug("cache miss for raw-'%s'", paste_id)
+            await self._cache.push_paste_any(paste_id, raw=raw)
             return raw
 
     async def get_paste_rendered(
@@ -116,6 +119,7 @@ class PasteHandler:
             :param paste_id: The paste's id
         """
         self.__run_in_background(self._storage.delete_paste, paste_id)
+        self.__run_in_background(self._cache.remove_paste, paste_id)
 
 
 loaded_handler = None
