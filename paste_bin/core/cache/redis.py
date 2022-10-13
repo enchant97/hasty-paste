@@ -34,7 +34,7 @@ class RedisCache(BaseCache):
             await self._conn.close()
             logger.info("closed redis connection")
 
-    async def push_paste_all(self, paste_id, /, *, meta=None, html=None, raw=None):
+    async def push_paste_any(self, paste_id, /, *, meta=None, html=None, raw=None):
         to_cache = {}
 
         if meta:
@@ -45,9 +45,6 @@ class RedisCache(BaseCache):
             to_cache[f"{paste_id}__raw"] = raw
 
         await self._conn.mset(to_cache)
-
-    async def push_paste_meta(self, paste_id, meta):
-        await self.push_paste_all(paste_id, meta=meta)
 
     async def get_paste_meta(self, paste_id):
         cached = await self._conn.get(f"{paste_id}__meta")

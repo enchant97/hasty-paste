@@ -54,7 +54,7 @@ class InternalCache(BaseCache):
         # expire old items
         self._expire_old()
 
-    async def push_paste_all(self, paste_id, /, *, meta=None, html=None, raw=None):
+    async def push_paste_any(self, paste_id, /, *, meta=None, html=None, raw=None):
         # take value of existing cache if None
         meta = meta if meta is not None else await self.get_paste_meta(paste_id)
         html = html if html is not None else await self.get_paste_rendered(paste_id)
@@ -62,9 +62,6 @@ class InternalCache(BaseCache):
         to_cache = InternalCacheItem(
             meta=meta, rendered_paste=html, raw_paste=raw)
         self._write_cache(paste_id, to_cache)
-
-    async def push_paste_meta(self, paste_id, meta):
-        await self.push_paste_all(paste_id, meta=meta, html=None, raw=None)
 
     async def get_paste_meta(self, paste_id):
         cached = self._read_cache(paste_id)

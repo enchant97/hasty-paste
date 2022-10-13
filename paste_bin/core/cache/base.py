@@ -13,7 +13,7 @@ class BaseCache(ABC):
         ...
 
     @abstractmethod
-    async def push_paste_all(
+    async def push_paste_any(
             self,
             paste_id: str,
             /,
@@ -23,13 +23,6 @@ class BaseCache(ABC):
             raw: bytes | None = None):
         """
         create or update parts (or all) of the cached paste
-        """
-        ...
-
-    @abstractmethod
-    async def push_paste_meta(self, paste_id: str, meta: PasteMeta):
-        """
-        create of update the cached meta of a paste
         """
         ...
 

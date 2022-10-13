@@ -40,7 +40,7 @@ class PasteHandler:
         paste_id = helpers.create_paste_id(long_id)
         meta = config.into_meta(paste_id)
         await self._storage.write_paste(paste_id, cast(ASYNC_BYTES_GEN_TYPE, raw), meta)
-        self.__run_in_background(self._cache.push_paste_all, paste_id, meta=meta)
+        self.__run_in_background(self._cache.push_paste_any, paste_id, meta=meta)
         return paste_id
 
     async def get_paste_meta(self, paste_id: str) -> helpers.PasteMeta | None:
@@ -55,7 +55,7 @@ class PasteHandler:
             return meta
         if (meta := await self._storage.read_paste_meta(paste_id)) is not None:
             logger.debug("cache miss for meta-'%s'", paste_id)
-            self.__run_in_background(self._cache.push_paste_all, paste_id, meta=meta)
+            self.__run_in_background(self._cache.push_paste_any, paste_id, meta=meta)
             return meta
 
     async def get_paste_raw(self, paste_id: str) -> bytes | None:
@@ -99,7 +99,7 @@ class PasteHandler:
             )
             # HACK override lexer content cannot be cached, should be fixed in 1.7
             if custom_lexer is None:
-                await self._cache.push_paste_all(paste_id, html=rendered)
+                await self._cache.push_paste_any(paste_id, html=rendered)
             return rendered
 
     def get_all_paste_ids(self) -> AsyncGenerator[str, None]:

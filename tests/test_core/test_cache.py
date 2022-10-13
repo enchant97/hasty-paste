@@ -22,7 +22,7 @@ class TestInternalCache(IsolatedAsyncioTestCase):
         the_cache = cache.InternalCache(max_size=4)
         paste_id = "push_meta"
 
-        await the_cache.push_paste_meta(paste_id, TEST_META_NO_EXPIRY)
+        await the_cache.push_paste_any(paste_id, meta=TEST_META_NO_EXPIRY)
         self.assertEqual(the_cache._cache[paste_id].meta, TEST_META_NO_EXPIRY)
 
     async def test_cache_push_rollover(self):
@@ -48,7 +48,7 @@ class TestInternalCache(IsolatedAsyncioTestCase):
         ]
 
         for item in to_cache:
-            await the_cache.push_paste_meta(item.paste_id, item)
+            await the_cache.push_paste_any(item.paste_id, meta=item)
 
         self.assertEqual(len(the_cache._cache), 3)
         self.assertIsNone(the_cache._cache.get("push-rollover-1"))

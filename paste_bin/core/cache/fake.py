@@ -8,10 +8,7 @@ class FakeCache(BaseCache):
     def __init__(self, **kw):
         pass
 
-    async def push_paste_all(self, paste_id, /, *, meta=None, html=None, raw=None):
-        pass
-
-    async def push_paste_meta(self, paste_id, meta):
+    async def push_paste_any(self, paste_id, /, *, meta=None, html=None, raw=None):
         pass
 
     async def get_paste_meta(self, paste_id):
