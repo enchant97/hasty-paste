@@ -1,14 +1,11 @@
 import logging
 import secrets
 import string
-from collections.abc import AsyncGenerator, Generator
+from collections.abc import Generator
 from datetime import datetime, timedelta
 from functools import wraps
 from pathlib import Path
 
-from aiofiles import open as aio_open
-from aiofiles import os as aio_os
-from aiofiles import ospath as aio_ospath
 from pydantic import BaseModel, ValidationError, validator
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
@@ -17,7 +14,6 @@ from pygments.lexers import (find_lexer_class_by_name, get_all_lexers,
 from pygments.util import ClassNotFound as PygmentsClassNotFound
 from quart import Response, abort, make_response
 from quart.utils import run_sync
-from quart.wrappers import Body
 from werkzeug.routing import BaseConverter
 from werkzeug.wrappers import Response as WerkzeugResponse
 
@@ -117,7 +113,7 @@ class PasteMetaCreate(BaseModel):
         return lexer_name
 
 
-def get_paste_meta(meta_line: str | bytes) -> PasteMeta:
+def extract_paste_meta(meta_line: str | bytes) -> PasteMeta:
     """
     Processes a meta line and converts it into a object.
 
@@ -165,26 +161,6 @@ def create_paste_id(long: bool = False) -> str:
     return gen_id(10)
 
 
-def create_paste_path(root_path: Path, paste_id: str, mkdir: bool = False) -> Path:
-    """
-    Combines a the paste root with a paste's id to form the full path.
-    Will also optionally ensure the directories are created
-
-        :param root_path: The root path to use as a base
-        :param paste_id: The paste's id
-        :param mkdir: Creates the directories if not found, defaults to False
-        :raises PasteIdException: If the given id was invalid
-        :return: The combined path
-    """
-    if len(paste_id) < 3:
-        raise PasteIdException(
-            "paste_id too short, must be at least 3 characters long")
-    full_path = root_path / paste_id[:2]
-    if mkdir:
-        full_path.mkdir(parents=True, exist_ok=True)
-    return full_path / paste_id[2:]
-
-
 def get_id_from_paste_path(root_path: Path, paste_path: Path) -> str:
     """
     Deconstruct a paste path, returing the full paste id
@@ -230,52 +206,6 @@ def get_paste_ids_as_csv(root_path: Path) -> Generator[str, None, None]:
         yield paste_id + "\n"
 
 
-async def write_paste(
-        paste_path: Path,
-        paste_meta: PasteMeta,
-        content: AsyncGenerator[bytes, None] | Body | bytes):
-    """
-    Writes a new paste
-
-        :param paste_path: The full paste path
-        :param paste_meta: The pastes meta
-        :param content: The paste content
-    """
-    async with aio_open(paste_path, "wb") as fo:
-        await fo.write(paste_meta.json().encode() + b"\n")
-        if isinstance(content, (AsyncGenerator, Body)):
-            async for chunk in content:
-                await fo.write(chunk)
-        else:
-            await fo.write(content)
-
-
-async def read_paste_meta(paste_path: Path) -> PasteMeta:
-    """
-    Read just the paste's meta from file
-
-        :param paste_path: The full paste path
-        :return: The meta
-    """
-    async with aio_open(paste_path, "rb") as fo:
-        meta = get_paste_meta(await fo.readline())
-        return meta
-
-
-async def read_paste_content(paste_path: Path) -> AsyncGenerator[bytes, None]:
-    """
-    Read just the paste's content from file
-
-        :param paste_path: The full paste path
-        :yield: The paste content as bytes
-    """
-    async with aio_open(paste_path, "rb") as fo:
-        # TODO use tell+seek+read to save memory while checking for newline
-        _ = await fo.readline()
-        async for line in fo:
-            yield line
-
-
 def get_form_datetime(value: str | None) -> datetime | None:
     """
     Handle loading a datetime from form input
@@ -285,44 +215,6 @@ def get_form_datetime(value: str | None) -> datetime | None:
     """
     if value:
         return datetime.fromisoformat(value)
-
-
-async def safe_remove_paste(paste_path: Path, paste_id: str):
-    """
-    deletes a paste from disk,
-    skipping if it no longer exists
-
-        :param paste_path: The full path to paste
-        :param paste_id: The paste's id
-    """
-    logger.info("auto removing of paste with id of '%s'", paste_id)
-    try:
-        await aio_os.remove(paste_path)
-    except FileNotFoundError:
-        pass
-
-
-async def try_get_paste(paste_path: Path, paste_id: str) -> PasteMeta:
-    """
-    Try to process the paste meta
-
-        :param paste_path: The full path to paste
-        :param paste_id: The paste's id
-        :raises PasteDoesNotExistException: When the paste is not found
-        :raises PasteExpiredException: When the paste has expired
-        :return: The loaded meta
-    """
-    if not await aio_ospath.isfile(paste_path):
-        logger.info("paste id of '%s' not found on filesystem", paste_id)
-        raise PasteDoesNotExistException(
-            f"paste not found with id of {paste_id}")
-
-    paste_meta = await read_paste_meta(paste_path)
-
-    # HACK this should not be here, for V1.7 (PasteHandler should remove it)
-    paste_meta.raise_if_expired()
-
-    return paste_meta
 
 
 async def list_paste_ids_response(root_path: Path) -> Response | WerkzeugResponse:
