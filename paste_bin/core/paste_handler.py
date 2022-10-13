@@ -120,4 +120,4 @@ def init_handler(handler: PasteHandler):
 
 
 def get_handler() -> PasteHandler:
-    return loaded_handler
+    return loaded_handler  # type: ignore
