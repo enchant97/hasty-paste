@@ -5,7 +5,8 @@ from shutil import rmtree
 from unittest import IsolatedAsyncioTestCase
 
 from paste_bin import helpers
-from paste_bin.main import create_app, _reset_app
+from paste_bin.core.paste_handler import get_handler
+from paste_bin.main import _reset_app, create_app
 
 TEST_DATA_PATH = Path("data/tests/quart")
 
@@ -15,9 +16,8 @@ async def write_test_paste(content: bytes):
         paste_id=helpers.create_paste_id(),
         creation_dt=datetime.utcnow(),
     )
-    paste_path = helpers.create_paste_path(TEST_DATA_PATH, meta.paste_id, True)
 
-    await helpers.write_paste(paste_path, meta, content)
+    await get_handler()._storage.write_paste(meta.paste_id, content, meta)
 
     return meta.paste_id
 
@@ -67,7 +67,7 @@ class TestNewPaste(QuartAppTestCase):
 
         paste_id = response.location.split("/")[-1]
 
-        paste_path = helpers.create_paste_path(TEST_DATA_PATH, paste_id)
+        paste_path = TEST_DATA_PATH / paste_id[:2] / paste_id[2:]
 
         self.assertTrue(paste_path.is_file())
 
@@ -140,7 +140,7 @@ class TestApiNewPaste(QuartAppTestCase):
         data = await response.get_json()
 
         paste_id = data["paste_id"]
-        paste_path = helpers.create_paste_path(TEST_DATA_PATH, paste_id)
+        paste_path = paste_path = TEST_DATA_PATH / paste_id[:2] / paste_id[2:]
 
         self.assertTrue(paste_path.is_file())
 
@@ -156,7 +156,7 @@ class TestApiNewSimplePaste(QuartAppTestCase):
         self.assertEqual(201, response.status_code)
 
         paste_id = await response.get_data(True)
-        paste_path = helpers.create_paste_path(TEST_DATA_PATH, paste_id)
+        paste_path = paste_path = TEST_DATA_PATH / paste_id[:2] / paste_id[2:]
 
         self.assertTrue(paste_path.is_file())
 
