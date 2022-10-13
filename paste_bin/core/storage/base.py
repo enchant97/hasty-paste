@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
 from collections.abc import AsyncGenerator
 
-from quart import Quart
-
 from ... import helpers
 
 
@@ -11,7 +9,7 @@ class BaseStorage(ABC):
     The base paste storage class that all storage types should inherit from
     """
     @abstractmethod
-    def __init__(self, app: Quart, **kw):
+    def __init__(self, **kw):
         ...
 
     @abstractmethod

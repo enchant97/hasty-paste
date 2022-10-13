@@ -1,8 +1,6 @@
 
 from abc import ABC, abstractmethod
 
-from quart import Quart
-
 from ...helpers import PasteMeta
 
 
@@ -11,7 +9,7 @@ class BaseCache(ABC):
     The base cache class that all cache types should inherit from
     """
     @abstractmethod
-    def __init__(self, app: Quart, **kw):
+    def __init__(self, **kw):
         ...
 
     @abstractmethod

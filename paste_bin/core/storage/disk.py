@@ -5,7 +5,6 @@ from pathlib import Path
 from aiofiles import open as aio_open
 from aiofiles import os as aio_os
 from aiofiles import ospath as aio_ospath
-from quart import Quart
 
 from ... import helpers
 from .base import BaseStorage
@@ -43,7 +42,7 @@ def get_all_paste_ids(root_path: Path) -> Generator[str, None, None]:
 
 
 class DiskStorage(BaseStorage):
-    def __init__(self, app: Quart, paste_root: Path, **kw):
+    def __init__(self, paste_root: Path, **kw):
         self._paste_root = paste_root
 
     @staticmethod

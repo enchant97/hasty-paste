@@ -12,21 +12,21 @@ TEST_META_NO_EXPIRY = helpers.PasteMeta(
 
 class TestInternalCache(IsolatedAsyncioTestCase):
     def test_cache_len(self):
-        the_cache = cache.InternalCache(None, 4)
+        the_cache = cache.InternalCache(max_size=4)
         self.assertEqual(0, the_cache.cache_len)
 
         the_cache._cache["test"] = None  # type: ignore
         self.assertEqual(1, the_cache.cache_len)
 
     async def test_cache_push(self):
-        the_cache = cache.InternalCache(None, 4)
+        the_cache = cache.InternalCache(max_size=4)
         paste_id = "push_meta"
 
         await the_cache.push_paste_meta(paste_id, TEST_META_NO_EXPIRY)
         self.assertEqual(the_cache._cache[paste_id].meta, TEST_META_NO_EXPIRY)
 
     async def test_cache_push_rollover(self):
-        the_cache = cache.InternalCache(None, 3)
+        the_cache = cache.InternalCache(max_size=3)
 
         to_cache = [
             helpers.PasteMeta(
@@ -54,7 +54,7 @@ class TestInternalCache(IsolatedAsyncioTestCase):
         self.assertIsNone(the_cache._cache.get("push-rollover-1"))
 
     async def test_cache_get(self):
-        the_cache = cache.InternalCache(None, 4)
+        the_cache = cache.InternalCache(max_size=4)
         paste_id = "get_meta"
 
         the_cache._cache[paste_id] = cache.internal.InternalCacheItem(

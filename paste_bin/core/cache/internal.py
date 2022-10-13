@@ -22,7 +22,7 @@ class InternalCache(BaseCache):
     _max_meta_size: int
     _cache: OrderedDict[str, InternalCacheItem]
 
-    def __init__(self, app, max_size: int = 5, **kw):
+    def __init__(self, max_size: int = 5, **kw):
         self._max_meta_size = max_size
         self._cache = OrderedDict()
 

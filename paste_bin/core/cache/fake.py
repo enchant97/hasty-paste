@@ -5,7 +5,7 @@ class FakeCache(BaseCache):
     """
     This cache will never do any caching
     """
-    def __init__(self, app, **kw):
+    def __init__(self, **kw):
         pass
 
     async def push_paste_all(self, paste_id, /, *, meta=None, html=None, raw=None):

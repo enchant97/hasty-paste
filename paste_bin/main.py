@@ -67,13 +67,13 @@ def create_app():
                 cache = RedisCache(app, redis_url)
             else:
                 logger.debug("using internal caching feature")
-                cache = InternalCache(app, settings.CACHE.MAX_INTERNAL_SIZE)
+                cache = InternalCache(max_size=settings.CACHE.MAX_INTERNAL_SIZE)
         else:
             logger.debug("caching disabled")
-            cache = FakeCache(app)
+            cache = FakeCache()
 
         paste_handler = PasteHandler(
-            DiskStorage(app, settings.PASTE_ROOT),
+            DiskStorage(settings.PASTE_ROOT),
             cache,
         )
 
