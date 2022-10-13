@@ -4,7 +4,6 @@ import string
 from collections.abc import Generator
 from datetime import datetime, timedelta
 from functools import wraps
-from pathlib import Path
 
 from pydantic import BaseModel, ValidationError, validator
 from pygments import highlight
@@ -12,10 +11,9 @@ from pygments.formatters import HtmlFormatter
 from pygments.lexers import (find_lexer_class_by_name, get_all_lexers,
                              get_lexer_by_name)
 from pygments.util import ClassNotFound as PygmentsClassNotFound
-from quart import Response, abort, make_response
+from quart import abort
 from quart.utils import run_sync
 from werkzeug.routing import BaseConverter
-from werkzeug.wrappers import Response as WerkzeugResponse
 
 from .config import ExpireTimeDefaultSettings
 
@@ -159,17 +157,6 @@ def create_paste_id(long: bool = False) -> str:
     if long:
         return gen_id(40)
     return gen_id(10)
-
-
-def get_id_from_paste_path(root_path: Path, paste_path: Path) -> str:
-    """
-    Deconstruct a paste path, returing the full paste id
-
-        :param root_path: The root pastes path
-        :param paste_path: The paste file location
-        :return: The paste id
-    """
-    return "".join(paste_path.relative_to(root_path).parts)
 
 
 def get_form_datetime(value: str | None) -> datetime | None:
