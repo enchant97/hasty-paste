@@ -31,5 +31,9 @@ class BaseStorage(ABC):
         ...
 
     @abstractmethod
+    async def read_all_paste_ids(self) -> AsyncGenerator[str, None]:
+        ...
+
+    @abstractmethod
     async def delete_paste(self, paste_id: str):
         ...

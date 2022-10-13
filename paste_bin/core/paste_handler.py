@@ -102,6 +102,13 @@ class PasteHandler:
                 await self._cache.push_paste_all(paste_id, html=rendered)
             return rendered
 
+    def get_all_paste_ids(self) -> AsyncGenerator[str, None]:
+        return self._storage.read_all_paste_ids()
+
+    async def get_all_paste_ids_as_csv(self) -> AsyncGenerator[str, None]:
+        async for paste_id in self.get_all_paste_ids():
+            yield paste_id + "\n"
+
     async def remove_paste(self, paste_id: str):
         """
         Remove a paste, for example used when a paste has expired

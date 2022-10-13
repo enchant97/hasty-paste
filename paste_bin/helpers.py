@@ -172,40 +172,6 @@ def get_id_from_paste_path(root_path: Path, paste_path: Path) -> str:
     return "".join(paste_path.relative_to(root_path).parts)
 
 
-def get_all_paste_id_parts(root_path: Path) -> Generator[str, None, None]:
-    """
-    Yields each paste id part found
-
-        :param root_path: The root pastes path
-        :yield: A pastes id part
-    """
-    for part in root_path.glob("*"):
-        yield part.name
-
-
-def get_all_paste_ids_from_part(root_path: Path, id_part: str) -> Generator[str, None, None]:
-    """
-    Yield each paste id from a id part directory
-
-        :param root_path: The root pastes path
-        :param id_part: The id part
-        :yield: The full paste id
-    """
-    for part in root_path.joinpath(id_part).glob("*"):
-        yield id_part + part.name
-
-
-def get_all_paste_ids(root_path: Path) -> Generator[str, None, None]:
-    for id_part in get_all_paste_id_parts(root_path):
-        for full_id in get_all_paste_ids_from_part(root_path, id_part):
-            yield full_id
-
-
-def get_paste_ids_as_csv(root_path: Path) -> Generator[str, None, None]:
-    for paste_id in get_all_paste_ids(root_path):
-        yield paste_id + "\n"
-
-
 def get_form_datetime(value: str | None) -> datetime | None:
     """
     Handle loading a datetime from form input
@@ -215,13 +181,6 @@ def get_form_datetime(value: str | None) -> datetime | None:
     """
     if value:
         return datetime.fromisoformat(value)
-
-
-async def list_paste_ids_response(root_path: Path) -> Response | WerkzeugResponse:
-    response = await make_response(get_paste_ids_as_csv(root_path))
-    response.mimetype = "text/csv"
-
-    return response
 
 
 def handle_paste_exceptions(func):

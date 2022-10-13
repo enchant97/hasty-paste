@@ -82,10 +82,10 @@ async def get_api_paste_ids():
     if not get_settings().ENABLE_PUBLIC_LIST:
         abort(403)
 
-    # HACK this will not work when there are different storage types
-    root_path = get_settings().PASTE_ROOT
+    paste_handler = get_handler()
 
-    response = await helpers.list_paste_ids_response(root_path)
+    response = await make_response(paste_handler.get_all_paste_ids_as_csv())
+    response.mimetype = "text/csv"
 
     return response
 

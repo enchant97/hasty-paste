@@ -1,5 +1,5 @@
 import logging
-from collections.abc import AsyncGenerator
+from collections.abc import AsyncGenerator, Generator
 from pathlib import Path
 
 from aiofiles import open as aio_open
@@ -11,6 +11,35 @@ from ... import helpers
 from .base import BaseStorage
 
 logger = logging.getLogger("paste_bin")
+
+
+def get_all_paste_id_parts(root_path: Path) -> Generator[str, None, None]:
+    """
+    Yields each paste id part found
+
+        :param root_path: The root pastes path
+        :yield: A pastes id part
+    """
+    for part in root_path.glob("*"):
+        yield part.name
+
+
+def get_all_paste_ids_from_part(root_path: Path, id_part: str) -> Generator[str, None, None]:
+    """
+    Yield each paste id from a id part directory
+
+        :param root_path: The root pastes path
+        :param id_part: The id part
+        :yield: The full paste id
+    """
+    for part in root_path.joinpath(id_part).glob("*"):
+        yield id_part + part.name
+
+
+def get_all_paste_ids(root_path: Path) -> Generator[str, None, None]:
+    for id_part in get_all_paste_id_parts(root_path):
+        for full_id in get_all_paste_ids_from_part(root_path, id_part):
+            yield full_id
 
 
 class DiskStorage(BaseStorage):
@@ -90,6 +119,10 @@ class DiskStorage(BaseStorage):
             _ = await fo.readline()
             raw_paste = await fo.read()
         return raw_paste
+
+    async def read_all_paste_ids(self) -> AsyncGenerator[str, None]:
+        for paste_id in get_all_paste_ids(self._paste_root):
+            yield paste_id
 
     async def delete_paste(self, paste_id: str):
         paste_path = self._create_paste_path(paste_id, False)
