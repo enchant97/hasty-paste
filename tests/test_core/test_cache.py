@@ -1,7 +1,8 @@
 from datetime import datetime
 from unittest import IsolatedAsyncioTestCase
 
-from paste_bin import cache, helpers
+from paste_bin import helpers
+from paste_bin.core import cache
 
 TEST_META_NO_EXPIRY = helpers.PasteMeta(
     paste_id="push",
@@ -14,7 +15,7 @@ class TestInternalCache(IsolatedAsyncioTestCase):
         the_cache = cache.InternalCache(None, 4)
         self.assertEqual(0, the_cache.cache_len)
 
-        the_cache._cache["test"] = None
+        the_cache._cache["test"] = None  # type: ignore
         self.assertEqual(1, the_cache.cache_len)
 
     async def test_cache_push(self):
@@ -56,7 +57,7 @@ class TestInternalCache(IsolatedAsyncioTestCase):
         the_cache = cache.InternalCache(None, 4)
         paste_id = "get_meta"
 
-        the_cache._cache[paste_id] = cache.InternalCacheItem(
+        the_cache._cache[paste_id] = cache.internal.InternalCacheItem(
             meta=TEST_META_NO_EXPIRY,
         )
         self.assertEqual(await the_cache.get_paste_meta(
