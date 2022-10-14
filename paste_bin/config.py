@@ -1,7 +1,8 @@
 from functools import cache
 from pathlib import Path
 
-from pydantic import BaseModel, BaseSettings
+from pydantic import BaseModel, BaseSettings, validator
+from pytz import all_timezones_set
 
 
 class BrandSettings(BaseModel):
@@ -33,6 +34,7 @@ class CacheSettings(BaseModel):
 
 class Settings(BaseSettings):
     PASTE_ROOT: Path
+    TIME_ZONE: str = "Europe/London"
     NEW_AT_INDEX: bool = False
     ENABLE_PUBLIC_LIST: bool = False
     UI_DEFAULT: DefaultsSettings = DefaultsSettings()
@@ -41,6 +43,12 @@ class Settings(BaseSettings):
 
     MAX_BODY_SIZE: int = 2*(10**6)
     LOG_LEVEL: str = "WARNING"
+
+    @validator("TIME_ZONE")
+    def validate_time_zone(cls, time_zone: str):
+        if time_zone not in all_timezones_set:
+            raise ValueError("not valid timezone")
+        return time_zone
 
     class Config:
         case_sensitive = True

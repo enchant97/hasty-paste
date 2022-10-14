@@ -95,7 +95,7 @@ class TestMakeDefaultExpiresAt(TestCase):
             HOURS=0,
             DAYS=1,
         )
-        expected = datetime.now() + timedelta(days=1)
+        expected = datetime.utcnow() + timedelta(days=1)
         result = helpers.make_default_expires_at(conf)
         self.assertIsNotNone(result)
         self.assertEqual(

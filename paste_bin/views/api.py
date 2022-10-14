@@ -20,7 +20,7 @@ logger = logging.getLogger("paste_bin")
 @validate_response(helpers.PasteMeta, status_code=201)
 async def post_api_paste_new(data: helpers.PasteMetaCreate):
     """
-    Create a new paste
+    Create a new paste, expected timezone is UTC
     """
     title = None if data.title == "" else data.title
 
@@ -56,6 +56,7 @@ async def post_api_paste_new_simple():
     """
     use_long_id = get_settings().UI_DEFAULT.USE_LONG_ID is not None or False
     expiry_settings = get_settings().UI_DEFAULT.EXPIRE_TIME
+    expires_at = helpers.make_default_expires_at(expiry_settings)
 
     paste_handler = get_handler()
 
@@ -66,7 +67,7 @@ async def post_api_paste_new_simple():
             use_long_id,
             body,
             helpers.PasteMetaToCreate(
-                expire_dt=helpers.make_default_expires_at(expiry_settings),
+                expire_dt=expires_at,
             ),
         )
 

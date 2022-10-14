@@ -18,6 +18,7 @@ All configs shown here should be given as environment variables.
 | Name                             | Description                                                        | Default       | Docker Default |
 | :------------------------------- | :----------------------------------------------------------------- | :------------ | :------------- |
 | PASTE_ROOT                       | Where the paste flat file system will be kept                      |               | /app/data      |
+| TIME_ZONE                        | The time-zone where your clients are (used in web UI)              | Europe/London | Europe/London  |
 | NEW_AT_INDEX                     | Index page displays new paste page instead                         | False         | False          |
 | ENABLE_PUBLIC_LIST               | Whether to enable public access for listing pastes                 | False         | False          |
 |                                  |                                                                    |               |                |
@@ -87,6 +88,7 @@ services:
       - 8000:8000
     environment:
       - "UI_DEFAULT__USE_LONG_ID=False"
+      - "TIME_ZONE=Europe/London"
 
 volumes:
   data:
@@ -113,6 +115,7 @@ services:
       - 8000:8000
     environment:
       - "UI_DEFAULT__USE_LONG_ID=False"
+      - "TIME_ZONE=Europe/London"
       - "CACHE__REDIS_URI=redis://redis:6379"
     depends_on:
       - redis

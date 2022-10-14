@@ -5,6 +5,7 @@ from collections.abc import Generator
 from datetime import datetime, timedelta
 from functools import wraps
 
+import pytz
 from pydantic import BaseModel, ValidationError, validator
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
@@ -256,14 +257,35 @@ def highlight_content_async_wrapped(content: str, lexer_name: str) -> str:
 
 
 def make_default_expires_at(settings: ExpireTimeDefaultSettings) -> datetime | None:
+    """
+    Get expiry time, in UTC
+    """
     if settings.ENABLE:
-        default_expires_at = datetime.now()
+        default_expires_at = datetime.utcnow()
         default_expires_at += timedelta(
             minutes=settings.MINUTES,
             hours=settings.HOURS,
             days=settings.DAYS,
         )
         return default_expires_at
+
+
+def utc_to_local(v: datetime, timezone: str) -> datetime:
+    """
+    convert utc time into given local timezone,
+    will return datetime without a tzinfo
+    """
+    time_zone = pytz.timezone(timezone)
+    return pytz.utc.localize(v).astimezone(time_zone).replace(tzinfo=None)
+
+
+def local_to_utc(v: datetime, timezone: str) -> datetime:
+    """
+    convert datetime from given local timzone into utc,
+    will return datetime without a tzinfo
+    """
+    time_zone = pytz.timezone(timezone)
+    return time_zone.localize(v).astimezone(pytz.utc).replace(tzinfo=None)
 
 
 class PasteIdConverter(BaseConverter):
