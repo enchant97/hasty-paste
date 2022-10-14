@@ -92,7 +92,7 @@ class PasteMetaToCreate(BaseModel):
             **self.dict(),
         )
 
-class PasteMetaCreate(BaseModel):
+class PasteApiCreate(BaseModel):
     content: str
     long_id: bool = False
     expire_dt: datetime | None = None

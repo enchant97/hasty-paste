@@ -130,7 +130,7 @@ class TestApiNewPaste(QuartAppTestCase):
             headers={
                 "Content-Type": "application/json",
             },
-            data=helpers.PasteMetaCreate(
+            data=helpers.PasteApiCreate(
                 content="test api create",
             ).json(),
         )

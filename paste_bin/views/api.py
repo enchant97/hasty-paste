@@ -16,9 +16,9 @@ logger = logging.getLogger("paste_bin")
 
 @blueprint.post("/pastes")
 @tag(("paste",))
-@validate_request(helpers.PasteMetaCreate)
+@validate_request(helpers.PasteApiCreate)
 @validate_response(helpers.PasteMeta, status_code=201)
-async def post_api_paste_new(data: helpers.PasteMetaCreate):
+async def post_api_paste_new(data: helpers.PasteApiCreate):
     """
     Create a new paste, expected timezone is UTC
     """
