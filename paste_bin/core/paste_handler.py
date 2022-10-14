@@ -7,11 +7,21 @@ from quart.wrappers import Body
 
 from .. import helpers
 from .cache import BaseCache
+from .cache.exceptions import CacheException
 from .storage import BaseStorage
+from .storage.exceptions import StorageException
 
 ASYNC_BYTES_GEN_TYPE = AsyncGenerator[bytes, None]
 
 logger = logging.getLogger("paste_bin")
+
+
+class PasteHandlerException(Exception):
+    pass
+
+
+class PasteHandlerStorageException(Exception):
+    pass
 
 
 class PasteHandler:
@@ -23,7 +33,12 @@ class PasteHandler:
         self._cache = cache
 
     def __run_in_background(self, func, *args, **kwargs):
-        current_app.add_background_task(func, *args, **kwargs)
+        try:
+            current_app.add_background_task(func, *args, **kwargs)
+        except CacheException as err:
+            logger.exception("cache raised an error, could not use")
+        except StorageException as err:
+            raise PasteHandlerStorageException() from err
 
     async def create_paste(
             self,
@@ -37,11 +52,14 @@ class PasteHandler:
             :param config: The paste's config (meta without id)
             :return: The created paste's id
         """
-        paste_id = helpers.create_paste_id(long_id)
-        meta = config.into_meta(paste_id)
-        await self._storage.write_paste(paste_id, cast(ASYNC_BYTES_GEN_TYPE, raw), meta)
-        self.__run_in_background(self._cache.push_paste_any, paste_id, meta=meta)
-        return paste_id
+        try:
+            paste_id = helpers.create_paste_id(long_id)
+            meta = config.into_meta(paste_id)
+            await self._storage.write_paste(paste_id, cast(ASYNC_BYTES_GEN_TYPE, raw), meta)
+            self.__run_in_background(self._cache.push_paste_any, paste_id, meta=meta)
+            return paste_id
+        except StorageException as err:
+            raise PasteHandlerStorageException() from err
 
     async def get_paste_meta(self, paste_id: str) -> helpers.PasteMeta | None:
         """
@@ -50,13 +68,19 @@ class PasteHandler:
             :param paste_id: The paste's id
             :return: The paste's meta
         """
-        if (meta := await self._cache.get_paste_meta(paste_id)) is not None:
-            logger.debug("cache hit for meta-'%s'", paste_id)
-            return meta
-        if (meta := await self._storage.read_paste_meta(paste_id)) is not None:
-            logger.debug("cache miss for meta-'%s'", paste_id)
-            self.__run_in_background(self._cache.push_paste_any, paste_id, meta=meta)
-            return meta
+        try:
+            if (meta := await self._cache.get_paste_meta(paste_id)) is not None:
+                logger.debug("cache hit for meta-'%s'", paste_id)
+                return meta
+        except CacheException:
+            logger.exception("cache raised an error, trying storage")
+        try:
+            if (meta := await self._storage.read_paste_meta(paste_id)) is not None:
+                logger.debug("cache miss for meta-'%s'", paste_id)
+                self.__run_in_background(self._cache.push_paste_any, paste_id, meta=meta)
+                return meta
+        except StorageException as err:
+            raise PasteHandlerStorageException() from err
 
     async def get_paste_raw(self, paste_id: str) -> bytes | None:
         """
@@ -65,13 +89,19 @@ class PasteHandler:
             :param paste_id: The paste's id
             :return: The paste's raw content
         """
-        if (raw := await self._cache.get_paste_raw(paste_id)) is not None:
-            logger.debug("cache hit for raw-'%s'", paste_id)
-            return raw
-        if (raw := await self._storage.read_paste_raw(paste_id)) is not None:
-            logger.debug("cache miss for raw-'%s'", paste_id)
-            await self._cache.push_paste_any(paste_id, raw=raw)
-            return raw
+        try:
+            if (raw := await self._cache.get_paste_raw(paste_id)) is not None:
+                logger.debug("cache hit for raw-'%s'", paste_id)
+                return raw
+        except CacheException:
+            logger.exception("cache raised an error, trying storage")
+        try:
+            if (raw := await self._storage.read_paste_raw(paste_id)) is not None:
+                logger.debug("cache miss for raw-'%s'", paste_id)
+                await self._cache.push_paste_any(paste_id, raw=raw)
+                return raw
+        except StorageException as err:
+            raise PasteHandlerStorageException() from err
 
     async def get_paste_rendered(
             self,
@@ -84,11 +114,14 @@ class PasteHandler:
             :param custom_lexer: Whether to override the lexer, defaults to None
             :return: The rendered content
         """
-        if (
-                custom_lexer is None and
-                (rendered := await self._cache.get_paste_rendered(paste_id)) is not None):
-            logger.debug("cache hit for rendered-'%s'", paste_id)
-            return rendered
+        try:
+            if (
+                    custom_lexer is None and
+                    (rendered := await self._cache.get_paste_rendered(paste_id)) is not None):
+                logger.debug("cache hit for rendered-'%s'", paste_id)
+                return rendered
+        except CacheException:
+            logger.exception("cache raised an error, trying storage")
         meta = await self.get_paste_meta(paste_id)
         # no meta means it does not exist
         if meta is None:
@@ -102,7 +135,7 @@ class PasteHandler:
             )
             # HACK override lexer content cannot be cached, should be fixed in 1.7
             if custom_lexer is None:
-                await self._cache.push_paste_any(paste_id, html=rendered)
+                self.__run_in_background(self._cache.push_paste_any, paste_id, html=rendered)
             return rendered
 
     def get_all_paste_ids(self) -> AsyncGenerator[str, None]:

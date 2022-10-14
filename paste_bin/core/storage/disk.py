@@ -8,6 +8,7 @@ from aiofiles import ospath as aio_ospath
 
 from ... import helpers
 from .base import BaseStorage
+from .exceptions import StorageReadException, StorageWriteException
 
 logger = logging.getLogger("paste_bin")
 
@@ -57,14 +58,19 @@ class DiskStorage(BaseStorage):
             :param paste_id: The paste's id
             :param mkdir: Creates the directories if not found, defaults to False
             :raises PasteIdException: If the given id was invalid
+            :raises StorageWriteException: Directoy could not to be created
             :return: The combined path
         """
         if len(paste_id) < 3:
+            # NOTE this should never happen
             raise helpers.PasteIdException(
                 "paste_id too short, must be at least 3 characters long")
         full_path = self._paste_root / paste_id[:2]
         if mkdir:
-            full_path.mkdir(parents=True, exist_ok=True)
+            try:
+                full_path.mkdir(parents=True, exist_ok=True)
+            except PermissionError as err:
+                raise StorageWriteException("failed to create paste directory") from err
         return full_path / paste_id[2:]
 
     async def write_paste(
@@ -81,13 +87,16 @@ class DiskStorage(BaseStorage):
         """
         paste_path = self._create_paste_path(paste_id, True)
 
-        async with aio_open(paste_path, "wb") as fo:
-            await fo.write(meta.json().encode() + b"\n")
-            if isinstance(raw, bytes):
-                await fo.write(raw)
-            else:
-                async for chunk in raw:
-                    await fo.write(chunk)
+        try:
+            async with aio_open(paste_path, "wb") as fo:
+                await fo.write(meta.json().encode() + b"\n")
+                if isinstance(raw, bytes):
+                    await fo.write(raw)
+                else:
+                    async for chunk in raw:
+                        await fo.write(chunk)
+        except PermissionError as err:
+            raise StorageWriteException(f"failed to write paste data for '{paste_id}'") from err
 
     async def read_paste_meta(self, paste_id: str) -> helpers.PasteMeta | None:
         paste_path = self._create_paste_path(paste_id, False)
@@ -96,9 +105,12 @@ class DiskStorage(BaseStorage):
             logger.debug("paste id of '%s' not found on filesystem", paste_id)
             return
 
-        async with aio_open(paste_path, "rb") as fo:
-            meta = helpers.extract_paste_meta(await fo.readline())
-            return meta
+        try:
+            async with aio_open(paste_path, "rb") as fo:
+                meta = helpers.extract_paste_meta(await fo.readline())
+                return meta
+        except PermissionError as err:
+            raise StorageReadException(f"failed to read paste meta for '{paste_id}'") from err
 
     async def read_paste_raw(self, paste_id: str) -> bytes | None:
         """
@@ -113,15 +125,21 @@ class DiskStorage(BaseStorage):
             logger.debug("paste id of '%s' not found on filesystem", paste_id)
             return
 
-        async with aio_open(paste_path, "rb") as fo:
-            # TODO use tell+seek+read to save memory while checking for newline
-            _ = await fo.readline()
-            raw_paste = await fo.read()
-        return raw_paste
+        try:
+            async with aio_open(paste_path, "rb") as fo:
+                # TODO use tell+seek+read to save memory while checking for newline
+                _ = await fo.readline()
+                raw_paste = await fo.read()
+                return raw_paste
+        except PermissionError as err:
+            raise StorageReadException(f"failed to read paste raw for '{paste_id}'") from err
 
     async def read_all_paste_ids(self) -> AsyncGenerator[str, None]:
-        for paste_id in get_all_paste_ids(self._paste_root):
-            yield paste_id
+        try:
+            for paste_id in get_all_paste_ids(self._paste_root):
+                yield paste_id
+        except PermissionError as err:
+            raise StorageReadException(f"failed to get directory contents of pastes") from err
 
     async def delete_paste(self, paste_id: str):
         paste_path = self._create_paste_path(paste_id, False)
@@ -130,3 +148,5 @@ class DiskStorage(BaseStorage):
             await aio_os.remove(paste_path)
         except FileNotFoundError:
             pass
+        except PermissionError as err:
+            raise StorageWriteException(f"failed to delete paste '{paste_id}'") from err
