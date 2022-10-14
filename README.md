@@ -26,7 +26,7 @@ A fast and minimal paste bin, written in Python using Quart.
 [![Showcase Image](docs/assets/showcase.png)](docs/assets/showcase.png)
 
 ## Docs
-Docs are located in the [/docs](docs/index.md) directory.
+Docs are located in the [/docs](docs/index.md) directory. Or on the site: [enchantedcode.co.uk/hasty-paste](https://enchantedcode.co.uk/hasty-paste)
 
 ## Branches
 | Name         | Description            | State         |
