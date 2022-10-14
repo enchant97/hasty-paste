@@ -6,7 +6,7 @@ from aiofiles import open as aio_open
 from aiofiles import os as aio_os
 from aiofiles import ospath as aio_ospath
 
-from ..models import PasteMeta
+from ..models import PasteMeta, PasteMetaException
 from .base import BaseStorage
 from .exceptions import StorageReadException, StorageWriteException
 
@@ -108,7 +108,7 @@ class DiskStorage(BaseStorage):
             async with aio_open(paste_path, "rb") as fo:
                 meta = PasteMeta.extract_from_line(await fo.readline())
                 return meta
-        except PermissionError as err:
+        except (PermissionError, PasteMetaException) as err:
             raise StorageReadException(f"failed to read paste meta for '{paste_id}'") from err
 
     async def read_paste_raw(self, paste_id: str) -> bytes | None:
