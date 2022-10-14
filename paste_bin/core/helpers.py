@@ -13,7 +13,7 @@ logger = logging.getLogger("paste_bin")
 
 PASTE_ID_CHARACTER_SET = string.ascii_letters + string.digits
 VALID_PASTE_ID_REGEX = r"[a-zA-Z0-9]+"
-VALID_PASTE_ID_REGEX_PADDED = r"([a-zA-Z0-9]|-)+"
+VALID_PASTE_ID_REGEX_PADDED = r"(?:[a-zA-Z0-9]|-)+"
 PASTE_ID_SHORT_LEN = 10
 PASTE_ID_LONG_LEN = 40
 
