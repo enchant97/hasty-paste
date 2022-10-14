@@ -34,10 +34,6 @@ class PasteIdException(PasteException):
     pass
 
 
-class PasteExpiredException(PasteException):
-    pass
-
-
 class PasteMetaUnprocessable(PasteMetaException):
     pass
 
@@ -62,11 +58,6 @@ class PasteMeta(PasteMetaVersion):
         if self.expire_dt is not None and self.expire_dt.replace(tzinfo=None) < datetime.utcnow():
             return True
         return False
-
-    def raise_if_expired(self):
-        if self.is_expired:
-            raise PasteExpiredException(
-                f"paste has expired with id of {self.paste_id}")
 
     @classmethod
     def extract_from_line(cls, line: str | bytes) -> "PasteMeta":

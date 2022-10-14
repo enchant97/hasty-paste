@@ -53,12 +53,11 @@ async def get_new_paste():
         paste_handler = get_handler()
         try:
             if (meta := await paste_handler.get_paste_meta(paste_id)) is not None:
-                meta.raise_if_expired()
+                if meta.is_expired:
+                    await paste_handler.remove_paste(paste_id)
+                    abort(404)
                 if (raw := await paste_handler.get_paste_raw(paste_id)) is not None:
                     content = raw.decode()
-        except helpers.PasteExpiredException:
-            # register the paste for removal
-            await paste_handler.remove_paste(paste_id)
         except (helpers.PasteException, helpers.PasteMetaException):
             # skip clone, if paste errored failed
             pass
