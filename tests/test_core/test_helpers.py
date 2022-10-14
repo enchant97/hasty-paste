@@ -1,3 +1,4 @@
+import re
 from datetime import datetime, timedelta
 from unittest import TestCase
 
@@ -14,11 +15,16 @@ class TestGenId(TestCase):
 
 class TestCreatePasteId(TestCase):
     def test_valid_short(self):
-        self.assertEqual(len(helpers.create_paste_id()), 10)
+        self.assertEqual(len(helpers.create_paste_id()), helpers.PASTE_ID_SHORT_LEN)
 
     def test_valid_long(self):
-        self.assertEqual(len(helpers.create_paste_id(True)), 40)
+        self.assertEqual(len(helpers.create_paste_id(True)), helpers.PASTE_ID_LONG_LEN)
 
+    def test_valid_characters(self):
+        self.assertTrue(re.match(
+            helpers.VALID_PASTE_ID_REGEX,
+            helpers.create_paste_id(False)
+        ))
 
 class TestMakeDefaultExpiresAt(TestCase):
     def test_disabled(self):

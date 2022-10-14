@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from functools import wraps
 
 from quart import abort
-from werkzeug.routing import BaseConverter
+from werkzeug.routing import BaseConverter, ValidationError
 
 from ..config import ExpireTimeDefaultSettings
 
@@ -13,6 +13,8 @@ logger = logging.getLogger("paste_bin")
 
 PASTE_ID_CHARACTER_SET = string.ascii_letters + string.digits
 VALID_PASTE_ID_REGEX = r"[a-zA-Z0-9]+"
+PASTE_ID_SHORT_LEN = 10
+PASTE_ID_LONG_LEN = 40
 
 
 class OptionalRequirementMissing(Exception):
@@ -47,8 +49,8 @@ def create_paste_id(long: bool = False) -> str:
         :return: The generated id
     """
     if long:
-        return gen_id(40)
-    return gen_id(10)
+        return gen_id(PASTE_ID_LONG_LEN)
+    return gen_id(PASTE_ID_SHORT_LEN)
 
 
 def handle_known_exceptions(func):
@@ -84,3 +86,8 @@ def make_default_expires_at(settings: ExpireTimeDefaultSettings) -> datetime | N
 class PasteIdConverter(BaseConverter):
     regex = VALID_PASTE_ID_REGEX
     part_isolating = True
+
+    def to_python(self, value: str) -> str:
+        if len(value) not in (PASTE_ID_SHORT_LEN, PASTE_ID_LONG_LEN):
+            raise ValidationError()
+        return value
