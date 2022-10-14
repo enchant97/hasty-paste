@@ -93,7 +93,7 @@ async def get_api_paste_ids():
 
 @blueprint.get("/pastes/<id:paste_id>")
 @tag(("paste",))
-@helpers.handle_paste_exceptions
+@helpers.handle_known_exceptions
 async def get_api_paste_raw(paste_id: str):
     """
     Get the paste raw content, if one exists
@@ -123,7 +123,7 @@ async def get_api_paste_raw(paste_id: str):
 @blueprint.get("/pastes/<id:paste_id>/meta")
 @tag(("paste",))
 @validate_response(helpers.PasteMeta)
-@helpers.handle_paste_exceptions
+@helpers.handle_known_exceptions
 async def get_api_paste_meta(paste_id: str):
     """
     Get the paste meta, if one exists

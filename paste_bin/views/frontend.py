@@ -9,7 +9,7 @@ from ..config import get_settings
 from ..core import renderer
 from ..core.conversion import (form_field_to_datetime, local_to_utc,
                                utc_to_local)
-from ..core.paste_handler import get_handler
+from ..core.paste_handler import PasteHandlerException, get_handler
 
 blueprint = Blueprint("front_end", __name__)
 
@@ -58,8 +58,9 @@ async def get_new_paste():
                     abort(404)
                 if (raw := await paste_handler.get_paste_raw(paste_id)) is not None:
                     content = raw.decode()
-        except (helpers.PasteException, helpers.PasteMetaException):
-            # skip clone, if paste errored failed
+        except PasteHandlerException:
+            # skip clone, if handler encounted an error
+            logger.exception("cloning paste encounted an error")
             pass
 
     return await render_template(
@@ -115,7 +116,7 @@ async def post_new_paste():
 @blueprint.get("/<id:paste_id>", defaults={"override_lexer": None})
 @blueprint.get("/<id:paste_id>.<override_lexer>")
 @hide
-@helpers.handle_paste_exceptions
+@helpers.handle_known_exceptions
 async def get_view_paste(paste_id: str, override_lexer: str | None):
     paste_handler = get_handler()
 
@@ -141,7 +142,7 @@ async def get_view_paste(paste_id: str, override_lexer: str | None):
 
 @blueprint.get("/<id:paste_id>/raw")
 @hide
-@helpers.handle_paste_exceptions
+@helpers.handle_known_exceptions
 async def get_raw_paste(paste_id: str):
     paste_handler = get_handler()
 

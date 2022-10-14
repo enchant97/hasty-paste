@@ -8,6 +8,8 @@ from pydantic import BaseModel, ValidationError, validator
 from quart import abort
 from werkzeug.routing import BaseConverter
 
+from paste_bin.core.paste_handler import PasteHandlerException
+
 from .config import ExpireTimeDefaultSettings
 from .core import renderer
 
@@ -19,10 +21,6 @@ VALID_PASTE_ID_REGEX = r"[a-zA-Z0-9]+"
 
 
 class OptionalRequirementMissing(Exception):
-    pass
-
-
-class PasteException(Exception):
     pass
 
 
@@ -136,26 +134,18 @@ def create_paste_id(long: bool = False) -> str:
     return gen_id(10)
 
 
-def handle_paste_exceptions(func):
+def handle_known_exceptions(func):
     """
-    Used as a decorator, to handle
-    `PasteException` and `PasteMetaException` errors
+    Used as a decorator,
+    to handle known exceptions
+    that may happen during a request/response
     """
     @wraps(func)
     async def wrapper(*args, **kwargs):
         try:
             return await func(*args, **kwargs)
-        except PasteException as err:
-            logger.debug(
-                "catching PasteException in request and aborting with 404",
-                exc_info=err
-            )
-            abort(404)
-        except PasteMetaException as err:
-            logger.debug(
-                "catching PasteMetaException in request and aborting with 500",
-                exc_info=err
-            )
+        except PasteHandlerException:
+            logger.exception("catching PasteHandlerException in request and aborting with 500")
             abort(500)
     return wrapper
 
