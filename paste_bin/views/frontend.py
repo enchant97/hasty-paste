@@ -7,6 +7,7 @@ from quart_schema import hide
 from .. import helpers
 from ..config import get_settings
 from ..core.paste_handler import get_handler
+from ..core import renderer
 
 blueprint = Blueprint("front_end", __name__)
 
@@ -63,7 +64,7 @@ async def get_new_paste():
     return await render_template(
         "new.jinja",
         default_expires_at=default_expires_at,
-        get_highlighter_names=helpers.get_highlighter_names,
+        get_highlighter_names=renderer.get_highlighter_names,
         show_long_id_checkbox=True if default_settings.USE_LONG_ID is None else False,
         content=content,
     )
@@ -89,7 +90,7 @@ async def post_new_paste():
     if lexer_name == "":
         lexer_name = None
 
-    if lexer_name and not helpers.is_valid_lexer_name(lexer_name):
+    if lexer_name and not renderer.is_valid_lexer_name(lexer_name):
         abort(400)
 
     # use default long id if enabled

@@ -8,6 +8,7 @@ from quart.wrappers import Body
 from .. import helpers
 from .cache import BaseCache
 from .cache.exceptions import CacheException
+from .renderer import highlight_content_async_wrapped
 from .storage import BaseStorage
 from .storage.exceptions import StorageException
 
@@ -129,7 +130,7 @@ class PasteHandler:
         if (raw := await self.get_paste_raw(paste_id)) is not None:
             logger.debug("cache miss for rendered-'%s'", paste_id)
             lexer_name = custom_lexer or meta.lexer_name or "text"
-            rendered = await helpers.highlight_content_async_wrapped(
+            rendered = await highlight_content_async_wrapped(
                 raw.decode(),
                 lexer_name,
             )
