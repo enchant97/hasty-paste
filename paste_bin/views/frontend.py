@@ -138,6 +138,7 @@ async def get_view_paste(paste_id: str, override_lexer: str | None):
         "view.jinja",
         paste_content=rendered_paste,
         meta=paste_meta,
+        paste_id_padded=helpers.padd_str(paste_id, "-", 5),
     )
 
 

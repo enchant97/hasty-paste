@@ -13,6 +13,7 @@ logger = logging.getLogger("paste_bin")
 
 PASTE_ID_CHARACTER_SET = string.ascii_letters + string.digits
 VALID_PASTE_ID_REGEX = r"[a-zA-Z0-9]+"
+VALID_PASTE_ID_REGEX_PADDED = r"([a-zA-Z0-9]|-)+"
 PASTE_ID_SHORT_LEN = 10
 PASTE_ID_LONG_LEN = 40
 
@@ -83,11 +84,32 @@ def make_default_expires_at(settings: ExpireTimeDefaultSettings) -> datetime | N
         return default_expires_at
 
 
+def padd_str(v: str, sep: str, everyN: int) -> str:
+    """
+    Add a seperator after everyN character.
+
+        :param v: The string to padd
+        :param sep: The seperator
+        :param everyN: When to add the seperator
+        :return: The padded string
+    """
+    if len(v) < everyN:
+        return v
+    for i in range(everyN, len(v), everyN + len(sep)):
+        v = v[:i] + sep + v[i:]
+    return v
+
+
 class PasteIdConverter(BaseConverter):
-    regex = VALID_PASTE_ID_REGEX
+    regex = VALID_PASTE_ID_REGEX_PADDED
     part_isolating = True
 
     def to_python(self, value: str) -> str:
+        value = value.replace("-", "")
         if len(value) not in (PASTE_ID_SHORT_LEN, PASTE_ID_LONG_LEN):
             raise ValidationError()
-        return value
+        return super().to_url(value)
+
+    def to_url(self, value: str) -> str:
+        value = padd_str(value, "-", 5)
+        return super().to_url(value)

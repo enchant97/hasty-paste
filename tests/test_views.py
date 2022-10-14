@@ -66,7 +66,8 @@ class TestNewPaste(QuartAppTestCase):
 
         self.assertTrue(response.status_code, 302)
 
-        paste_id = response.location.split("/")[-1]
+        # NOTE replace '-' with '' as we have automatic human padding
+        paste_id = (response.location.split("/")[-1]).replace("-", "")
 
         paste_path = TEST_DATA_PATH / paste_id[:2] / paste_id[2:]
 

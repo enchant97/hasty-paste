@@ -26,6 +26,7 @@ class TestCreatePasteId(TestCase):
             helpers.create_paste_id(False)
         ))
 
+
 class TestMakeDefaultExpiresAt(TestCase):
     def test_disabled(self):
         conf = config.ExpireTimeDefaultSettings(
@@ -48,3 +49,29 @@ class TestMakeDefaultExpiresAt(TestCase):
             expected.isoformat(timespec="hours"),
             result.isoformat(timespec="hours"),  # type: ignore
         )
+
+
+class TestPaddStr(TestCase):
+    def _make_pad_test(self, expected: str, sep: str, everyN: int):
+        to_test = expected.replace(sep, "")
+        actual = helpers.padd_str(to_test, sep, everyN)
+        self.assertEqual(expected, actual)
+
+    def test_shorter(self):
+        self._make_pad_test("8Z2", "-", 5)
+
+    def test_equal(self):
+        self._make_pad_test("8Z2ka", "-", 5)
+
+    def test_one_pad(self):
+        self._make_pad_test("8Z2kX-cZioc", "-", 5)
+        self._make_pad_test("8Z2kX--cZioc", "--", 5)
+
+    def test_not_matching(self):
+        self._make_pad_test("8Z2kX-cZioca", "-", 5)
+        self._make_pad_test("8Z2-kXc-Zioca", "-", 3)
+        self._make_pad_test("8Z2kX--cZioca", "--", 5)
+
+    def test_longer(self):
+        self._make_pad_test("8Z2kX-cZioc-a3gAs", "-", 5)
+        self._make_pad_test("8Z2kX--cZioc--a3gAs", "--", 5)
