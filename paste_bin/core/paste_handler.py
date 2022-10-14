@@ -6,8 +6,10 @@ from quart import current_app
 from quart.wrappers import Body
 
 from .. import helpers
+from ..helpers import PasteHandlerStorageException
 from .cache import BaseCache
 from .cache.exceptions import CacheException
+from .models import PasteMeta, PasteMetaToCreate
 from .renderer import highlight_content_async_wrapped
 from .storage import BaseStorage
 from .storage.exceptions import StorageException
@@ -15,14 +17,6 @@ from .storage.exceptions import StorageException
 ASYNC_BYTES_GEN_TYPE = AsyncGenerator[bytes, None]
 
 logger = logging.getLogger("paste_bin")
-
-
-class PasteHandlerException(Exception):
-    pass
-
-
-class PasteHandlerStorageException(Exception):
-    pass
 
 
 class PasteHandler:
@@ -45,7 +39,7 @@ class PasteHandler:
             self,
             long_id: bool,
             raw: AsyncGenerator[bytes, None] | Body | bytes,
-            config: helpers.PasteMetaToCreate) -> str:
+            config: PasteMetaToCreate) -> str:
         """
         Create a new paste
 
@@ -62,7 +56,7 @@ class PasteHandler:
         except StorageException as err:
             raise PasteHandlerStorageException() from err
 
-    async def get_paste_meta(self, paste_id: str) -> helpers.PasteMeta | None:
+    async def get_paste_meta(self, paste_id: str) -> PasteMeta | None:
         """
         Gets the paste's meta
 

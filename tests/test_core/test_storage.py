@@ -3,11 +3,11 @@ from pathlib import Path
 from shutil import rmtree
 from unittest import IsolatedAsyncioTestCase
 
-from paste_bin import helpers
+from paste_bin.core.models import PasteMeta
 from paste_bin.core.storage.disk import DiskStorage
 
 TEST_DATA_PATH = Path("data/tests")
-VALID_META_OBJ = helpers.PasteMeta(
+VALID_META_OBJ = PasteMeta(
     paste_id="te1200aa",
     creation_dt=datetime.utcnow(),
 )

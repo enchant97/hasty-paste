@@ -9,7 +9,9 @@ from ..config import get_settings
 from ..core import renderer
 from ..core.conversion import (form_field_to_datetime, local_to_utc,
                                utc_to_local)
-from ..core.paste_handler import PasteHandlerException, get_handler
+from ..core.models import PasteMetaToCreate
+from ..core.paste_handler import get_handler
+from ..helpers import PasteHandlerException
 
 blueprint = Blueprint("front_end", __name__)
 
@@ -103,7 +105,7 @@ async def post_new_paste():
     paste_id = await paste_handler.create_paste(
         long_id,
         paste_content,
-        helpers.PasteMetaToCreate(
+        PasteMetaToCreate(
             expire_dt=expires_at,
             lexer_name=lexer_name,
             title=title,

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from collections.abc import AsyncGenerator
 
-from ... import helpers
+from ..models import PasteMeta
 
 
 class BaseStorage(ABC):
@@ -17,11 +17,11 @@ class BaseStorage(ABC):
             self,
             paste_id: str,
             raw: AsyncGenerator[bytes, None] | bytes,
-            meta: helpers.PasteMeta):
+            meta: PasteMeta):
         ...
 
     @abstractmethod
-    async def read_paste_meta(self, paste_id: str) -> helpers.PasteMeta | None:
+    async def read_paste_meta(self, paste_id: str) -> PasteMeta | None:
         ...
 
     @abstractmethod

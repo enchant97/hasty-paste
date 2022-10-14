@@ -1,7 +1,7 @@
 
 from abc import ABC, abstractmethod
 
-from ...helpers import PasteMeta
+from ..models import PasteMeta
 
 
 class BaseCache(ABC):

@@ -6,13 +6,14 @@ from unittest import IsolatedAsyncioTestCase
 
 from paste_bin import helpers
 from paste_bin.core.paste_handler import get_handler
+from paste_bin.core.models import PasteMeta, PasteApiCreate
 from paste_bin.main import _reset_app, create_app
 
 TEST_DATA_PATH = Path("data/tests/quart")
 
 
 async def write_test_paste(content: bytes):
-    meta = helpers.PasteMeta(
+    meta = PasteMeta(
         paste_id=helpers.create_paste_id(),
         creation_dt=datetime.utcnow(),
     )
@@ -130,7 +131,7 @@ class TestApiNewPaste(QuartAppTestCase):
             headers={
                 "Content-Type": "application/json",
             },
-            data=helpers.PasteApiCreate(
+            data=PasteApiCreate(
                 content="test api create",
             ).json(),
         )

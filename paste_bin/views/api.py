@@ -7,6 +7,7 @@ from quart_schema import tag, validate_request, validate_response
 
 from .. import helpers
 from ..config import get_settings
+from ..core.models import PasteApiCreate, PasteMeta, PasteMetaToCreate
 from ..core.paste_handler import get_handler
 
 blueprint = Blueprint("api", __name__, url_prefix="/api")
@@ -16,9 +17,9 @@ logger = logging.getLogger("paste_bin")
 
 @blueprint.post("/pastes")
 @tag(("paste",))
-@validate_request(helpers.PasteApiCreate)
-@validate_response(helpers.PasteMeta, status_code=201)
-async def post_api_paste_new(data: helpers.PasteApiCreate):
+@validate_request(PasteApiCreate)
+@validate_response(PasteMeta, status_code=201)
+async def post_api_paste_new(data: PasteApiCreate):
     """
     Create a new paste, expected timezone is UTC
     """
@@ -29,7 +30,7 @@ async def post_api_paste_new(data: helpers.PasteApiCreate):
     paste_id = await paste_handler.create_paste(
         data.long_id,
         data.content.encode(),
-        helpers.PasteMetaToCreate(
+        PasteMetaToCreate(
             expire_dt=data.expire_dt,
             lexer_name=data.lexer_name,
             title=title,
@@ -66,7 +67,7 @@ async def post_api_paste_new_simple():
         paste_id = await paste_handler.create_paste(
             use_long_id,
             body,
-            helpers.PasteMetaToCreate(
+            PasteMetaToCreate(
                 expire_dt=expires_at,
             ),
         )
@@ -122,7 +123,7 @@ async def get_api_paste_raw(paste_id: str):
 
 @blueprint.get("/pastes/<id:paste_id>/meta")
 @tag(("paste",))
-@validate_response(helpers.PasteMeta)
+@validate_response(PasteMeta)
 @helpers.handle_known_exceptions
 async def get_api_paste_meta(paste_id: str):
     """

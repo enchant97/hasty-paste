@@ -1,10 +1,10 @@
 from datetime import datetime
 from unittest import IsolatedAsyncioTestCase
 
-from paste_bin import helpers
 from paste_bin.core import cache
+from paste_bin.core.models import PasteMeta
 
-TEST_META_NO_EXPIRY = helpers.PasteMeta(
+TEST_META_NO_EXPIRY = PasteMeta(
     paste_id="push",
     creation_dt=datetime.utcnow(),
 )
@@ -29,19 +29,19 @@ class TestInternalCache(IsolatedAsyncioTestCase):
         the_cache = cache.InternalCache(max_size=3)
 
         to_cache = [
-            helpers.PasteMeta(
+            PasteMeta(
                 paste_id="push-rollover-1",
                 creation_dt=datetime.utcnow(),
             ),
-            helpers.PasteMeta(
+            PasteMeta(
                 paste_id="push-rollover-2",
                 creation_dt=datetime.utcnow(),
             ),
-            helpers.PasteMeta(
+            PasteMeta(
                 paste_id="push-rollover-3",
                 creation_dt=datetime.utcnow(),
             ),
-            helpers.PasteMeta(
+            PasteMeta(
                 paste_id="push-rollover-4",
                 creation_dt=datetime.utcnow(),
             ),

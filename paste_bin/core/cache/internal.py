@@ -2,7 +2,7 @@ import logging
 from collections import OrderedDict
 from dataclasses import dataclass
 
-from ...helpers import PasteMeta
+from ..models import PasteMeta
 from .base import BaseCache
 
 logger = logging.getLogger("paste_bin")

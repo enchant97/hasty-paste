@@ -6,7 +6,7 @@ from aiofiles import open as aio_open
 from aiofiles import os as aio_os
 from aiofiles import ospath as aio_ospath
 
-from ... import helpers
+from ..models import PasteMeta
 from .base import BaseStorage
 from .exceptions import StorageReadException, StorageWriteException
 
@@ -76,7 +76,7 @@ class DiskStorage(BaseStorage):
             self,
             paste_id: str,
             raw: AsyncGenerator[bytes, None] | bytes,
-            meta: helpers.PasteMeta):
+            meta: PasteMeta):
         """
         Writes a new paste
 
@@ -97,7 +97,7 @@ class DiskStorage(BaseStorage):
         except PermissionError as err:
             raise StorageWriteException(f"failed to write paste data for '{paste_id}'") from err
 
-    async def read_paste_meta(self, paste_id: str) -> helpers.PasteMeta | None:
+    async def read_paste_meta(self, paste_id: str) -> PasteMeta | None:
         paste_path = self._create_paste_path(paste_id, False)
 
         if not await self._is_on_disk(paste_path):
@@ -106,7 +106,7 @@ class DiskStorage(BaseStorage):
 
         try:
             async with aio_open(paste_path, "rb") as fo:
-                meta = helpers.PasteMeta.extract_from_line(await fo.readline())
+                meta = PasteMeta.extract_from_line(await fo.readline())
                 return meta
         except PermissionError as err:
             raise StorageReadException(f"failed to read paste meta for '{paste_id}'") from err
