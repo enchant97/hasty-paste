@@ -7,7 +7,7 @@ from functools import wraps
 from quart import abort
 from werkzeug.routing import BaseConverter
 
-from .config import ExpireTimeDefaultSettings
+from ..config import ExpireTimeDefaultSettings
 
 logger = logging.getLogger("paste_bin")
 
@@ -17,6 +17,7 @@ VALID_PASTE_ID_REGEX = r"[a-zA-Z0-9]+"
 
 class OptionalRequirementMissing(Exception):
     pass
+
 
 class PasteHandlerException(Exception):
     pass

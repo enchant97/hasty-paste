@@ -7,8 +7,8 @@ try:
 except ImportError:
     Redis = None
 
+from ..helpers import OptionalRequirementMissing
 from ..models import PasteMeta
-from ...helpers import OptionalRequirementMissing
 from .base import BaseCache
 
 logger = logging.getLogger("paste_bin")

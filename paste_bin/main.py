@@ -8,9 +8,9 @@ from web_health_checker.contrib import quart as health_check
 from . import __version__
 from .config import get_settings
 from .core.cache import FakeCache, InternalCache, RedisCache
+from .core.helpers import OptionalRequirementMissing, PasteIdConverter
 from .core.paste_handler import PasteHandler, init_handler
 from .core.storage import DiskStorage
-from .helpers import OptionalRequirementMissing, PasteIdConverter
 from .views import api, extra_static, frontend
 
 logger = logging.getLogger("paste_bin")

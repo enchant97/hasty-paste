@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
 from unittest import TestCase
 
-from paste_bin import config, helpers
+from paste_bin import config
+from paste_bin.core import helpers
 
 
 class TestGenId(TestCase):

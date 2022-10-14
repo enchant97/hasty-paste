@@ -5,8 +5,8 @@ from quart import Blueprint, abort, current_app, make_response, request
 from quart.wrappers import Body
 from quart_schema import tag, validate_request, validate_response
 
-from .. import helpers
 from ..config import get_settings
+from ..core import helpers
 from ..core.models import PasteApiCreate, PasteMeta, PasteMetaToCreate
 from ..core.paste_handler import get_handler
 

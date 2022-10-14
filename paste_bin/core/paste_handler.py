@@ -5,10 +5,10 @@ from typing import cast
 from quart import current_app
 from quart.wrappers import Body
 
-from .. import helpers
-from ..helpers import PasteHandlerStorageException
+from . import helpers
 from .cache import BaseCache
 from .cache.exceptions import CacheException
+from .helpers import PasteHandlerStorageException
 from .models import PasteMeta, PasteMetaToCreate
 from .renderer import highlight_content_async_wrapped
 from .storage import BaseStorage
