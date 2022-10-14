@@ -107,7 +107,7 @@ class DiskStorage(BaseStorage):
 
         try:
             async with aio_open(paste_path, "rb") as fo:
-                meta = helpers.extract_paste_meta(await fo.readline())
+                meta = helpers.PasteMeta.extract_from_line(await fo.readline())
                 return meta
         except PermissionError as err:
             raise StorageReadException(f"failed to read paste meta for '{paste_id}'") from err

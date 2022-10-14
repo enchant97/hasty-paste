@@ -10,17 +10,23 @@ VALID_PASTE_META = b'{"paste_id": "601cdec402c931ad", "creation_dt": ' + \
 class TestExtractPasteMeta(TestCase):
     def test_valid(self):
         self.assertIsInstance(
-            helpers.extract_paste_meta(VALID_PASTE_META),
+            helpers.PasteMeta.extract_from_line(VALID_PASTE_META),
             helpers.PasteMeta,
         )
 
     def test_invalid_version(self):
         test_data = '{"version": 0}'
-        self.assertRaises(helpers.PasteMetaVersionInvalid, helpers.extract_paste_meta, test_data)
+        self.assertRaises(
+            helpers.PasteMetaVersionInvalid,
+            helpers.PasteMeta.extract_from_line, test_data
+        )
 
     def test_invalid_meta(self):
         test_data = "{version: "
-        self.assertRaises(helpers.PasteMetaUnprocessable, helpers.extract_paste_meta, test_data)
+        self.assertRaises(
+            helpers.PasteMetaUnprocessable,
+            helpers.PasteMeta.extract_from_line, test_data
+        )
 
     def test_is_expired(self):
         now = datetime.utcnow()

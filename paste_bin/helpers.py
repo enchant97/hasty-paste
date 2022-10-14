@@ -68,6 +68,30 @@ class PasteMeta(PasteMetaVersion):
             raise PasteExpiredException(
                 f"paste has expired with id of {self.paste_id}")
 
+    @classmethod
+    def extract_from_line(cls, line: str | bytes) -> "PasteMeta":
+        """
+        Processes a meta line and converts it into a object.
+
+            :param meta_line: The meta line to process
+            :raises PasteMetaVersionInvalid: Raised when the meta version is detected to be unsupported
+            :raises PasteMetaUnprocessable: Raised when the meta is not valid
+            :return: The valid meta object
+        """
+        try:
+            version = PasteMetaVersion.parse_raw(line).version
+            # NOTE this allows for future support if the meta format was to change
+            if version != CURRENT_PASTE_META_VERSION:
+                logger.error(
+                    "failed to load paste meta, version not supported: '%s'", line)
+                raise PasteMetaVersionInvalid(
+                    f"paste is not a valid version number of '{version}'")
+            return PasteMeta.parse_raw(line)
+        except ValidationError as err:
+            logger.error(
+                "failed to load paste meta, validation did not pass: '%s'", line)
+            raise PasteMetaUnprocessable("paste meta cannot be loaded") from err
+
 
 class PasteMetaToCreate(BaseModel):
     expire_dt: datetime | None = None
@@ -99,30 +123,6 @@ class PasteApiCreate(BaseModel):
         if lexer_name is not None and not renderer.is_valid_lexer_name(lexer_name):
             raise ValueError("not valid lexer name")
         return lexer_name
-
-
-def extract_paste_meta(meta_line: str | bytes) -> PasteMeta:
-    """
-    Processes a meta line and converts it into a object.
-
-        :param meta_line: The meta line to process
-        :raises PasteMetaVersionInvalid: Raised when the meta version is detected to be unsupported
-        :raises PasteMetaUnprocessable: Raised when the meta is not valid
-        :return: The valid meta object
-    """
-    try:
-        version = PasteMetaVersion.parse_raw(meta_line).version
-        # NOTE this allows for future support if the meta format was to change
-        if version != CURRENT_PASTE_META_VERSION:
-            logger.error(
-                "failed to load paste meta, version not supported: '%s'", meta_line)
-            raise PasteMetaVersionInvalid(
-                f"paste is not a valid version number of '{version}'")
-        return PasteMeta.parse_raw(meta_line)
-    except ValidationError as err:
-        logger.error(
-            "failed to load paste meta, validation did not pass: '%s'", meta_line)
-        raise PasteMetaUnprocessable("paste meta cannot be loaded") from err
 
 
 def gen_id(n: int) -> str:
