@@ -57,13 +57,12 @@ class DiskStorage(BaseStorage):
 
             :param paste_id: The paste's id
             :param mkdir: Creates the directories if not found, defaults to False
-            :raises PasteIdException: If the given id was invalid
             :raises StorageWriteException: Directoy could not to be created
             :return: The combined path
         """
         if len(paste_id) < 3:
-            # NOTE this should never happen
-            raise helpers.PasteIdException(
+            # NOTE this should never happen!
+            raise ValueError(
                 "paste_id too short, must be at least 3 characters long")
         full_path = self._paste_root / paste_id[:2]
         if mkdir:

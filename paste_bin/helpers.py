@@ -30,10 +30,6 @@ class PasteMetaException(Exception):
     pass
 
 
-class PasteIdException(PasteException):
-    pass
-
-
 class PasteMetaUnprocessable(PasteMetaException):
     pass
 

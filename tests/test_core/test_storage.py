@@ -3,8 +3,8 @@ from pathlib import Path
 from shutil import rmtree
 from unittest import IsolatedAsyncioTestCase
 
-from paste_bin.core.storage.disk import DiskStorage
 from paste_bin import helpers
+from paste_bin.core.storage.disk import DiskStorage
 
 TEST_DATA_PATH = Path("data/tests")
 VALID_META_OBJ = helpers.PasteMeta(
@@ -37,13 +37,13 @@ class TestDiskStorage(IsolatedAsyncioTestCase):
     def test__create_paste_path__invalid_id(self):
         paste_id = "12"
         self.assertRaises(
-            helpers.PasteIdException,
+            ValueError,
             self._storage._create_paste_path,
             paste_id,
             False,
         )
         self.assertRaises(
-            helpers.PasteIdException,
+            ValueError,
             self._storage._create_paste_path,
             paste_id,
             True,
