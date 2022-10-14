@@ -4,7 +4,6 @@ import string
 from datetime import datetime, timedelta
 from functools import wraps
 
-import pytz
 from pydantic import BaseModel, ValidationError, validator
 from quart import abort
 from werkzeug.routing import BaseConverter
@@ -150,17 +149,6 @@ def create_paste_id(long: bool = False) -> str:
     return gen_id(10)
 
 
-def get_form_datetime(value: str | None) -> datetime | None:
-    """
-    Handle loading a datetime from form input
-
-        :param value: The form value
-        :return: The processed datetime or None
-    """
-    if value:
-        return datetime.fromisoformat(value)
-
-
 def handle_paste_exceptions(func):
     """
     Used as a decorator, to handle
@@ -197,24 +185,6 @@ def make_default_expires_at(settings: ExpireTimeDefaultSettings) -> datetime | N
             days=settings.DAYS,
         )
         return default_expires_at
-
-
-def utc_to_local(v: datetime, timezone: str) -> datetime:
-    """
-    convert utc time into given local timezone,
-    will return datetime without a tzinfo
-    """
-    time_zone = pytz.timezone(timezone)
-    return pytz.utc.localize(v).astimezone(time_zone).replace(tzinfo=None)
-
-
-def local_to_utc(v: datetime, timezone: str) -> datetime:
-    """
-    convert datetime from given local timzone into utc,
-    will return datetime without a tzinfo
-    """
-    time_zone = pytz.timezone(timezone)
-    return time_zone.localize(v).astimezone(pytz.utc).replace(tzinfo=None)
 
 
 class PasteIdConverter(BaseConverter):

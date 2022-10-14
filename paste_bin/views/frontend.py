@@ -6,8 +6,10 @@ from quart_schema import hide
 
 from .. import helpers
 from ..config import get_settings
-from ..core.paste_handler import get_handler
 from ..core import renderer
+from ..core.conversion import (form_field_to_datetime, local_to_utc,
+                               utc_to_local)
+from ..core.paste_handler import get_handler
 
 blueprint = Blueprint("front_end", __name__)
 
@@ -43,7 +45,7 @@ async def get_new_paste():
 
     if (expiry := helpers.make_default_expires_at(default_settings.EXPIRE_TIME)) is not None:
         # NOTE ensure client has it in their timezone, not server's
-        expiry = helpers.utc_to_local(expiry, get_settings().TIME_ZONE)
+        expiry = utc_to_local(expiry, get_settings().TIME_ZONE)
         default_expires_at = expiry.isoformat(timespec="minutes")
 
     # allow paste to be cloned for editing as new paste
@@ -76,10 +78,10 @@ async def post_new_paste():
     form = await request.form
 
     paste_content = (form["paste-content"].replace("\r\n", "\n")).encode()
-    expires_at = form.get("expires-at", None, helpers.get_form_datetime)
+    expires_at = form.get("expires-at", None, form_field_to_datetime)
     if expires_at:
         # NOTE ensure client's timezone is converted to server's
-        expires_at = helpers.local_to_utc(expires_at, get_settings().TIME_ZONE)
+        expires_at = local_to_utc(expires_at, get_settings().TIME_ZONE)
     long_id = form.get("long-id", False, bool)
     lexer_name = form.get("highlighter-name", None)
     title = form.get("title", "", str).strip()
