@@ -84,6 +84,17 @@ class CliController:
                     print(f"removed: '{id_}'")
                 else:
                     print(f"skipping: '{id_}'")
+        elif args.directories:
+            dirs_removed = 0
+            for path in self._storage._paste_root.iterdir():
+                if path.is_dir():
+                    try:
+                        path.rmdir()
+                        dirs_removed += 1
+                    except OSError:
+                        # directory was not empty
+                        pass
+            print(f"cleaned {dirs_removed} empty directories")
         else:
             print("no filters given, nothing removed")
 
@@ -125,6 +136,9 @@ async def main():
         "--expired", help="select expired pastes", action="store_true")
     cleanup_parser.add_argument(
         "--older-than", help="select pastes created before given number of days", type=int)
+    cleanup_parser.add_argument(
+        "--directories", help="remove empty directories", action="store_true",
+    )
 
     args = parser.parse_args()
     await cli.process_args(args)
