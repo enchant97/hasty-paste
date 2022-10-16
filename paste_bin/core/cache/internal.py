@@ -22,7 +22,9 @@ class InternalCache(BaseCache):
     _max_meta_size: int
     _cache: OrderedDict[str, InternalCacheItem]
 
-    def __init__(self, max_size: int = 5, **kw):
+    def __init__(self, *, fallback=None, max_size: int = 5, **kw):
+        super().__init__(fallback=fallback)
+
         self._max_meta_size = max_size
         self._cache = OrderedDict()
 
@@ -63,17 +65,31 @@ class InternalCache(BaseCache):
             meta=meta, rendered_paste=html, raw_paste=raw)
         self._write_cache(paste_id, to_cache)
 
+        if self._fallback:
+            await self._fallback.push_paste_any(paste_id, meta=meta, html=html, raw=raw)
+
     async def get_paste_meta(self, paste_id):
         cached = self._read_cache(paste_id)
-        return None if cached is None else cached.meta
+        cached = None if cached is None else cached.meta
+        if cached is None and self._fallback:
+            cached = await self._fallback.get_paste_meta(paste_id)
+        return cached
 
     async def get_paste_rendered(self, paste_id):
         cached = self._read_cache(paste_id)
-        return None if cached is None else cached.rendered_paste
+        cached = None if cached is None else cached.rendered_paste
+        if cached is None and self._fallback:
+            cached = await self._fallback.get_paste_rendered(paste_id)
+        return cached
 
     async def get_paste_raw(self, paste_id):
         cached = self._read_cache(paste_id)
-        return None if cached is None else cached.raw_paste
+        cached = None if cached is None else cached.raw_paste
+        if cached is None and self._fallback:
+            cached = await self._fallback.get_paste_raw(paste_id)
+        return cached
 
     async def remove_paste(self, paste_id: str):
         self._cache.pop(paste_id, None)
+        if self._fallback:
+            await self._fallback.remove_paste(paste_id)

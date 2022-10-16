@@ -7,7 +7,7 @@ from web_health_checker.contrib import quart as health_check
 
 from . import __version__
 from .config import get_settings
-from .core.cache import FakeCache, InternalCache, RedisCache
+from .core.cache import BaseCache, FakeCache, InternalCache, RedisCache
 from .core.helpers import OptionalRequirementMissing, PasteIdConverter
 from .core.paste_handler import PasteHandler, init_handler
 from .core.storage import DiskStorage
@@ -60,17 +60,37 @@ def create_app():
     quart_schema.init_app(app)
 
     try:
+        # number of cache levels
+        cache_levels = 0
+        # primary cache, with or without fallback(s)
         cache = None
         if settings.CACHE.ENABLE:
+            # possible configurable cache types,
+            # last one selected is primary
+
             if redis_url := settings.CACHE.REDIS_URI:
+                cache_levels += 1
                 logger.debug("using redis caching feature")
-                cache = RedisCache(app, redis_url)
-            else:
+                cache = RedisCache(
+                    fallback=cache,
+                    app=app,
+                    redis_url=redis_url
+                )
+
+            if settings.CACHE.MAX_INTERNAL_SIZE > 0:
+                cache_levels += 1
                 logger.debug("using internal caching feature")
-                cache = InternalCache(max_size=settings.CACHE.MAX_INTERNAL_SIZE)
-        else:
+                cache = InternalCache(
+                    fallback=cache,
+                    max_size=settings.CACHE.MAX_INTERNAL_SIZE,
+                )
+
+        if cache is None:
+            # no cache was configured, so fallback to fake one
             logger.debug("caching disabled")
             cache = FakeCache()
+
+        logger.debug("configured %s level(s) of caching", cache_levels)
 
         paste_handler = PasteHandler(
             DiskStorage(settings.PASTE_ROOT),
