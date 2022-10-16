@@ -77,12 +77,12 @@ def create_app():
                     redis_url=redis_url
                 )
 
-            if settings.CACHE.MAX_INTERNAL_SIZE > 0:
+            if settings.CACHE.INTERNAL_MAX_SIZE > 0:
                 cache_levels += 1
                 logger.debug("using internal caching feature")
                 cache = InternalCache(
                     fallback=cache,
-                    max_size=settings.CACHE.MAX_INTERNAL_SIZE,
+                    max_size=settings.CACHE.INTERNAL_MAX_SIZE,
                 )
 
         if cache is None:

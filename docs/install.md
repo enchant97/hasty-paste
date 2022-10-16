@@ -29,8 +29,8 @@ All configs shown here should be given as environment variables.
 | UI_DEFAULT__EXPIRE_TIME__DAYS    | Default days in ui for expiry if enabled                           | 0             | 0              |
 |                                  |                                                                    |               |                |
 | CACHE__ENABLE                    | Whether to enable caching of any type                              | True          | True           |
-| CACHE__MAX_INTERNAL_SIZE         | The max size of the internal cache                                 | 4             | 4              |
-| CACHE__REDIS_URI                 | Use redis for caching (disabled internal)                          | -             | -              |
+| CACHE__INTERNAL_MAX_SIZE         | The max size of the internal cache (<=0 to disable)                | 4             | 4              |
+| CACHE__REDIS_URI                 | Use redis for caching                                              | -             | -              |
 |                                  |                                                                    |               |                |
 | BRANDING__TITLE                  | Customise the app title                                            | -             | -              |
 | BRANDING__DESCRIPTION            | Customise the app description                                      | -             | -              |
@@ -64,6 +64,15 @@ e.g
 ```
 CACHE__REDIS_URI="redis://localhost:6379"
 ```
+
+### Cache
+Hasty Paste supports tired caching. For example both the internal cache and Redis cache can be used. The priority of the cache types are shown below:
+
+```
+Internal -> Redis -> Miss
+```
+
+If you are using multiple workers (set via `WORKERS`), each worker does **not** share memory. This means when using the internal cache, each cached item will be duplicated across workers (increasing memory usage). If this is the case you may want to use Redis and select a smaller internal cache size.
 
 ## With Docker (Recommended)
 This will assume you have both Docker and Docker Compose installed.
