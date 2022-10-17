@@ -66,4 +66,4 @@ jobs:
       with:
         name: JUnit Report
         path: reports/junit.xml
-        reporter: java-junit
+        reporter: jest-junit
