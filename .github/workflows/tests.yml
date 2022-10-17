@@ -59,11 +59,3 @@ jobs:
       with:
         name: reports
         path: reports/
-    - name: Process JUnit Report
-      uses: phoenix-actions/test-reporting@v8
-      id: test-report
-      if: success() || failure()
-      with:
-        name: JUnit Report
-        path: reports/junit.xml
-        reporter: jest-junit
