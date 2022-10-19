@@ -39,7 +39,6 @@ class CliController:
                     else:
                         print(id_)
 
-
     async def command_cleanup(self, args):
         if args.all:
             confirm = "n"

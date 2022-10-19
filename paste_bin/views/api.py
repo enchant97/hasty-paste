@@ -120,7 +120,6 @@ async def get_api_paste_raw(paste_id: str):
     return response
 
 
-
 @blueprint.get("/pastes/<id:paste_id>/meta")
 @tag(("paste",))
 @validate_response(PasteMeta)

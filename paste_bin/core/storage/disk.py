@@ -138,7 +138,7 @@ class DiskStorage(BaseStorage):
             for paste_id in get_all_paste_ids(self._paste_root):
                 yield paste_id
         except PermissionError as err:
-            raise StorageReadException(f"failed to get directory contents of pastes") from err
+            raise StorageReadException("failed to get directory contents of pastes") from err
 
     async def delete_paste(self, paste_id: str):
         paste_path = self._create_paste_path(paste_id, False)

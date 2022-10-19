@@ -30,7 +30,7 @@ class PasteHandler:
     def __run_in_background(self, func, *args, **kwargs):
         try:
             current_app.add_background_task(func, *args, **kwargs)
-        except CacheException as err:
+        except CacheException:
             logger.exception("cache raised an error, could not use")
         except StorageException as err:
             raise PasteHandlerStorageException() from err

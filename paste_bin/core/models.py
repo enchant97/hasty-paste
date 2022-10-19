@@ -45,7 +45,8 @@ class PasteMeta(PasteMetaVersion):
         Processes a meta line and converts it into a object.
 
             :param meta_line: The meta line to process
-            :raises PasteMetaVersionInvalid: Raised when the meta version is detected to be unsupported
+            :raises PasteMetaVersionInvalid: Raised when the meta version
+                                             is detected to be unsupported
             :raises PasteMetaUnprocessable: Raised when the meta is not valid
             :return: The valid meta object
         """
@@ -71,6 +72,7 @@ class PasteMetaToCreate(BaseModel):
             creation_dt=datetime.utcnow(),
             **self.dict(),
         )
+
 
 class PasteApiCreate(BaseModel):
     content: str

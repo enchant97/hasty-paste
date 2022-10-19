@@ -1,13 +1,13 @@
 import logging
 import sys
 
-from quart import Quart, g
+from quart import Quart
 from quart_schema import QuartSchema
 from web_health_checker.contrib import quart as health_check
 
 from . import __version__
 from .config import get_settings
-from .core.cache import BaseCache, FakeCache, InternalCache, RedisCache
+from .core.cache import FakeCache, InternalCache, RedisCache
 from .core.helpers import OptionalRequirementMissing, PasteIdConverter
 from .core.paste_handler import PasteHandler, init_handler
 from .core.storage import DiskStorage
