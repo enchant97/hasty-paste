@@ -4,6 +4,7 @@ from quart import Quart
 
 try:
     from redis.asyncio import Redis
+    from redis.exceptions import RedisError
 except ImportError:
     Redis = None
 
@@ -56,36 +57,57 @@ class RedisCache(BaseCache):
         if raw:
             to_cache[f"{paste_id}__raw"] = raw
 
-        await self._conn.mset(to_cache)
+        try:
+            await self._conn.mset(to_cache)
+        except RedisError as err:
+            logger.error("failed to connect to redis cache: '%s'", err.args)
 
         if self._fallback:
             await self._fallback.push_paste_any(paste_id, meta=meta, html=html, raw=raw)
 
     async def get_paste_meta(self, paste_id):
-        cached = await self._conn.get(f"{paste_id}__meta")
-        if cached:
-            cached = PasteMeta.parse_raw(cached)
+        cached = None
+        try:
+            cached = await self._conn.get(f"{paste_id}__meta")
+            if cached:
+                cached = PasteMeta.parse_raw(cached)
+        except RedisError as err:
+            logger.error("failed to connect to redis cache: '%s'", err.args)
+
         if cached is None and self._fallback:
             cached = await self._fallback.get_paste_meta(paste_id)
         return cached
 
     async def get_paste_rendered(self, paste_id):
-        cached = await self._conn.get(f"{paste_id}__html")
-        if cached:
-            cached = cached.decode()
+        cached = None
+        try:
+            cached = await self._conn.get(f"{paste_id}__html")
+            if cached:
+                cached = cached.decode()
+        except RedisError as err:
+            logger.error("failed to connect to redis cache: '%s'", err.args)
+
         if cached is None and self._fallback:
             cached = await self._fallback.get_paste_rendered(paste_id)
         return cached
 
     async def get_paste_raw(self, paste_id):
-        cached = await self._conn.get(f"{paste_id}__raw")
+        cached = None
+        try:
+            cached = await self._conn.get(f"{paste_id}__raw")
+        except RedisError as err:
+            logger.error("failed to connect to redis cache: '%s'", err.args)
+
         if cached is None and self._fallback:
             cached = await self._fallback.get_paste_raw(paste_id)
         return cached
 
     async def remove_paste(self, paste_id: str):
-        await self._conn.delete(
-            f"{paste_id}__meta",
-            f"{paste_id}__html",
-            f"{paste_id}__raw",
-        )
+        try:
+            await self._conn.delete(
+                f"{paste_id}__meta",
+                f"{paste_id}__html",
+                f"{paste_id}__raw",
+            )
+        except RedisError as err:
+            logger.error("failed to connect to redis cache: '%s'", err.args)
