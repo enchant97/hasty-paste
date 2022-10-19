@@ -56,16 +56,31 @@ class InternalCache(BaseCache):
         # expire old items
         self._expire_old()
 
-    async def push_paste_any(self, paste_id, /, *, meta=None, html=None, raw=None):
-        # take value of existing cache if None
-        meta = meta if meta is not None else await self.get_paste_meta(paste_id)
-        html = html if html is not None else await self.get_paste_rendered(paste_id)
-        raw = raw if raw is not None else await self.get_paste_raw(paste_id)
+    async def push_paste_any(
+            self,
+            paste_id,
+            /, *,
+            meta=None,
+            html=None,
+            raw=None,
+            update_fallback: bool = True):
+        if meta is None and html is None and raw is None:
+            # don't bother if everything is None
+            return
+        # get existing cache item (if it exists)
+        existing = self._read_cache(paste_id)
+        if not existing:
+            # create blank cache item
+            existing = InternalCacheItem()
+        # merge new cache item with existing, if possible
         to_cache = InternalCacheItem(
-            meta=meta, rendered_paste=html, raw_paste=raw)
+            meta=meta if meta else existing.meta,
+            rendered_paste=html if html else existing.rendered_paste,
+            raw_paste=raw if raw else existing.raw_paste,
+        )
         self._write_cache(paste_id, to_cache)
 
-        if self._fallback:
+        if self._fallback and update_fallback:
             await self._fallback.push_paste_any(paste_id, meta=meta, html=html, raw=raw)
 
     async def get_paste_meta(self, paste_id):
@@ -73,6 +88,8 @@ class InternalCache(BaseCache):
         cached = None if cached is None else cached.meta
         if cached is None and self._fallback:
             cached = await self._fallback.get_paste_meta(paste_id)
+            if cached is not None:
+                await self.push_paste_any(paste_id, meta=cached, update_fallback=False)
         return cached
 
     async def get_paste_rendered(self, paste_id):
@@ -80,6 +97,8 @@ class InternalCache(BaseCache):
         cached = None if cached is None else cached.rendered_paste
         if cached is None and self._fallback:
             cached = await self._fallback.get_paste_rendered(paste_id)
+            if cached is not None:
+                await self.push_paste_any(paste_id, html=cached, update_fallback=False)
         return cached
 
     async def get_paste_raw(self, paste_id):
@@ -87,6 +106,8 @@ class InternalCache(BaseCache):
         cached = None if cached is None else cached.raw_paste
         if cached is None and self._fallback:
             cached = await self._fallback.get_paste_raw(paste_id)
+            if cached is not None:
+                await self.push_paste_any(paste_id, raw=cached, update_fallback=False)
         return cached
 
     async def remove_paste(self, paste_id: str):

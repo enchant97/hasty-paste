@@ -6,11 +6,19 @@ class FakeCache(BaseCache):
     This cache will never do any caching.
     If a fallback is provided, will always use that
     """
+
     def __init__(self, *, fallback=None, **kw):
         super().__init__(fallback=fallback)
 
-    async def push_paste_any(self, paste_id, /, *, meta=None, html=None, raw=None):
-        if self._fallback:
+    async def push_paste_any(
+            self,
+            paste_id,
+            /, *,
+            meta=None,
+            html=None,
+            raw=None,
+            update_fallback: bool = True):
+        if self._fallback and update_fallback:
             await self._fallback.push_paste_any(paste_id, meta=meta, html=html, raw=raw)
 
     async def get_paste_meta(self, paste_id):

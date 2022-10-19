@@ -47,7 +47,14 @@ class RedisCache(BaseCache):
             await self._conn.close()
             logger.info("closed redis connection")
 
-    async def push_paste_any(self, paste_id, /, *, meta=None, html=None, raw=None):
+    async def push_paste_any(
+            self,
+            paste_id,
+            /, *,
+            meta=None,
+            html=None,
+            raw=None,
+            update_fallback: bool = True):
         to_cache = {}
 
         if meta:
@@ -62,7 +69,7 @@ class RedisCache(BaseCache):
         except RedisError as err:
             logger.error("failed to connect to redis cache: '%s'", err.args)
 
-        if self._fallback:
+        if self._fallback and update_fallback:
             await self._fallback.push_paste_any(paste_id, meta=meta, html=html, raw=raw)
 
     async def get_paste_meta(self, paste_id):
@@ -76,6 +83,8 @@ class RedisCache(BaseCache):
 
         if cached is None and self._fallback:
             cached = await self._fallback.get_paste_meta(paste_id)
+            if cached is not None:
+                await self.push_paste_any(paste_id, meta=cached, update_fallback=False)
         return cached
 
     async def get_paste_rendered(self, paste_id):
@@ -89,6 +98,8 @@ class RedisCache(BaseCache):
 
         if cached is None and self._fallback:
             cached = await self._fallback.get_paste_rendered(paste_id)
+            if cached is not None:
+                await self.push_paste_any(paste_id, html=cached, update_fallback=False)
         return cached
 
     async def get_paste_raw(self, paste_id):
@@ -100,6 +111,8 @@ class RedisCache(BaseCache):
 
         if cached is None and self._fallback:
             cached = await self._fallback.get_paste_raw(paste_id)
+            if cached is not None:
+                await self.push_paste_any(paste_id, raw=cached, update_fallback=False)
         return cached
 
     async def remove_paste(self, paste_id: str):

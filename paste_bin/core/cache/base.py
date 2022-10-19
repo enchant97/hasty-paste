@@ -29,7 +29,8 @@ class BaseCache(ABC):
             *,
             meta: PasteMeta | None = None,
             html: str | None = None,
-            raw: bytes | None = None):
+            raw: bytes | None = None,
+            update_fallback: bool = True):
         """
         create or update parts (or all) of the cached paste
         """
