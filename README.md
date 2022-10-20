@@ -29,6 +29,9 @@ A fast and minimal paste bin, written in Python using Quart.
 ## Docs
 Docs are located in the [/docs](docs/index.md) directory. Or on the site: [enchantedcode.co.uk/hasty-paste](https://enchantedcode.co.uk/hasty-paste)
 
+## Hastily Paste It CLI
+This is a simple script allowing the creation of pastes from the command-line. You can download your version [here](hastily-paste-it/README.md).
+
 ## Branches
 | Name         | Description            | State         |
 | :----------- | :--------------------- | :------------ |
