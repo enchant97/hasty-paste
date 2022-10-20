@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from pydantic import BaseModel, ValidationError, validator
 
@@ -58,7 +58,18 @@ class PasteMeta(PasteMetaVersion):
                     f"paste is not a valid version number of '{version}'")
             return PasteMeta.parse_raw(line)
         except ValidationError as err:
-            raise PasteMetaUnprocessable(f"paste meta validation did not pass: '{line}'") from err
+            raise PasteMetaUnprocessable(
+                f"paste meta validation did not pass: '{line}'") from err
+
+    def until_expiry(self) -> timedelta | None:
+        """
+        Returns the calculated timedelta from current UTC datetime,
+        or None if expiry has not been set
+        """
+        if self.expire_dt:
+            now = datetime.utcnow()
+            remaining = self.expire_dt - now
+            return remaining
 
 
 class PasteMetaToCreate(BaseModel):
