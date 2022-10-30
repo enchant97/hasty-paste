@@ -1,0 +1,144 @@
+openapi: 3.0.0
+info:
+  title: Hasty Paste API
+  description: "A fast and minimal paste bin, written in Python using Quart."
+  version: 1.7.0
+
+paths:
+  /api/is-healthy:
+    get:
+      tags:
+        - Status
+      summary: "Check the health of server"
+      description: ""
+      responses:
+        200:
+          description: "Server is OK"
+  /api/pastes:
+    post:
+      tags:
+        - Paste
+      summary: ""
+      description: ""
+      requestBody: { $ref: "#/components/requestBodies/PasteCreate" }
+      responses:
+        201:
+          description: ""
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Paste" }
+        400:
+          description: "required fields are missing, or invalid"
+  /api/pastes/:
+    get:
+      tags:
+        - Paste
+      summary: "Get all id's, requires ENABLE_PUBLIC_LIST to be True"
+      description: ""
+      responses:
+        200:
+          description: "Paste id's"
+        403:
+          description: "It has been disabled by administrator"
+  /api/pastes/simple:
+    post:
+      tags:
+        - Paste
+      summary: "Create a paste without any fancy features"
+      description: "Could be used easily with curl by a user."
+      responses:
+        201:
+          description: "paste id of created paste"
+  /api/pastes/{paste_id}:
+    parameters:
+      - name: paste_id
+        example: be4Q5k2K0L
+        schema:
+          type: string
+        in: path
+        required: true
+    get:
+      tags:
+        - Paste
+      summary: "Get a paste's raw content"
+      responses:
+        200:
+          description: "The paste raw content"
+        404:
+          description: "The provided paste id does not exist or has expired"
+  /api/pastes/{paste_id}/meta:
+    parameters:
+      - name: paste_id
+        example: be4Q5k2K0L
+        schema:
+          type: string
+        in: path
+        required: true
+    get:
+      tags:
+        - Paste
+      summary: "Get a paste's meta"
+      responses:
+        200:
+          description: "The paste's meta"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Paste" }
+        404:
+          description: "The provided paste id does not exist or has expired"
+
+components:
+  schemas:
+    PasteCreate:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: string
+        expire_dt:
+          type: string
+          format: date-time
+        lexer_name:
+          type: string
+          example: python
+        long_id:
+          type: boolean
+          default: false
+        title:
+          type: string
+    Paste:
+      type: object
+      required:
+        - paste_id
+        - creation_dt
+      properties:
+        paste_id:
+          type: string
+          example: be4Q5k2K0L
+        creation_dt:
+          type: string
+          format: date-time
+        expire_dt:
+          type: string
+          format: date-time
+        lexer_name:
+          type: string
+          example: python
+        long_id:
+          type: boolean
+          default: false
+        title:
+          type: string
+        version:
+          type: integer
+          default: 1
+
+  requestBodies:
+    PasteCreate:
+      content:
+        application/json:
+          schema:
+            allOf: [{ $ref: "#/components/schemas/PasteCreate" }]
+      description: ""
+      required: true
