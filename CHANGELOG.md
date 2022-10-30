@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2022-10-30
+### Added
+- Show expiry on paste screen
+- Configurable multi-tiered caching
+- CLI can remove empty cache folders
+- Strict paste id checking in URLs
+- Better general exception handling
+- Add human padding for paste id
+- Some more unit tests
+### Changed
+- Major code refactoring (pastes are no longer dependant on storage types, for future s3 object support)
+- Tidy REST API routes
+### Fixed
+- Fixed #53 Expiry set in UI always interpreted as UTC, by having a configurable timezone
+### Removed
+- Removed deprecated features, see #50
+
 ## [1.6.0] - 2022-10-08
 ### Added
 - Simple paste creation through the api
