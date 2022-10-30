@@ -1,15 +1,14 @@
 import logging
-from datetime import datetime
 
 from async_timeout import timeout
-from quart import (Blueprint, abort, current_app, make_response, request,
-                   send_file)
+from quart import Blueprint, abort, current_app, make_response, request
 from quart.wrappers import Body
-from quart_schema import validate_request, validate_response
+from quart_schema import tag, validate_request, validate_response
 
-from .. import helpers
-from ..cache import get_cache
 from ..config import get_settings
+from ..core import helpers
+from ..core.models import PasteApiCreate, PasteMeta, PasteMetaToCreate
+from ..core.paste_handler import get_handler
 
 blueprint = Blueprint("api", __name__, url_prefix="/api")
 
@@ -17,35 +16,37 @@ logger = logging.getLogger("paste_bin")
 
 
 @blueprint.post("/pastes")
-@validate_request(helpers.PasteMetaCreate)
-@validate_response(helpers.PasteMeta, status_code=201)
-async def post_api_paste_new(data: helpers.PasteMetaCreate):
+@tag(("paste",))
+@validate_request(PasteApiCreate)
+@validate_response(PasteMeta, status_code=201)
+async def post_api_paste_new(data: PasteApiCreate):
     """
-    Create a new paste
+    Create a new paste, expected timezone is UTC
     """
-    paste_id = helpers.create_paste_id(data.long_id)
     title = None if data.title == "" else data.title
-    creation_dt = datetime.utcnow()
 
-    paste_meta = helpers.PasteMeta(
-        paste_id=paste_id,
-        creation_dt=creation_dt,
-        expire_dt=data.expire_dt,
-        lexer_name=data.lexer_name,
-        title=title,
+    paste_handler = get_handler()
+
+    paste_id = await paste_handler.create_paste(
+        data.long_id,
+        data.content.encode(),
+        PasteMetaToCreate(
+            expire_dt=data.expire_dt,
+            lexer_name=data.lexer_name,
+            title=title,
+        ),
     )
 
-    root_path = get_settings().PASTE_ROOT
-    paste_path = helpers.create_paste_path(root_path, paste_meta.paste_id, True)
+    paste_meta = await paste_handler.get_paste_meta(paste_id)
 
-    await helpers.write_paste(paste_path, paste_meta, data.content.encode())
-
-    await get_cache().push_paste_meta(paste_id, paste_meta)
+    if paste_meta is None:
+        abort(500)
 
     return paste_meta, 201
 
 
 @blueprint.post("/pastes/simple")
+@tag(("paste",))
 async def post_api_paste_new_simple():
     """
     Create a new paste without any fancy features,
@@ -56,29 +57,26 @@ async def post_api_paste_new_simple():
     """
     use_long_id = get_settings().UI_DEFAULT.USE_LONG_ID is not None or False
     expiry_settings = get_settings().UI_DEFAULT.EXPIRE_TIME
-    paste_id = helpers.create_paste_id(use_long_id)
-    creation_dt = datetime.utcnow()
+    expires_at = helpers.make_default_expires_at(expiry_settings)
 
-    paste_meta = helpers.PasteMeta(
-        paste_id=paste_id,
-        creation_dt=creation_dt,
-        expire_dt=helpers.make_default_expires_at(expiry_settings),
-    )
-
-    root_path = get_settings().PASTE_ROOT
-    paste_path = helpers.create_paste_path(root_path, paste_meta.paste_id, True)
+    paste_handler = get_handler()
 
     body: Body = request.body
     # NOTE timeout required as directly using body is not protected by Quart
     async with timeout(current_app.config["BODY_TIMEOUT"]):
-        await helpers.write_paste(paste_path, paste_meta, body)
+        paste_id = await paste_handler.create_paste(
+            use_long_id,
+            body,
+            PasteMetaToCreate(
+                expire_dt=expires_at,
+            ),
+        )
 
-    await get_cache().push_paste_meta(paste_id, paste_meta)
-
-    return paste_meta.paste_id, 201
+    return paste_id, 201
 
 
 @blueprint.get("/pastes/")
+@tag(("paste",))
 async def get_api_paste_ids():
     """
     Get all paste id's, requires `ENABLE_PUBLIC_LIST` to be True
@@ -86,104 +84,58 @@ async def get_api_paste_ids():
     if not get_settings().ENABLE_PUBLIC_LIST:
         abort(403)
 
-    root_path = get_settings().PASTE_ROOT
+    paste_handler = get_handler()
 
-    response = await helpers.list_paste_ids_response(root_path)
+    response = await make_response(paste_handler.get_all_paste_ids_as_csv())
+    response.mimetype = "text/csv"
 
     return response
 
 
-# TODO deprecate this
-@blueprint.get("/pastes/<paste_id>")
-@helpers.handle_paste_exceptions
+@blueprint.get("/pastes/<id:paste_id>")
+@tag(("paste",))
+@helpers.handle_known_exceptions
 async def get_api_paste_raw(paste_id: str):
     """
-    Get the paste raw file, if one exists
+    Get the paste raw content, if one exists
     """
-    root_path = get_settings().PASTE_ROOT
-    paste_path = helpers.create_paste_path(root_path, paste_id)
+    paste_handler = get_handler()
 
-    try:
-        # get the paste, using cache if possible
-        if (cached_meta := await get_cache().get_paste_meta(paste_id)) is not None:
-            logger.debug("accessing paste '%s' meta from cache", paste_id)
-            cached_meta.raise_if_expired()
-        else:
-            paste_meta = await helpers.try_get_paste(paste_path, paste_id)
-            await get_cache().push_paste_meta(paste_id, paste_meta)
+    paste_meta = await paste_handler.get_paste_meta(paste_id)
 
-    except helpers.PasteExpiredException as err:
-        # register the paste for removal
-        current_app.add_background_task(helpers.safe_remove_paste, paste_path, paste_id)
-        raise err
+    if paste_meta is None:
+        abort(404)
+    if paste_meta.is_expired:
+        await paste_handler.remove_paste(paste_id)
+        abort(404)
 
-    return await send_file(paste_path)
+    raw_paste = await paste_handler.get_paste_raw(paste_id)
 
-
-@blueprint.get("/pastes/<paste_id>/meta")
-@validate_response(helpers.PasteMeta)
-@helpers.handle_paste_exceptions
-async def get_api_paste_meta(paste_id: str):
-    """
-    Get the paste meta, if one exists
-    """
-    root_path = get_settings().PASTE_ROOT
-    paste_path = helpers.create_paste_path(root_path, paste_id)
-
-    paste_meta = None
-
-    try:
-        # get the paste, using cache if possible
-        if (cached_meta := await get_cache().get_paste_meta(paste_id)) is not None:
-            logger.debug("accessing paste '%s' meta from cache", paste_id)
-            paste_meta = cached_meta
-            paste_meta.raise_if_expired()
-        else:
-            paste_meta = await helpers.try_get_paste(paste_path, paste_id)
-            await get_cache().push_paste_meta(paste_id, paste_meta)
-
-    except helpers.PasteExpiredException as err:
-        # register the paste for removal
-        current_app.add_background_task(helpers.safe_remove_paste, paste_path, paste_id)
-        raise err
-
-    return paste_meta
-
-
-@blueprint.get("/pastes/<paste_id>/content")
-@helpers.handle_paste_exceptions
-async def get_api_paste_content(paste_id: str):
-    """
-    Get the paste content, if one exists
-    """
-    root_path = get_settings().PASTE_ROOT
-    paste_path = helpers.create_paste_path(root_path, paste_id)
-
-    try:
-        # get the paste, using cache if possible
-        if (cached_meta := await get_cache().get_paste_meta(paste_id)) is not None:
-            logger.debug("accessing paste '%s' meta from cache", paste_id)
-            cached_meta.raise_if_expired()
-        else:
-            paste_meta = await helpers.try_get_paste(paste_path, paste_id)
-            await get_cache().push_paste_meta(paste_id, paste_meta)
-
-    except helpers.PasteExpiredException as err:
-        # register the paste for removal
-        current_app.add_background_task(helpers.safe_remove_paste, paste_path, paste_id)
-        raise err
-
-    raw_paste = None
-
-    if (cached_raw := await get_cache().get_paste_raw(paste_id)) is not None:
-        logger.debug("accessing paste '%s' raw content from cache", paste_id)
-        raw_paste = cached_raw
-    else:
-        raw_paste = helpers.read_paste_content(paste_path)
-        raw_paste = b"".join([line async for line in raw_paste])
-        await get_cache().push_paste_all(paste_id, raw=raw_paste)
+    if raw_paste is None:
+        abort(500)
 
     response = await make_response(raw_paste)
     response.mimetype = "text/plain"
 
     return response
+
+
+@blueprint.get("/pastes/<id:paste_id>/meta")
+@tag(("paste",))
+@validate_response(PasteMeta)
+@helpers.handle_known_exceptions
+async def get_api_paste_meta(paste_id: str):
+    """
+    Get the paste meta, if one exists
+    """
+    paste_handler = get_handler()
+
+    paste_meta = await paste_handler.get_paste_meta(paste_id)
+
+    if paste_meta is None:
+        abort(404)
+    if paste_meta.is_expired:
+        await paste_handler.remove_paste(paste_id)
+        abort(404)
+
+    return paste_meta

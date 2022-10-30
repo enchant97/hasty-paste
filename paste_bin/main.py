@@ -6,9 +6,11 @@ from quart_schema import QuartSchema
 from web_health_checker.contrib import quart as health_check
 
 from . import __version__
-from .cache import FakeCache, InternalCache, RedisCache, init_cache
 from .config import get_settings
-from .helpers import OptionalRequirementMissing
+from .core.cache import FakeCache, InternalCache, RedisCache
+from .core.helpers import OptionalRequirementMissing, PasteIdConverter
+from .core.paste_handler import PasteHandler, init_handler
+from .core.storage import DiskStorage
 from .views import api, extra_static, frontend
 
 logger = logging.getLogger("paste_bin")
@@ -35,15 +37,12 @@ def _reset_app():
 
 
 def create_app():
+    app.url_map.converters["id"] = PasteIdConverter
+
     settings = get_settings()
 
     logging.basicConfig()
     logger.setLevel(logging.getLevelName(settings.LOG_LEVEL))
-
-    print(
-        "IMPORTANT NOTICE for users before V1.5: Paste id's with symbol" +
-        " characters are being deprecated and will be removed in the future, " +
-        "please use the \"Clone & Edit\" button to resave under new id (or just delete them)")
 
     settings.PASTE_ROOT.mkdir(parents=True, exist_ok=True)
 
@@ -61,16 +60,45 @@ def create_app():
     quart_schema.init_app(app)
 
     try:
+        # number of cache levels
+        cache_levels = 0
+        # primary cache, with or without fallback(s)
+        cache = None
         if settings.CACHE.ENABLE:
+            # possible configurable cache types,
+            # last one selected is primary
+
             if redis_url := settings.CACHE.REDIS_URI:
+                cache_levels += 1
                 logger.debug("using redis caching feature")
-                init_cache(RedisCache(app, redis_url))
-            else:
+                cache = RedisCache(
+                    fallback=cache,
+                    app=app,
+                    redis_url=redis_url
+                )
+
+            if settings.CACHE.INTERNAL_MAX_SIZE > 0:
+                cache_levels += 1
                 logger.debug("using internal caching feature")
-                init_cache(InternalCache(app, settings.CACHE.MAX_INTERNAL_SIZE))
-        else:
+                cache = InternalCache(
+                    fallback=cache,
+                    max_size=settings.CACHE.INTERNAL_MAX_SIZE,
+                )
+
+        if cache is None:
+            # no cache was configured, so fallback to fake one
             logger.debug("caching disabled")
-            init_cache(FakeCache(app))
+            cache = FakeCache()
+
+        logger.debug("configured %s level(s) of caching", cache_levels)
+
+        paste_handler = PasteHandler(
+            DiskStorage(settings.PASTE_ROOT),
+            cache,
+        )
+
+        init_handler(paste_handler)
+
     except OptionalRequirementMissing as err:
         logger.critical("%s", err.args[0])
         sys.exit(1)

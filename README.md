@@ -7,7 +7,7 @@
 
 A fast and minimal paste bin, written in Python using Quart.
 
-> **IMPORTANT NOTICE** Some deprecated features will be removed in V1.7, view [here](https://github.com/enchant97/hasty-paste/issues/50)
+> **IMPORTANT NOTICE** Some deprecated features have been removed in V1.7, view [here](https://github.com/enchant97/hasty-paste/issues/50)
 
 ## Features
 - Quickly paste and save, to share some text
@@ -20,13 +20,17 @@ A fast and minimal paste bin, written in Python using Quart.
 - Uses minimal resources
 - REST API
 - No Database needed, everything stored as flat-files
+- Caching (Internal & Redis)
 - Lightweight Docker image (uses Alpine Linux)
 
 ## Showcase
 [![Showcase Image](docs/assets/showcase.png)](docs/assets/showcase.png)
 
 ## Docs
-Docs are located in the [/docs](docs/index.md) directory.
+Docs are located in the [/docs](docs/index.md) directory. Or on the site: [enchantedcode.co.uk/hasty-paste](https://enchantedcode.co.uk/hasty-paste)
+
+## Hastily Paste It CLI
+This is a simple script allowing the creation of pastes from the command-line. You can download your version [here](hastily-paste-it/README.md).
 
 ## Branches
 | Name         | Description            | State         |

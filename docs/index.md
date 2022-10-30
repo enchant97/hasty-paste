@@ -15,6 +15,7 @@ It is a place to quickly paste some text and share it. Mostly used for sharing d
 - Uses minimal resources
 - REST API
 - No Database needed, everything stored as flat-files
+- Caching (Internal & Redis)
 - Lightweight Docker image (uses Alpine Linux)
 
 ## Showcase
