@@ -6,4 +6,4 @@ pydantic[dotenv]~=1.10.2
 pygments~=2.13.0
 pytz==2022.5
 # Optional Requirements
-redis~=4.3.4
+redis~=4.3.5
