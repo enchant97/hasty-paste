@@ -1,3 +1,4 @@
+import asyncio
 import logging
 
 from quart import Quart
@@ -11,6 +12,7 @@ except ImportError:
 from ..helpers import OptionalRequirementMissing
 from ..models import PasteMeta
 from .base import BaseCache
+from .exceptions import CacheException
 
 logger = logging.getLogger("paste_bin")
 
@@ -41,6 +43,17 @@ class RedisCache(BaseCache):
         async def handle_lifespan():
             logger.info("connecting to redis...")
             self._conn = Redis.from_url(redis_url)
+            # check redis can be reached
+            for attempt in range(1, 7):
+                try:
+                    await self._conn.ping()
+                    break
+                except RedisError as err:
+                    logger.warning("failed to connect to redis, attempt %d of 6", attempt)
+                    if attempt >= 6:
+                        logger.critical("could not connect to redis")
+                        raise CacheException("could not connect to redis") from err
+                    await asyncio.sleep(attempt)
             logger.info("connected to redis")
             yield
             logger.info("closing redis connection...")
