@@ -75,7 +75,7 @@ Internal -> Redis -> Miss
 If you are using multiple workers (set via `WORKERS`), each worker does **not** share memory. This means when using the internal cache, each cached item will be duplicated across workers (increasing memory usage). If this is the case you may want to use Redis and select a smaller internal cache size.
 
 ## With Docker (Recommended)
-This will assume you have both Docker and Docker Compose installed.
+This will assume you have both Docker and Docker Compose installed. You can use any other container software, however it is not documented here. To increase security the container will run as the `nobody` user instead of `root`.
 
 1. Create directory for app
 2. Create file called `docker-compose.yml` inside folder
