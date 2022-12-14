@@ -3,8 +3,8 @@
 if [ $# -eq 0 ]
 then
     # Runs the web app
-    BIND="$HOST:$PORT"
-    args="--bind $BIND --workers $WORKERS --log-level $LOG_LEVEL"
+    BIND="${HOST:-0.0.0.0}:${PORT:-8000}"
+    args="--bind $BIND --workers ${WORKERS:-1} --log-level ${LOG_LEVEL:-INFO}"
 
     if [ -n "$CERT_FILE" ] && [ -n "$KEY_FILE" ]
     then

@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.4
 ARG PYTHON_VERSION=3.10
 
-FROM python:${PYTHON_VERSION}-slim as builder
+FROM python:${PYTHON_VERSION}-slim as build-deps
 
     WORKDIR /app
 
@@ -12,24 +12,28 @@ FROM python:${PYTHON_VERSION}-slim as builder
 
     RUN --mount=type=cache,target=/root/.cache pip install -r requirements.txt
 
-FROM python:${PYTHON_VERSION}-alpine
+# reduce layers created in final image
+FROM scratch as build-content
 
     WORKDIR /app
-    EXPOSE 8000
-    ENV PATH="/app/.venv/bin:$PATH"
-    ENV WORKERS=1
-    ENV LOG_LEVEL="INFO"
-    ENV HOST="0.0.0.0"
-    ENV PORT="8000"
-    ENV PASTE_ROOT="/app/data"
 
-    COPY --from=builder --link /app/.venv .venv
+    COPY --from=build-deps --link /app /app
 
     COPY paste_bin paste_bin
 
     COPY scripts/* ./
 
+FROM python:${PYTHON_VERSION}-alpine
+
+    WORKDIR /app
+
+    EXPOSE 8000
+    ENV PATH="/app/.venv/bin:$PATH"
+    ENV PASTE_ROOT="/app/data"
+
+    COPY --from=build-content --link /app /app
+
     ENTRYPOINT ["/bin/sh", "entrypoint.sh"]
 
-    HEALTHCHECK --interval=1m --start-period=15s \
+    HEALTHCHECK --interval=1m --start-period=10s \
         CMD /bin/sh health-check.sh
