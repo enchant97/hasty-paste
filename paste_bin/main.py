@@ -1,7 +1,7 @@
 import logging
 import sys
 
-from quart import Quart
+from quart import Quart, render_template
 from quart_schema import QuartSchema
 from web_health_checker.contrib import quart as health_check
 
@@ -25,6 +25,11 @@ quart_schema = QuartSchema(
         "version": app_version,
     },
 )
+
+
+@app.errorhandler(404)
+async def get_404(_):
+    return await render_template("404.jinja"), 404
 
 
 def _reset_app():
