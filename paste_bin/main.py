@@ -54,7 +54,7 @@ def create_app():
     settings_copy = settings.copy()
     if settings.CACHE.REDIS_URI:
         settings.CACHE.REDIS_URI = re.sub(r"//.+@", "//***REDACTED***@", settings.CACHE.REDIS_URI)
-    logger.error("Launching with below config:\n%s", settings.json(indent=4))
+    logger.info("Launching with below config:\n%s", settings.json(indent=4))
 
     settings.PASTE_ROOT.mkdir(parents=True, exist_ok=True)
 
@@ -114,5 +114,10 @@ def create_app():
     except OptionalRequirementMissing as err:
         logger.critical("%s", err.args[0])
         sys.exit(1)
+
+    print(""" _   _   _   ___ _______   __  ___  _   ___ _____ ___
+| |_| | /_\ / __|_   _\ \ / / | _ \/_\ / __|_   _| __|
+|  _  |/ _ \\\\__ \ | |  \ V /  |  _/ _ \\\\__ \ | | | _|
+|_| |_/_/ \_\___/ |_|   |_|   |_|/_/ \_\___/ |_| |___|  V""" + __version__ + "\n")
 
     return app
