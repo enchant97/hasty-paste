@@ -12,6 +12,9 @@ FROM python:${PYTHON_VERSION}-slim as build-deps
 
     RUN --mount=type=cache,target=/root/.cache pip install -r requirements.txt
 
+    # ensure that data folder gets created with nobody user
+    RUN mkdir /app/data && chown -R nobody /app/data
+
 # reduce layers created in final image
 FROM scratch as build-content
 
@@ -26,6 +29,8 @@ FROM scratch as build-content
 FROM python:${PYTHON_VERSION}-alpine
 
     WORKDIR /app
+
+    USER nobody:nobody
 
     EXPOSE 8000
     ENV PATH="/app/.venv/bin:$PATH"
