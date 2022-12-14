@@ -1,5 +1,6 @@
 import logging
 import sys
+import re
 
 from quart import Quart, render_template
 from quart_schema import QuartSchema
@@ -48,6 +49,12 @@ def create_app():
 
     logging.basicConfig()
     logger.setLevel(logging.getLevelName(settings.LOG_LEVEL))
+
+    # log loaded config, redacting secrets
+    settings_copy = settings.copy()
+    if settings.CACHE.REDIS_URI:
+        settings.CACHE.REDIS_URI = re.sub(r"//.+@", "//***REDACTED***@", settings.CACHE.REDIS_URI)
+    logger.error("Launching with below config:\n%s", settings.json(indent=4))
 
     settings.PASTE_ROOT.mkdir(parents=True, exist_ok=True)
 
