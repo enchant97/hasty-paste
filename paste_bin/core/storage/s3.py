@@ -7,13 +7,19 @@ from io import BytesIO
 import base64
 from datetime import datetime
 
-import boto3
-from botocore.exceptions import ClientError
+try:
+    import boto3
+    from botocore.exceptions import ClientError
+except ImportError:
+    boto3 = None
+    ClientError = None
+
 from quart import Quart
 
 from .base import BaseStorage
 from .exceptions import StorageReadException, StorageWriteException
 from ..models import PasteMeta
+from ..helpers import OptionalRequirementMissing
 from ...config import S3StorageSettings
 
 logger = logging.getLogger("paste_bin")
@@ -50,6 +56,11 @@ def s3_into_paste_meta(paste_id: str, s3_meta: dict) -> PasteMeta:
 class S3Storage(BaseStorage):
     _executor_pool: ThreadPoolExecutor
     def __init__(self, app: Quart, s3_settings: S3StorageSettings):
+
+        if boto3 is None:
+            raise OptionalRequirementMissing(
+                "'boto3' requirement must be installed for s3 storage"
+            )
 
         @app.while_serving
         async def handle_lifespan():
