@@ -25,7 +25,7 @@ async def write_test_paste(content: bytes):
 
 class QuartAppTestCase(IsolatedAsyncioTestCase):
     def setUp(self) -> None:
-        environ["PASTE_ROOT"] = str(TEST_DATA_PATH)
+        environ["STORAGE__DISK__PASTE_ROOT"] = str(TEST_DATA_PATH)
 
         self.app = create_app()
 
