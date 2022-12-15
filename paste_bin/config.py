@@ -35,7 +35,7 @@ class DefaultsSettings(BaseModel):
 class CacheSettings(BaseModel):
     ENABLE: bool = True
     INTERNAL_MAX_SIZE: int = 4
-    REDIS_URI: str | None = None
+    REDIS_URI: SecretStr | None = None
 
 
 class DiskStorageSettings(BaseModel):
@@ -45,14 +45,14 @@ class DiskStorageSettings(BaseModel):
 class S3StorageSettings(BaseModel):
     ENDPOINT_URL: str | None = None
     ACCESS_KEY_ID: str | None = None
-    SECRET_ACCESS_KEY: str | None = None
+    SECRET_ACCESS_KEY: SecretStr | None = None
     BUCKET_NAME: str = "hasty-paste"
 
     def to_boto3_config(self):
         return {
             "endpoint_url": self.ENDPOINT_URL,
             "aws_access_key_id": self.ACCESS_KEY_ID,
-            "aws_secret_access_key": self.SECRET_ACCESS_KEY,
+            "aws_secret_access_key": self.SECRET_ACCESS_KEY.get_secret_value(),
         }
 
 
