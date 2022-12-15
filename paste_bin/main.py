@@ -46,6 +46,8 @@ def create_app():
     app.url_map.converters["id"] = PasteIdConverter
 
     settings = get_settings()
+    # HACK pydantic can't do what I want
+    settings.STORAGE.ensure_valid()
 
     logging.basicConfig()
     logger.setLevel(logging.getLevelName(settings.LOG_LEVEL))
@@ -56,7 +58,8 @@ def create_app():
         settings.CACHE.REDIS_URI = re.sub(r"//.+@", "//***REDACTED***@", settings.CACHE.REDIS_URI)
     logger.info("Launching with below config:\n%s", settings.json(indent=4))
 
-    settings.PASTE_ROOT.mkdir(parents=True, exist_ok=True)
+    if settings.STORAGE.DISK.PASTE_ROOT:
+        settings.STORAGE.DISK.PASTE_ROOT.mkdir(parents=True, exist_ok=True)
 
     if not settings.BRANDING.HIDE_VERSION:
         app.config["__version__"] = app_version
@@ -106,13 +109,13 @@ def create_app():
 
         storage = None
 
-        match settings.STORAGE_TYPE:
+        match settings.STORAGE.TYPE:
             case StorageTypes.DISK:
                 logger.debug("using disk storage")
-                storage = DiskStorage(settings.PASTE_ROOT)
+                storage = DiskStorage(settings.STORAGE.DISK.PASTE_ROOT)
             case StorageTypes.S3:
                 logger.debug("using S3 storage")
-                storage = S3Storage(app, settings.S3)
+                storage = S3Storage(app, settings.STORAGE.S3)
             case _:
                 raise ValueError("unhandled storage type")
 

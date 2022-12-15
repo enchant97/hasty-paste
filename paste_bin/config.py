@@ -2,7 +2,7 @@ from functools import cache
 from pathlib import Path
 from enum import Enum
 
-from pydantic import BaseModel, BaseSettings, validator
+from pydantic import BaseModel, BaseSettings, validator, SecretStr
 from pytz import all_timezones_set
 
 
@@ -38,6 +38,10 @@ class CacheSettings(BaseModel):
     REDIS_URI: str | None = None
 
 
+class DiskStorageSettings(BaseModel):
+    PASTE_ROOT: Path | None = None
+
+
 class S3StorageSettings(BaseModel):
     ENDPOINT_URL: str | None = None
     ACCESS_KEY_ID: str | None = None
@@ -52,16 +56,32 @@ class S3StorageSettings(BaseModel):
         }
 
 
+class StorageSettings(BaseModel):
+    TYPE: StorageTypes = StorageTypes.DISK
+    DISK: DiskStorageSettings = DiskStorageSettings()
+    S3: S3StorageSettings = S3StorageSettings()
+
+    def ensure_valid(self):
+        if self.TYPE == StorageTypes.DISK:
+            if not self.DISK.PASTE_ROOT:
+                raise ValueError("PASTE_ROOT must be defined")
+        elif self.TYPE == StorageTypes.S3:
+            if not self.S3.ACCESS_KEY_ID:
+                raise ValueError("ACCESS_KEY_ID must be defined")
+            if not self.S3.SECRET_ACCESS_KEY:
+                raise ValueError("SECRET_ACCESS_KEY must be defined")
+        else:
+            raise ValueError("unhandled storage type")
+
+
 class Settings(BaseSettings):
-    PASTE_ROOT: Path
     TIME_ZONE: str = "Europe/London"
     NEW_AT_INDEX: bool = False
     ENABLE_PUBLIC_LIST: bool = False
     UI_DEFAULT: DefaultsSettings = DefaultsSettings()
     BRANDING: BrandSettings = BrandSettings()
+    STORAGE: StorageSettings = StorageSettings()
     CACHE: CacheSettings = CacheSettings()
-    STORAGE_TYPE: StorageTypes = StorageTypes.DISK
-    S3: S3StorageSettings = S3StorageSettings()
 
     MAX_BODY_SIZE: int = 2*(10**6)
     LOG_LEVEL: str = "WARNING"
