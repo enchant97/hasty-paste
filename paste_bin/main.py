@@ -7,11 +7,11 @@ from quart_schema import QuartSchema
 from web_health_checker.contrib import quart as health_check
 
 from . import __version__
-from .config import get_settings
+from .config import get_settings, StorageTypes
 from .core.cache import FakeCache, InternalCache, RedisCache
 from .core.helpers import OptionalRequirementMissing, PasteIdConverter
 from .core.paste_handler import PasteHandler, init_handler
-from .core.storage import DiskStorage
+from .core.storage import DiskStorage, S3Storage
 from .views import api, extra_static, frontend
 
 logger = logging.getLogger("paste_bin")
@@ -104,8 +104,20 @@ def create_app():
 
         logger.debug("configured %s level(s) of caching", cache_levels)
 
+        storage = None
+
+        match settings.STORAGE_TYPE:
+            case StorageTypes.DISK:
+                logger.debug("using disk storage")
+                storage = DiskStorage(settings.PASTE_ROOT)
+            case StorageTypes.S3:
+                logger.debug("using S3 storage")
+                storage = S3Storage(app, settings.S3)
+            case _:
+                raise ValueError("unhandled storage type")
+
         paste_handler = PasteHandler(
-            DiskStorage(settings.PASTE_ROOT),
+            storage,
             cache,
         )
 

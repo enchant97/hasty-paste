@@ -1,8 +1,14 @@
 from functools import cache
 from pathlib import Path
+from enum import Enum
 
 from pydantic import BaseModel, BaseSettings, validator
 from pytz import all_timezones_set
+
+
+class StorageTypes(str, Enum):
+    DISK = "DISK"
+    S3 = "S3"
 
 
 class BrandSettings(BaseModel):
@@ -32,6 +38,20 @@ class CacheSettings(BaseModel):
     REDIS_URI: str | None = None
 
 
+class S3StorageSettings(BaseModel):
+    ENDPOINT_URL: str | None = None
+    ACCESS_KEY_ID: str | None = None
+    SECRET_ACCESS_KEY: str | None = None
+    BUCKET_NAME: str = "hasty-paste"
+
+    def to_boto3_config(self):
+        return {
+            "endpoint_url": self.ENDPOINT_URL,
+            "aws_access_key_id": self.ACCESS_KEY_ID,
+            "aws_secret_access_key": self.SECRET_ACCESS_KEY,
+        }
+
+
 class Settings(BaseSettings):
     PASTE_ROOT: Path
     TIME_ZONE: str = "Europe/London"
@@ -40,6 +60,8 @@ class Settings(BaseSettings):
     UI_DEFAULT: DefaultsSettings = DefaultsSettings()
     BRANDING: BrandSettings = BrandSettings()
     CACHE: CacheSettings = CacheSettings()
+    STORAGE_TYPE: StorageTypes = StorageTypes.DISK
+    S3: S3StorageSettings = S3StorageSettings()
 
     MAX_BODY_SIZE: int = 2*(10**6)
     LOG_LEVEL: str = "WARNING"
@@ -55,6 +77,7 @@ class Settings(BaseSettings):
         env_file = '.env'
         env_file_encoding = 'utf-8'
         env_nested_delimiter = '__'
+        use_enum_values = True
 
 
 @cache
