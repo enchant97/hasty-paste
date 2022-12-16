@@ -50,10 +50,7 @@ def create_app():
     logging.basicConfig()
     logger.setLevel(logging.getLevelName(settings.LOG_LEVEL))
 
-    # log loaded config, redacting secrets
-    settings_copy = settings.copy()
-    if settings.CACHE.REDIS_URI:
-        settings.CACHE.REDIS_URI = re.sub(r"//.+@", "//***REDACTED***@", settings.CACHE.REDIS_URI)
+    # NOTE secrets are redacted, these fields should be 'SecretStr' types
     logger.info("Launching with below config:\n%s", settings.json(indent=4))
 
     settings.PASTE_ROOT.mkdir(parents=True, exist_ok=True)
@@ -86,7 +83,7 @@ def create_app():
                 cache = RedisCache(
                     fallback=cache,
                     app=app,
-                    redis_url=redis_url
+                    redis_url=redis_url.get_secret_value(),
                 )
 
             if settings.CACHE.INTERNAL_MAX_SIZE > 0:

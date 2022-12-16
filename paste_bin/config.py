@@ -1,7 +1,7 @@
 from functools import cache
 from pathlib import Path
 
-from pydantic import BaseModel, BaseSettings, validator
+from pydantic import BaseModel, BaseSettings, validator, SecretStr
 from pytz import all_timezones_set
 
 
@@ -29,7 +29,7 @@ class DefaultsSettings(BaseModel):
 class CacheSettings(BaseModel):
     ENABLE: bool = True
     INTERNAL_MAX_SIZE: int = 4
-    REDIS_URI: str | None = None
+    REDIS_URI: SecretStr | None = None
 
 
 class Settings(BaseSettings):
