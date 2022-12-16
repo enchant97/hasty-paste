@@ -22,7 +22,7 @@ class ExpireTimeDefaultSettings(BaseModel):
 
 
 class DefaultsSettings(BaseModel):
-    USE_LONG_ID: bool | None = None
+    USE_LONG_ID: bool | None = False
     EXPIRE_TIME: ExpireTimeDefaultSettings = ExpireTimeDefaultSettings()
 
 

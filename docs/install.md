@@ -22,7 +22,7 @@ All configs shown here should be given as environment variables.
 | NEW_AT_INDEX                     | Index page displays new paste page instead                         | False         | False          |
 | ENABLE_PUBLIC_LIST               | Whether to enable public access for listing pastes                 | False         | False          |
 |                                  |                                                                    |               |                |
-| UI_DEFAULT__USE_LONG_ID          | Setting this to "True" or "False" hides the long id checkbox in UI | -             | -              |
+| UI_DEFAULT__USE_LONG_ID          | Setting this to "True" or "False" hides the long id checkbox in UI | False         | False          |
 | UI_DEFAULT__EXPIRE_TIME__ENABLE  | Enable a default expire time in web ui                             | False         | False          |
 | UI_DEFAULT__EXPIRE_TIME__MINUTES | Default minutes in ui for expiry if enabled                        | 0             | 0              |
 | UI_DEFAULT__EXPIRE_TIME__HOURS   | Default hours in ui for expiry if enabled                          | 1             | 1              |
@@ -96,7 +96,6 @@ services:
     ports:
       - 8000:8000
     environment:
-      - "UI_DEFAULT__USE_LONG_ID=False"
       - "TIME_ZONE=Europe/London"
 
 volumes:
@@ -123,7 +122,6 @@ services:
     ports:
       - 8000:8000
     environment:
-      - "UI_DEFAULT__USE_LONG_ID=False"
       - "TIME_ZONE=Europe/London"
       - "CACHE__REDIS_URI=redis://redis:6379"
     depends_on:

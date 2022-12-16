@@ -53,6 +53,12 @@ def create_app():
     # NOTE secrets are redacted, these fields should be 'SecretStr' types
     logger.info("Launching with below config:\n%s", settings.json(indent=4))
 
+    if settings.UI_DEFAULT.USE_LONG_ID is None:
+        logger.warning(
+            "an unset UI_DEFAULT__USE_LONG_ID is deprecated" +
+            ", please set to 'true' or 'false'"
+        )
+
     settings.PASTE_ROOT.mkdir(parents=True, exist_ok=True)
 
     if not settings.BRANDING.HIDE_VERSION:
