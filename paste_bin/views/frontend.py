@@ -97,7 +97,8 @@ async def post_new_paste():
         abort(400)
 
     # use default long id if enabled
-    long_id = True if get_settings().UI_DEFAULT.USE_LONG_ID else False
+    if get_settings().UI_DEFAULT.USE_LONG_ID is not None:
+        long_id = True if get_settings().UI_DEFAULT.USE_LONG_ID else False
 
     paste_handler = get_handler()
 
