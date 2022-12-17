@@ -134,23 +134,40 @@ volumes:
 ## Without Docker
 This will assume the supported Python version is installed and accessible.
 
-1. Clone the repository
-2. Create virtual Python environment
-3. Install requirements
-4. Run the app
-
 ```
 git clone https://github.com/enchant97/hasty-paste
 
-cd paste-bin
+cd hasty-paste
 
-python -m venv .venv
+make py-venv
 
 source .venv/bin/activate
 
-pip install -r requirements.txt
+make py-install
 
-hypercorn 'paste_bin.main:create_app()' --bind 0.0.0.0:8000 --workers 1
+echo "PASTE_ROOT=data/
+TIME_ZONE=Europe/London
+" > .env
+
+hypercorn 'asgi:paste_bin.main:create_app()' --bind 0.0.0.0:8000 --workers 1
+```
+
+This is what the final file structure should look like:
+
+```
+hasty-paste/
+  .venv/
+  .env
 ```
 
 If you wish to configure Hypercorn the documentation can be found [here](https://hypercorn.readthedocs.io/), you could for example configure https or different bind methods.
+
+To upgrade in the future use the following commands:
+
+```
+source .venv/bin/activate
+
+git pull
+
+make py-install
+```

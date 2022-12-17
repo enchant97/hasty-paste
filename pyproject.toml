@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools >= 65.0", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hasty-paste"
+description = "A fast and minimal paste bin"
+keywords = ["pastebin", "pastes"]
+classifiers = [
+    "Private :: Do not Upload",
+    "Development Status :: 5 - Production/Stable",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Operating System :: POSIX :: Linux",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+    "Framework :: AsyncIO",
+    "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
+]
+requires-python = ">=3.10"
+dynamic = ["version", "readme", "dependencies"]
+
+[tool.setuptools.packages.find]
+include = ["paste_bin"]
+exclude = ["tests"]
+
+[tool.setuptools.dynamic]
+version = {attr = "paste_bin.__version__"}
+readme = {file = ["README.md"], content-type = "text/markdown"}
+dependencies = {file = ["requirements.txt"]}
