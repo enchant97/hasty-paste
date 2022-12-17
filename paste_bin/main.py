@@ -10,6 +10,7 @@ from . import __version__
 from .config import get_settings
 from .core.cache import FakeCache, InternalCache, RedisCache
 from .core.helpers import OptionalRequirementMissing, PasteIdConverter
+from .core.json import CustomJSONProvider
 from .core.paste_handler import PasteHandler, init_handler
 from .core.storage import DiskStorage
 from .views import api, extra_static, frontend
@@ -43,6 +44,7 @@ def _reset_app():
 
 
 def create_app():
+    app.json = CustomJSONProvider
     app.url_map.converters["id"] = PasteIdConverter
 
     settings = get_settings()
