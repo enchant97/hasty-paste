@@ -113,6 +113,14 @@ button:hover,
     cursor: pointer;
 }
 
+button:disabled,
+button:hover:disabled {
+    background-color: var(--bnt-col);
+    filter: brightness(80%);
+    cursor: initial;
+    user-select: none;
+}
+
 .panel {
     background-color: var(--bg-sub-col);
     padding: .9rem;

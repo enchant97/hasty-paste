@@ -19,7 +19,7 @@
     {% if config.BRANDING.CSS_FILE %}
     <link rel="stylesheet" href="{{ url_for('extra_static.get_brand_css') }}">
     {% endif %}
-    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </head>
 
 <body>

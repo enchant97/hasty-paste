@@ -26,3 +26,11 @@ function validate_new_post_form() {
 
     return false;
 }
+
+function enable_copy_share_link() {
+    const href = location.href;
+    if (!href.startsWith("https://")) { return; }
+    const $bnt = document.getElementById("copy-share-link-bnt");
+    $bnt.addEventListener("click", _ => { copy_to_clipboard(href); });
+    $bnt.removeAttribute("disabled");
+}
