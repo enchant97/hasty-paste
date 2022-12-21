@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] - 2022-12-21
+### Added
+- Ensure Redis can be reached on app launch
+- Add ASCII art for launch :)
+- #67; log loaded configs on launch
+- #66; custom 404 page
+- Support installing using pip through setuptools pyproject
+- Added optional json accelerator (installed by default in Docker image)
+### Changed
+- #68; make Docker image rootless (increase security)
+- Reduce number of final Docker image layers
+- Remove ability to use "Copy Share Link" when not under secure connection
+- Improved launch scripts
+- Bump pip versions
+### Fixed
+- Fix long id
+
 ## [1.7.0] - 2022-10-30
 ### Added
 - Show expiry on paste screen
