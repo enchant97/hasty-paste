@@ -4,6 +4,7 @@ if [ $# -eq 0 ]
 then
     # Runs the web app
     BIND="${HOST:-0.0.0.0}:${PORT:-8000}"
+    export LOG_LEVEL=${LOG_LEVEL:-INFO}
     args="--bind $BIND --workers ${WORKERS:-1} --log-level ${LOG_LEVEL:-INFO}"
 
     if [ -n "$CERT_FILE" ] && [ -n "$KEY_FILE" ]
