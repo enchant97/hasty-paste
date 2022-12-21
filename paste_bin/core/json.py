@@ -37,8 +37,8 @@ def loads(v, **kw):
 
 
 class CustomJSONProvider(JSONProvider):
-    def dumps(self, object_, **kwargs) -> str:
+    def dumps(self, object_, **kw) -> str:
         return dumps(object_, **kw)
 
-    def loads(self, object_, **kwargs):
+    def loads(self, object_, **kw):
         return loads(object_, **kw)
