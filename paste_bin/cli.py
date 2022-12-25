@@ -99,10 +99,10 @@ class CliController:
 
 
 async def main():
-    paste_root = os.environ.get("PASTE_ROOT")
+    paste_root = os.environ.get("STORAGE__DISK__PASTE_ROOT")
 
     if not paste_root:
-        sys.exit("PASTE_ROOT has not been set")
+        sys.exit("STORAGE__DISK__PASTE_ROOT has not been set")
 
     paste_root = Path(paste_root)
     paste_root.mkdir(parents=True, exist_ok=True)

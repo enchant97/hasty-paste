@@ -11,3 +11,4 @@ pytz==2022.7
 orjson~=3.8.3
 # caching with Redis
 redis~=4.4.0
+boto3==1.26.*

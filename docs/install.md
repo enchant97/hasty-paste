@@ -11,13 +11,14 @@ Please read these notes before continuing.
 - A HTTPS connection at endpoint is required for the "Copy Share Link" button
 - Use HTTPS otherwise paste links are exposed to man-in-the-middle attacks
 - If you have a high amount of clients, use Redis caching and set `WORKERS` to match the physical cpu cores
+- If using S3 the bucket should already be created with read/write access
+- S3 currently has been tested with [MinIO](https://min.io/) (can self-host)
 
 ## Configuration
 All configs shown here should be given as environment variables.
 
 | Name                             | Description                                                        | Default       | Docker Default |
 | :------------------------------- | :----------------------------------------------------------------- | :------------ | :------------- |
-| PASTE_ROOT                       | Where the paste flat file system will be kept                      |               | /app/data      |
 | TIME_ZONE                        | The time-zone where your clients are (used in web UI)              | Europe/London | Europe/London  |
 | NEW_AT_INDEX                     | Index page displays new paste page instead                         | False         | False          |
 | ENABLE_PUBLIC_LIST               | Whether to enable public access for listing pastes                 | False         | False          |
@@ -27,6 +28,13 @@ All configs shown here should be given as environment variables.
 | UI_DEFAULT__EXPIRE_TIME__MINUTES | Default minutes in ui for expiry if enabled                        | 0             | 0              |
 | UI_DEFAULT__EXPIRE_TIME__HOURS   | Default hours in ui for expiry if enabled                          | 1             | 1              |
 | UI_DEFAULT__EXPIRE_TIME__DAYS    | Default days in ui for expiry if enabled                           | 0             | 0              |
+|                                  |                                                                    |               |                |
+| STORAGE__TYPE                    | What storage type to use (DISK, S3)                                | DISK          | DISK           |
+| STORAGE__DISK__PASTE_ROOT        | Where the paste flat file system will be kept                      | -             | /app/data      |
+| STORAGE__S3__ENDPOINT_URL        | Use a different endpoint other than AWS                            | -             | -              |
+| STORAGE__S3__ACCESS_KEY_ID       | Access key ID                                                      | -             | -              |
+| STORAGE__S3__SECRET_ACCESS_KEY   | Access key secret                                                  | -             | -              |
+| STORAGE__S3__BUCKET_NAME         | Bucket name to store pastes (should already be created)            | -             | -              |
 |                                  |                                                                    |               |                |
 | CACHE__ENABLE                    | Whether to enable caching of any type                              | True          | True           |
 | CACHE__INTERNAL_MAX_SIZE         | The max size of the internal cache (<=0 to disable)                | 4             | 4              |
@@ -129,6 +137,28 @@ services:
 
 volumes:
   data:
+```
+
+### With S3
+
+```yml
+version: "3"
+
+services:
+  paste-bin:
+    container_name: paste-bin
+    image: ghcr.io/enchant97/hasty-paste:1
+    restart: unless-stopped
+    ports:
+      - 8000:8000
+    environment:
+      - "UI_DEFAULT__USE_LONG_ID=False"
+      - "TIME_ZONE=Europe/London"
+      - "STORAGE__TYPE=S3"
+      - "STORAGE__S3__BUCKET_NAME="hasty-paste"
+      - "STORAGE__S3__ACCESS_KEY_ID=< key id here >"
+      - "STORAGE__S3__SECRET_ACCESS_KEY=< secret access key here >"
+
 ```
 
 ## Without Docker
