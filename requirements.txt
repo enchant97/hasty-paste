@@ -10,5 +10,5 @@ pytz==2022.7
 # json accelerator
 orjson~=3.8.3
 # caching with Redis
-redis~=4.4.0
+redis~=4.5.1
 boto3==1.26.*
