@@ -14,7 +14,9 @@ It is a place to quickly paste some text and share it. Mostly used for sharing d
 - No JavaScript needed
 - Uses minimal resources
 - REST API
-- No Database needed, everything stored as flat-files
+- Pick your file system
+  - Custom flat-file system
+  - :construction: S3 objects
 - Caching (Internal & Redis)
 - Lightweight Docker image (uses Alpine Linux)
 

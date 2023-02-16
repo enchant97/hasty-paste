@@ -17,7 +17,9 @@ A fast and minimal paste bin, written in Python using Quart.
 - No JavaScript needed
 - Uses minimal resources
 - REST API
-- No Database needed, everything stored as flat-files
+- Pick your file system
+  - Custom flat-file system
+  - :construction: S3 objects
 - Caching (Internal & Redis)
 - Lightweight Docker image (uses Alpine Linux)
 
@@ -43,7 +45,7 @@ This is a simple script allowing the creation of pastes from the command-line. Y
 The name was chosen not because the project is written badly, but because you use it so fast without a care in the world and "Fast Paste" was already taken!
 
 ## License
-This project is Copyright (c) 2022 Leo Spratt, licences shown below:
+This project is Copyright (c) 2023 Leo Spratt, licences shown below:
 
 Code
 

@@ -23,12 +23,6 @@
                     {%- endfor -%}
             </datalist>
         </div>
-        {% if show_long_id_checkbox %}
-        <div>
-            <label for="long-id">Long ID</label>
-            <input type="checkbox" name="long-id" id="long-id" value="1">
-        </div>
-        {% endif %}
     </div>
     <textarea name="paste-content" id="paste-content" rows="15" placeholder="enter content here..." autocorrect="off"
         autocapitalize="off" autocomplete="off" required autofocus>{{ content }}</textarea>

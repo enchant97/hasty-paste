@@ -34,7 +34,7 @@ FROM python:${PYTHON_VERSION}-alpine
 
     EXPOSE 8000
     ENV PATH="/app/.venv/bin:$PATH"
-    ENV PASTE_ROOT="/app/data"
+    ENV STORAGE__DISK__PASTE_ROOT="/app/data"
 
     COPY --from=build-content --link /app /app
 

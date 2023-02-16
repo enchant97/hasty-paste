@@ -1,18 +1,17 @@
 import logging
 import sys
-import re
 
 from quart import Quart, render_template
 from quart_schema import QuartSchema
 from web_health_checker.contrib import quart as health_check
 
 from . import __version__
-from .config import get_settings
+from .config import get_settings, StorageTypes
 from .core.cache import FakeCache, InternalCache, RedisCache
 from .core.helpers import OptionalRequirementMissing, PasteIdConverter
 from .core.json import CustomJSONProvider
 from .core.paste_handler import PasteHandler, init_handler
-from .core.storage import DiskStorage
+from .core.storage import DiskStorage, S3Storage
 from .views import api, extra_static, frontend
 
 logger = logging.getLogger("paste_bin")
@@ -48,6 +47,8 @@ def create_app():
     app.url_map.converters["id"] = PasteIdConverter
 
     settings = get_settings()
+    # HACK pydantic can't do what I want
+    settings.STORAGE.ensure_valid()
 
     logging.basicConfig()
     logger.setLevel(logging.getLevelName(settings.LOG_LEVEL))
@@ -55,13 +56,8 @@ def create_app():
     # NOTE secrets are redacted, these fields should be 'SecretStr' types
     logger.info("Launching with below config:\n%s", settings.json(indent=4))
 
-    if settings.UI_DEFAULT.USE_LONG_ID is None:
-        logger.warning(
-            "an unset UI_DEFAULT__USE_LONG_ID is deprecated" +
-            ", please set to 'true' or 'false'"
-        )
-
-    settings.PASTE_ROOT.mkdir(parents=True, exist_ok=True)
+    if settings.STORAGE.DISK.PASTE_ROOT:
+        settings.STORAGE.DISK.PASTE_ROOT.mkdir(parents=True, exist_ok=True)
 
     if not settings.BRANDING.HIDE_VERSION:
         app.config["__version__"] = app_version
@@ -109,8 +105,23 @@ def create_app():
 
         logger.debug("configured %s level(s) of caching", cache_levels)
 
+        storage = None
+
+        match settings.STORAGE.TYPE:
+            case StorageTypes.DISK:
+                logger.debug("using disk storage")
+                storage = DiskStorage(settings.STORAGE.DISK.PASTE_ROOT)
+            case StorageTypes.S3:
+                logger.debug("using S3 storage")
+                # TODO remove this when S3 is stable
+                logger.warning(
+                    "S3 storage is experimental, data loss may occur")
+                storage = S3Storage(app, settings.STORAGE.S3)
+            case _:
+                raise ValueError("unhandled storage type")
+
         paste_handler = PasteHandler(
-            DiskStorage(settings.PASTE_ROOT),
+            storage,
             cache,
         )
 
@@ -120,9 +131,10 @@ def create_app():
         logger.critical("%s", err.args[0])
         sys.exit(1)
 
-    print(""" _   _   _   ___ _______   __  ___  _   ___ _____ ___
-| |_| | /_\ / __|_   _\ \ / / | _ \/_\ / __|_   _| __|
-|  _  |/ _ \\\\__ \ | |  \ V /  |  _/ _ \\\\__ \ | | | _|
-|_| |_/_/ \_\___/ |_|   |_|   |_|/_/ \_\___/ |_| |___|  V""" + __version__ + "\n")
+    if not settings.HIDE_BOOT_MESSAGE:
+        print(""" _   _   _   ___ _______   __  ___  _   ___ _____ ___
+| |_| | /_\\ / __|_   _\\ \\ / / | _ \\/_\\ / __|_   _| __|
+|  _  |/ _ \\\\__ \\ | |  \\ V /  |  _/ _ \\\\__ \\ | | | _|
+|_| |_/_/ \\_\\___/ |_|   |_|   |_|/_/ \\_\\___/ |_| |___|  V""" + __version__ + "\n")
 
     return app
