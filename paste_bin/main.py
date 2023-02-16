@@ -119,6 +119,8 @@ def create_app():
                 storage = DiskStorage(settings.STORAGE.DISK.PASTE_ROOT)
             case StorageTypes.S3:
                 logger.debug("using S3 storage")
+                # TODO remove this when S3 is stable
+                logger.warning("S3 storage is experimental, data loss may occur")
                 storage = S3Storage(app, settings.STORAGE.S3)
             case _:
                 raise ValueError("unhandled storage type")
