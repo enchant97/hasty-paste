@@ -2,7 +2,7 @@ site_name: Hasty Paste
 site_url: https://enchantedcode.co.uk/hasty-paste/
 repo_url: https://github.com/enchant97/hasty-paste
 use_directory_urls: false
-copyright: Copyright © 2022 Leo Spratt under FDLv1.3-or-later
+copyright: Copyright © 2023 Leo Spratt under FDLv1.3-or-later
 theme:
   name: material
   palette:
