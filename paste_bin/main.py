@@ -1,6 +1,5 @@
 import logging
 import sys
-import re
 
 from quart import Quart, render_template
 from quart_schema import QuartSchema
