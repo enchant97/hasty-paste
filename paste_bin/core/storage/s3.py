@@ -55,6 +55,7 @@ def s3_into_paste_meta(paste_id: str, s3_meta: dict) -> PasteMeta:
 
 class S3Storage(BaseStorage):
     _executor_pool: ThreadPoolExecutor
+
     def __init__(self, app: Quart, s3_settings: S3StorageSettings):
 
         if boto3 is None:
@@ -132,7 +133,6 @@ class S3Storage(BaseStorage):
                 case _:
                     raise StorageReadException(
                         f"failed to read paste raw for '{paste_id}', code '{code}'") from err
-
 
     async def read_all_paste_ids(self) -> AsyncGenerator[str, None]:
         # FIXME this is limited to 1000 entries? according to aws docs
