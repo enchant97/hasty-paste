@@ -19,7 +19,7 @@ A fast and minimal paste bin, written in Python using Quart.
 - REST API
 - Pick your file system
   - Custom flat-file system
-  - S3 objects
+  - :construction: S3 objects
 - Caching (Internal & Redis)
 - Lightweight Docker image (uses Alpine Linux)
 
