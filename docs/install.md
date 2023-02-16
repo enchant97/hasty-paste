@@ -49,6 +49,7 @@ All configs shown here should be given as environment variables.
 |                                  |                                                         |               |                |
 | MAX_BODY_SIZE                    | The max body size, given in bytes                       | 2000000       | 2000000        |
 | LOG_LEVEL                        | What log level to use                                   | "WARNING"     | "WARNING"      |
+| HIDE_BOOT_MESSAGE                | Hide the ascii art boot message                         | False         | False          |
 |                                  |                                                         |               |                |
 | WORKERS                          | Number of separate processes to spawn                   | (Docker Only) | 1              |
 | CERT_FILE                        | SSL certificate file path (public)                      | (Docker Only) | -              |

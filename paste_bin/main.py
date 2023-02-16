@@ -114,7 +114,8 @@ def create_app():
             case StorageTypes.S3:
                 logger.debug("using S3 storage")
                 # TODO remove this when S3 is stable
-                logger.warning("S3 storage is experimental, data loss may occur")
+                logger.warning(
+                    "S3 storage is experimental, data loss may occur")
                 storage = S3Storage(app, settings.STORAGE.S3)
             case _:
                 raise ValueError("unhandled storage type")
@@ -130,7 +131,8 @@ def create_app():
         logger.critical("%s", err.args[0])
         sys.exit(1)
 
-    print(""" _   _   _   ___ _______   __  ___  _   ___ _____ ___
+    if not settings.HIDE_BOOT_MESSAGE:
+        print(""" _   _   _   ___ _______   __  ___  _   ___ _____ ___
 | |_| | /_\\ / __|_   _\\ \\ / / | _ \\/_\\ / __|_   _| __|
 |  _  |/ _ \\\\__ \\ | |  \\ V /  |  _/ _ \\\\__ \\ | | | _|
 |_| |_/_/ \\_\\___/ |_|   |_|   |_|/_/ \\_\\___/ |_| |___|  V""" + __version__ + "\n")

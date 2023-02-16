@@ -85,6 +85,7 @@ class Settings(BaseSettings):
 
     MAX_BODY_SIZE: int = 2*(10**6)
     LOG_LEVEL: str = "WARNING"
+    HIDE_BOOT_MESSAGE: bool = False
 
     @validator("TIME_ZONE")
     def validate_time_zone(cls, time_zone: str):
