@@ -28,7 +28,7 @@ async def post_api_paste_new(data: PasteApiCreate):
     paste_handler = get_handler()
 
     paste_id = await paste_handler.create_paste(
-        data.long_id,
+        get_settings().USE_LONG_ID,
         data.content.encode(),
         PasteMetaToCreate(
             expire_dt=data.expire_dt,
@@ -55,7 +55,6 @@ async def post_api_paste_new_simple():
     Just send the paste content in the request body,
     after paste creation the paste id will be returned in the response body.
     """
-    use_long_id = get_settings().UI_DEFAULT.USE_LONG_ID is not None or False
     expiry_settings = get_settings().UI_DEFAULT.EXPIRE_TIME
     expires_at = helpers.make_default_expires_at(expiry_settings)
 
@@ -65,7 +64,7 @@ async def post_api_paste_new_simple():
     # NOTE timeout required as directly using body is not protected by Quart
     async with timeout(current_app.config["BODY_TIMEOUT"]):
         paste_id = await paste_handler.create_paste(
-            use_long_id,
+            get_settings().USE_LONG_ID,
             body,
             PasteMetaToCreate(
                 expire_dt=expires_at,

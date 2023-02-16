@@ -28,7 +28,6 @@ class ExpireTimeDefaultSettings(BaseModel):
 
 
 class DefaultsSettings(BaseModel):
-    USE_LONG_ID: bool | None = False
     EXPIRE_TIME: ExpireTimeDefaultSettings = ExpireTimeDefaultSettings()
 
 
@@ -78,6 +77,7 @@ class Settings(BaseSettings):
     TIME_ZONE: str = "Europe/London"
     NEW_AT_INDEX: bool = False
     ENABLE_PUBLIC_LIST: bool = False
+    USE_LONG_ID: bool = False
     UI_DEFAULT: DefaultsSettings = DefaultsSettings()
     BRANDING: BrandSettings = BrandSettings()
     STORAGE: StorageSettings = StorageSettings()

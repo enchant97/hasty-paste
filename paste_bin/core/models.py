@@ -96,7 +96,6 @@ class PasteMetaToCreate(BaseModel):
 
 class PasteApiCreate(BaseModel):
     content: str
-    long_id: bool = False
     expire_dt: datetime | None = None
     lexer_name: str | None = None
     title: str | None = None

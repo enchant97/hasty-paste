@@ -68,7 +68,6 @@ async def get_new_paste():
         "new.jinja",
         default_expires_at=default_expires_at,
         get_highlighter_names=renderer.get_highlighter_names,
-        show_long_id_checkbox=True if default_settings.USE_LONG_ID is None else False,
         content=content,
     )
 
@@ -83,7 +82,6 @@ async def post_new_paste():
     if expires_at:
         # NOTE ensure client's timezone is converted to server's
         expires_at = local_to_utc(expires_at, get_settings().TIME_ZONE)
-    long_id = form.get("long-id", False, bool)
     lexer_name = form.get("highlighter-name", None)
     title = form.get("title", "", str).strip()
     if len(title) > 32:
@@ -96,14 +94,10 @@ async def post_new_paste():
     if lexer_name and not renderer.is_valid_lexer_name(lexer_name):
         abort(400)
 
-    # use default long id if enabled
-    if get_settings().UI_DEFAULT.USE_LONG_ID is not None:
-        long_id = True if get_settings().UI_DEFAULT.USE_LONG_ID else False
-
     paste_handler = get_handler()
 
     paste_id = await paste_handler.create_paste(
-        long_id,
+        get_settings().USE_LONG_ID,
         paste_content,
         PasteMetaToCreate(
             expire_dt=expires_at,
