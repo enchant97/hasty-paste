@@ -142,7 +142,7 @@ class S3Storage(BaseStorage):
         except ClientError as err:
             code = err.response["Error"]["Code"]
             raise StorageReadException(
-                f"failed to write paste data for '{paste_id}', code '{code}'") from err
+                f"failed to read paste data, code '{code}'") from err
 
     async def delete_paste(self, paste_id: str):
         try:
