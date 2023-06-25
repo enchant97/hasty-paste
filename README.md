@@ -5,7 +5,14 @@
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/enchant97/hasty-paste?style=flat-square)
 ![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/enchant97/hasty-paste?include_prereleases&label=latest%20release&style=flat-square)
 
-A fast and minimal paste bin, written in Python using Quart.
+A fast and minimal paste bin.
+
+## Looking For Maintainers
+I don't find myself using this app much and not having infinite time; would like some assistance on maintaining this project. Since this project is mostly fully feature complete, I am looking for someone who can perform small maintenance.
+
+You can contact at the links shown [here](https://github.com/enchant97#-how-to-reach-me) (or raise an issue), if you are interested.
+
+> This project is **not** being abandoned. Any security or major fixes will still be done, if needed.
 
 ## Features
 - Quickly paste and save, to share some text
