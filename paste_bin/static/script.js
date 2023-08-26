@@ -12,8 +12,8 @@ function validate_new_post_form() {
     let highlighter_value = highlighter_name.value.toLowerCase();
 
     if (highlighter_value === "") { return true; }
+
 // Check if the entered highlighter value is in the list of options
-    let found = false;
     for (let i = 0; i < data_list.options.length; i++) {
         if (data_list.options[i].value === highlighter_value) {
 			highlighter_name.value = highlighter_value;
@@ -21,7 +21,7 @@ function validate_new_post_form() {
         }
     }
 
-	//alert("Highlighter not found, using default one");
+	alert("Highlighter not found, using default one");
 	highlighter_name.value = "text";
     return true; // Allow form submission
 }
