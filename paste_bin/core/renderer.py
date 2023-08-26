@@ -7,6 +7,7 @@ from pygments.lexers import (find_lexer_class_by_name, get_all_lexers,
                              get_lexer_by_name)
 from pygments.util import ClassNotFound as PygmentsClassNotFound
 from quart.utils import run_sync
+from ..config import get_settings
 
 logger = logging.getLogger("paste_bin")
 
@@ -17,9 +18,17 @@ def get_highlighter_names() -> Generator[str, None, None]:
 
         :yield: Each highlighter name
     """
-    for lexer in get_all_lexers():
-        if lexer[1]:
-            yield lexer[1][0]
+    allowed_highlighters = get_settings().SYNTAX_HIGHLIGHTING_LANGUAGES
+    if allowed_highlighters is not None:
+        for language in allowed_highlighters:
+            lexer = get_lexer_by_name(language, stripall=True)
+            if lexer:
+                yield language
+            yield "text"
+    else:
+        for lexer in get_all_lexers():
+            if lexer[1]:
+                yield lexer[1][0]
 
 
 def is_valid_lexer_name(lexer_name: str) -> bool:

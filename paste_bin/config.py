@@ -82,6 +82,7 @@ class Settings(BaseSettings):
     BRANDING: BrandSettings = BrandSettings()
     STORAGE: StorageSettings = StorageSettings()
     CACHE: CacheSettings = CacheSettings()
+    SYNTAX_HIGHLIGHTING_LANGUAGES: list[str] = ['c', 'cpp', 'python']
 
     MAX_BODY_SIZE: int = 2*(10**6)
     LOG_LEVEL: str = "WARNING"
