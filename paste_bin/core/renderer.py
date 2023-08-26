@@ -18,13 +18,15 @@ def get_highlighter_names() -> Generator[str, None, None]:
 
         :yield: Each highlighter name
     """
-    allowed_highlighters = get_settings().SYNTAX_HIGHLIGHTING_LANGUAGES
-    if allowed_highlighters is not None:
+    try:
+        allowed_highlighters = get_settings().SYNTAX_HIGHLIGHTING_LANGUAGES
+    except AttributeError:
+        allowed_highlighters = []
+    if allowed_highlighters is not None and len(allowed_highlighters) > 0:
         for language in allowed_highlighters:
             lexer = get_lexer_by_name(language, stripall=True)
             if lexer:
                 yield language
-            yield "text"
     else:
         for lexer in get_all_lexers():
             if lexer[1]:
