@@ -19,7 +19,7 @@ def get_highlighter_names() -> Generator[str, None, None]:
         :yield: Each highlighter name
     """
     try:
-        allowed_highlighters = get_settings().SYNTAX_HIGHLIGHTING_LANGUAGES
+        allowed_highlighters = get_settings().get_syntax_highlighting_languages()
     except AttributeError:
         allowed_highlighters = []
     if allowed_highlighters is not None and len(allowed_highlighters) > 0:

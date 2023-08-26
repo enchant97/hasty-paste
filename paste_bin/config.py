@@ -4,6 +4,7 @@ from enum import Enum
 
 from pydantic import BaseModel, BaseSettings, validator, SecretStr
 from pytz import all_timezones_set
+import json
 
 
 class StorageTypes(str, Enum):
@@ -74,16 +75,30 @@ class StorageSettings(BaseModel):
 
 
 class Settings(BaseSettings):
-    TIME_ZONE: str = "Europe/London"
-    NEW_AT_INDEX: bool = False
+    TIME_ZONE: str = "Europe/Warsaw"
+    NEW_AT_INDEX: bool = True
     ENABLE_PUBLIC_LIST: bool = False
     USE_LONG_ID: bool = False
     UI_DEFAULT: DefaultsSettings = DefaultsSettings()
     BRANDING: BrandSettings = BrandSettings()
     STORAGE: StorageSettings = StorageSettings()
     CACHE: CacheSettings = CacheSettings()
-    # SYNTAX_HIGHLIGHTING_LANGUAGES: list[str] = ['c', 'cpp', 'python']
-    SYNTAX_HIGHLIGHTING_LANGUAGES: list[str] = []
+    SYNTAX_HIGHLIGHTING_LANGUAGES: list[str] = [
+            'c',
+            'cpp',
+            'python',
+            'rust',
+            'java',
+            'csharp',
+            'bash',
+            'json',
+            'csv'
+            ]
+
+    def get_syntax_highlighting_languages(self) -> list[str]:
+        with open('/app/syntax_highlighting.json') as f:
+            return list(json.load(f))
+
 
     MAX_BODY_SIZE: int = 2*(10**6)
     LOG_LEVEL: str = "WARNING"
