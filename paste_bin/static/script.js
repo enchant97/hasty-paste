@@ -13,18 +13,37 @@ function validate_new_post_form() {
 
     if (highlighter_value === "") { return true; }
 
-    highlighter_name.value = highlighter_value;
+    //highlighter_name.value = highlighter_value;
 
+    //for (let i = 0; i < data_list.options.length; i++) {
+        //if (data_list.options[i].value === highlighter_value) {
+            //return true;
+        //}
+    //}
+
+    //alert("Unknown highlighter name");
+	//highlighter_name.value = "";
+	//highlighter_name.focus();
+
+	//return false;
+// Check if the entered highlighter value is in the list of options
+    let found = false;
     for (let i = 0; i < data_list.options.length; i++) {
         if (data_list.options[i].value === highlighter_value) {
-            return true;
+            found = true;
+            break;
         }
     }
 
-    alert("Unknown highlighter name");
-    highlighter_name.focus();
+    if (!found) {
+        // Unknown highlighter name, set default and continue form submission
+        highlighter_name.value = "text";
+    } else {
+        // Known highlighter name, set entered value in lowercase
+        highlighter_name.value = highlighter_value;
+    }
 
-    return false;
+    return true; // Allow form submission
 }
 
 function enable_copy_share_link() {
