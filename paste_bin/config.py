@@ -83,17 +83,6 @@ class Settings(BaseSettings):
     BRANDING: BrandSettings = BrandSettings()
     STORAGE: StorageSettings = StorageSettings()
     CACHE: CacheSettings = CacheSettings()
-    SYNTAX_HIGHLIGHTING_LANGUAGES: list[str] = [
-            'c',
-            'cpp',
-            'python',
-            'rust',
-            'java',
-            'csharp',
-            'bash',
-            'json',
-            'csv'
-            ]
 
     def get_syntax_highlighting_languages(self) -> list[str]:
         with open('/app/syntax_highlighting.json') as f:

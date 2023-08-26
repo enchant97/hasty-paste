@@ -6,6 +6,7 @@ FROM python:${PYTHON_VERSION}-slim as build-deps
     WORKDIR /app
 
     COPY requirements.txt .
+    COPY syntax_highlighting.json .
 
     RUN python -m venv .venv
     ENV PATH="/app/.venv/bin:$PATH"
