@@ -134,7 +134,7 @@ class TestApiNewPaste(QuartAppTestCase):
             },
             data=PasteApiCreate(
                 content="test api create",
-            ).json(),
+            ).model_dump_json(),
         )
 
         self.assertEqual(201, response.status_code)

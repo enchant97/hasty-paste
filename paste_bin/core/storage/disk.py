@@ -88,7 +88,7 @@ class DiskStorage(BaseStorage):
 
         try:
             async with aio_open(paste_path, "wb") as fo:
-                await fo.write(meta.json().encode() + b"\n")
+                await fo.write(meta.model_dump_json().encode() + b"\n")
                 if isinstance(raw, bytes):
                     await fo.write(raw)
                 else:

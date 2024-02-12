@@ -66,7 +66,7 @@ class TestDiskStorage(IsolatedAsyncioTestCase):
         (self._paste_root / "re").mkdir(parents=True, exist_ok=True)
         file_path = self._paste_root / "re" / "adpastemetavalid"
         with open(file_path, "wt") as fo:
-            fo.write(VALID_META_OBJ.json() + "\n")
+            fo.write(VALID_META_OBJ.model_dump_json() + "\n")
         meta = await self._storage.read_paste_meta("readpastemetavalid")
         self.assertIsNotNone(meta)
         self.assertEqual(meta.paste_id, VALID_META_OBJ.paste_id)

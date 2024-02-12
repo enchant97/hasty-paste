@@ -54,7 +54,7 @@ def create_app():
     logger.setLevel(logging.getLevelName(settings.LOG_LEVEL))
 
     # NOTE secrets are redacted, these fields should be 'SecretStr' types
-    logger.info("Launching with below config:\n%s", settings.json(indent=4))
+    logger.info("Launching with below config:\n%s", settings.model_dump_json(indent=4))
 
     if settings.STORAGE.DISK.PASTE_ROOT:
         settings.STORAGE.DISK.PASTE_ROOT.mkdir(parents=True, exist_ok=True)

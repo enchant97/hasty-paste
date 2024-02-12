@@ -3,9 +3,6 @@ from datetime import datetime, timedelta
 
 from pydantic import BaseModel, ValidationError, validator
 
-from . import renderer, json
-
-
 logger = logging.getLogger("paste_bin")
 
 CURRENT_PASTE_META_VERSION = 1
@@ -72,10 +69,6 @@ class PasteMeta(PasteMetaVersion):
             remaining = self.expire_dt - now
             return remaining
 
-    class Config:
-        json_loads = json.loads
-        json_dumps = json.dumps
-
 
 class PasteMetaToCreate(BaseModel):
     expire_dt: datetime | None = None
@@ -88,10 +81,6 @@ class PasteMetaToCreate(BaseModel):
             creation_dt=datetime.utcnow(),
             **self.dict(),
         )
-
-    class Config:
-        json_loads = json.loads
-        json_dumps = json.dumps
 
 
 class PasteApiCreate(BaseModel):
@@ -111,7 +100,3 @@ class PasteApiCreate(BaseModel):
         if lexer_name is not None and not renderer.is_valid_lexer_name(lexer_name):
             raise ValueError("not valid lexer name")
         return lexer_name
-
-    class Config:
-        json_loads = json.loads
-        json_dumps = json.dumps

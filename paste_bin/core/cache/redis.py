@@ -71,7 +71,7 @@ class RedisCache(BaseCache):
         to_cache = {}
 
         if meta:
-            to_cache[f"{paste_id}__meta"] = meta.json()
+            to_cache[f"{paste_id}__meta"] = meta.model_dump_json()
         if html:
             to_cache[f"{paste_id}__html"] = html
         if raw:

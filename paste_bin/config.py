@@ -2,7 +2,8 @@ from functools import cache
 from pathlib import Path
 from enum import Enum
 
-from pydantic import BaseModel, BaseSettings, validator, SecretStr
+from pydantic import BaseModel, validator, SecretStr
+from pydantic_settings import BaseSettings
 from pytz import all_timezones_set
 
 
