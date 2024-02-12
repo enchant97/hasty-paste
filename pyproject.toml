@@ -1,29 +1,83 @@
 [build-system]
-requires = ["setuptools >= 65.0", "setuptools-scm"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "hasty-paste"
+dynamic = ["version"]
 description = "A fast and minimal paste bin"
 keywords = ["pastebin", "pastes"]
-classifiers = [
-    "Private :: Do not Upload",
-    "Development Status :: 5 - Production/Stable",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
-    "Operating System :: POSIX :: Linux",
-    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
-    "Framework :: AsyncIO",
-    "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
+authors = [
+  { name = "Leo Spratt", email = "contact@enchantedcode.co.uk" },
 ]
+classifiers = [
+  "Private :: Do not Upload",
+  "Development Status :: 5 - Production/Stable",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Operating System :: POSIX :: Linux",
+  "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+  "Framework :: AsyncIO",
+  "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
+]
+readme = "README.md"
 requires-python = ">=3.10"
-dynamic = ["version", "readme", "dependencies"]
+license = "AGPL-3.0-only"
+dependencies = [
+  "quart~=0.19.4",
+  "quart-schema~=0.14.3",
+  "async-timeout~=4.0.2",
+  "web-health-checker~=1.3.1",
+  "pydantic[dotenv]~=1.10.5",
+  "pygments~=2.14.0",
+  "pytz==2022.7",
+  "orjson~=3.8.6",
+  "redis~=4.5.1",
+  "boto3==1.26.*"
+]
 
-[tool.setuptools.packages.find]
-include = ["paste_bin"]
-exclude = ["tests"]
+[tool.hatch.envs.default.scripts]
+serve = "hypercorn \"paste_bin.main:create_app()\""
 
-[tool.setuptools.dynamic]
-version = {attr = "paste_bin.__version__"}
-readme = {file = ["README.md"], content-type = "text/markdown"}
-dependencies = {file = ["requirements.txt"]}
+[tool.hatch.envs.docs]
+dependencies = [
+  "mkdocs~=1.4.2",
+  "mkdocs-material~=9.0.12"
+]
+
+[tool.hatch.envs.docs.scripts]
+build = "mkdocs build --clean"
+serve = "mkdocs serve"
+
+[tool.hatch.envs.test]
+dependencies = [
+  "nose2[coverage_plugin]"
+]
+
+[tool.hatch.envs.test.scripts]
+test = "mkdir -p reports && nose2"
+
+[tool.hatch.envs.test.env-vars]
+HIDE_BOOT_MESSAGE="1"
+
+[tool.hatch.version]
+path = "paste_bin/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["paste_bin"]
+
+[tool.ruff]
+line-length=100
+src = ["paste_bin", "tests"]
+extend-exclude = ["tests"]
+ignore = [
+  "TID252",
+  "EM101", "EM102",
+  "S101",
+  "TRY003",
+  "N818",
+  "T201",
+  "TRY400",
+  "FBT001", "FBT002"
+]
