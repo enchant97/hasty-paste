@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 
 from pydantic import BaseModel, ValidationError, validator
 
+from .renderer import is_valid_lexer_name
+
 logger = logging.getLogger("paste_bin")
 
 CURRENT_PASTE_META_VERSION = 1
@@ -97,6 +99,6 @@ class PasteApiCreate(BaseModel):
 
     @validator("lexer_name")
     def validate_lexer_name(cls, lexer_name: str | None):
-        if lexer_name is not None and not renderer.is_valid_lexer_name(lexer_name):
+        if lexer_name is not None and not is_valid_lexer_name(lexer_name):
             raise ValueError("not valid lexer name")
         return lexer_name
