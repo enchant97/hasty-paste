@@ -13,6 +13,7 @@ Please read these notes before continuing.
 - If you have a high amount of clients, use Redis caching and set `WORKERS` to match the physical cpu cores
 - If using S3 the bucket should already be created with read/write access
 - S3 currently has been tested with [MinIO](https://min.io/) (can self-host)
+- Currently supported Python version is `3.12`
 
 ## Configuration
 All configs shown here should be given as environment variables.

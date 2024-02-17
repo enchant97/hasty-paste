@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.10.0] - 2024-02-17
+### Changed
+- Bump deps & migrate some code
+- Use hatch for python management
+
 ## [1.9.0] - 2023-02-16
 ### Added
 - #27; :construction: Experimental S3 storage support

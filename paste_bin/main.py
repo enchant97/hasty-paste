@@ -43,7 +43,7 @@ def _reset_app():
 
 
 def create_app():
-    app.json = CustomJSONProvider
+    app.json = CustomJSONProvider  # type: ignore
     app.url_map.converters["id"] = PasteIdConverter
 
     settings = get_settings()
