@@ -20,7 +20,7 @@ jobs:
       run: |
         pip install hatch
     - name: Run Unit Tests
-      run: mkdir reports && hatch run test:tests
+      run: mkdir reports && hatch run test:test
     - name: Upload Test Reports
       uses: actions/upload-artifact@v3
       if: success() || failure()
