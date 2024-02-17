@@ -26,6 +26,7 @@ jobs:
         python-version: "3.12"
     - name: Install dependencies
       run: |
+        pip install hatch
     - name: Build docs
       id: pages
       run: hatch docs:build
