@@ -5,6 +5,9 @@ services:
     container_name: paste-bin
     image: ghcr.io/enchant97/hasty-paste:latest
     restart: unless-stopped
+    environment:
+      - PASTE_ROOT=${PASTE_ROOT:-DC-UNDEFINED}
+      - TIME_ZONE=${TIME_ZONE:-DC-UNDEFINED}
     volumes:
       - data:/app/data
     ports:

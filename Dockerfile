@@ -32,6 +32,10 @@ FROM python:${PYTHON_VERSION}-alpine
     EXPOSE 8000
     ENV PATH="/app/.venv/bin:$PATH"
     ENV STORAGE__DISK__PASTE_ROOT="/app/data"
+    # Define .env vars with Default/error values
+    #   expected to be squashed by Docker-compose/etc.
+    ENV PASTE_ROOT=DF-UNDEFINED
+    ENV TIME_ZONE=DF-UNDEFINED
 
     COPY --from=build-content --link /app /app
 
