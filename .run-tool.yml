@@ -1,1 +1,17 @@
 targets:
+  gen-db:
+    program: sqlc
+    args:
+      - generate
+    cwd: app
+  gen-templates:
+    program: templ
+    args:
+      - generate
+    cwd: app
+  dev-app:
+    program: go
+    args:
+      - run
+      - .
+    cwd: app
