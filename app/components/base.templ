@@ -1,0 +1,34 @@
+package components
+
+templ base(title string) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="utf-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1"/>
+			<title>{ title } - Hasty Paste II</title>
+			<script src="https://cdn.tailwindcss.com"></script>
+		</head>
+		<body>
+			{ children... }
+		</body>
+	</html>
+}
+
+templ header() {
+	<header class="flex items-center gap-2 p-2 border-b-4 border-blue-800 mb-4">
+		<a class="px-4 py-1 rounded-md hover:bg-stone-400 mr-auto" href="/">Hasty Paste II</a>
+		<a class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md">New</a>
+		<a class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md">Pastes</a>
+		<a class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md">Profile</a>
+	</header>
+}
+
+templ footer() {
+	<footer class="p-2 mt-10 border-t-2 border-blue-800">
+		<a href="https://github.com/enchant97/hasty-paste">
+			<span class="font-bold">Hasty Paste II</span>
+			<span class="italic text-sm">By Leo Spratt</span>
+		</a>
+	</footer>
+}

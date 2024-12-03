@@ -1,5 +1,13 @@
 package components
 
 templ IndexPage() {
-<div>Hasty Paste</div>
+	@base("Home") {
+		@header()
+		<div class="p-2">
+			<h1 class="text-2xl font-bold my-2">Welcome To Hasty Paste II.</h1>
+            <p>Paste it all, with haste.</p>
+			<h2 class="text-xl font-bold my-2">Recent Pastes</h2>
+		</div>
+		@footer()
+	}
 }

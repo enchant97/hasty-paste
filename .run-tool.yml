@@ -15,3 +15,5 @@ targets:
       - run
       - .
     cwd: app
+    before_hooks:
+      - gen-templates
