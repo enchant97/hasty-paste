@@ -16,6 +16,7 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Get("/", templ.Handler(components.IndexPage()).ServeHTTP)
+	r.Get("/pastes/new", templ.Handler(components.NewPastePage()).ServeHTTP)
 	log.Println("listening on: http://127.0.0.1:8080/")
 	http.ListenAndServe(":8080", r)
 }

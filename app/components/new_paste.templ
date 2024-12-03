@@ -1,0 +1,22 @@
+package components
+
+templ NewPastePage() {
+	@base("Home") {
+		@header()
+		<div class="p-2">
+			<h1 class="text-2xl font-bold my-2">New Paste</h1>
+			<form class="flex flex-col gap-2">
+				<label class="flex flex-col gap-2">
+					<span class="text-sm">Slug</span>
+					<input class="border p-1 rounded" type="text" name="pasteSlug" placeholder="slug" required/>
+				</label>
+				<label class="flex flex-col gap-2">
+					<span class="text-sm">Attachment</span>
+					<input class="border p-1 rounded" type="file" name="file" required/>
+				</label>
+				<button class="px-4 py-1 bg-blue-200 hover:bg-blue-400 shadow-sm rounded-md">Upload</button>
+			</form>
+		</div>
+		@footer()
+	}
+}
