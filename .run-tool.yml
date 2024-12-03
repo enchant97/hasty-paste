@@ -15,5 +15,6 @@ targets:
       - run
       - .
     cwd: app
+    env_file: .env
     before_hooks:
       - gen-templates

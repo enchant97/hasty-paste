@@ -1,3 +1,7 @@
 [Tt]humbs.db
 *.DS_Store
 ~$*
+
+*.env
+*db.sqlite
+data/
