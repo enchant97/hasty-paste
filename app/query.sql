@@ -2,6 +2,9 @@
 INSERT INTO users (username) VALUES (?)
 RETURNING id;
 
+-- name: InsertAnonymousUser :exec
+INSERT OR IGNORE INTO users (id, username) VALUES (0, "anonymous");
+
 -- name: InsertPaste :one
 INSERT INTO pastes (ownerId,slug) VALUES (?,?)
 RETURNING id;

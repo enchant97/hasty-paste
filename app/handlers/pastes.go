@@ -5,19 +5,25 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/enchant97/hasty-paste/app/components"
-	"github.com/enchant97/hasty-paste/app/database"
+	"github.com/enchant97/hasty-paste/app/core"
 	"github.com/enchant97/hasty-paste/app/services"
-	"github.com/enchant97/hasty-paste/app/storage"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-playground/validator/v10"
 )
 
 type PastesHandler struct {
-	service services.PastesService
+	validator *validator.Validate
+	service   services.PastesService
 }
 
-func (h PastesHandler) Setup(r *chi.Mux, dao *database.Queries, sc *storage.StorageController) {
+func (h PastesHandler) Setup(
+	r *chi.Mux,
+	service services.PastesService,
+	v *validator.Validate,
+) {
 	h = PastesHandler{
-		services.PastesService{}.New(dao, sc),
+		validator: v,
+		service:   service,
 	}
 	r.Get("/pastes/new", h.GetNewPastePage)
 	r.Post("/pastes/new/_post", h.PostNewPastePage)
@@ -32,5 +38,29 @@ func (h *PastesHandler) PostNewPastePage(w http.ResponseWriter, r *http.Request)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
+
+	attachmentReader, attachmentHeader, err := r.FormFile("pasteAttachmentFile")
+	if err != nil {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+	defer attachmentReader.Close()
+
+	form := core.NewPasteForm{
+		Slug:             r.PostFormValue("pasteSlug"),
+		AttachmentSlug:   attachmentHeader.Filename,
+		AttachmentReader: attachmentReader,
+	}
+
+	if err := h.validator.Struct(form); err != nil {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	if err := h.service.NewPaste(0, form); err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
 	http.Redirect(w, r, "/pastes/new", http.StatusSeeOther)
 }
