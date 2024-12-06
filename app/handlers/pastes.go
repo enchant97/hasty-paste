@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/a-h/templ"
 	"github.com/enchant97/hasty-paste/app/components"
@@ -46,9 +47,13 @@ func (h *PastesHandler) PostNewPastePage(w http.ResponseWriter, r *http.Request)
 	}
 	defer attachmentReader.Close()
 
+	pasteSlug := r.PostFormValue("pasteSlug")
+	if pasteSlug == "" {
+		pasteSlug = core.GenerateRandomSlug(10)
+	}
 	form := core.NewPasteForm{
-		Slug:             r.PostFormValue("pasteSlug"),
-		AttachmentSlug:   attachmentHeader.Filename,
+		Slug:             strings.Trim(pasteSlug, " "),
+		AttachmentSlug:   strings.Trim(attachmentHeader.Filename, " "),
 		AttachmentReader: attachmentReader,
 	}
 
