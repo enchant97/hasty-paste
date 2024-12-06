@@ -1,0 +1,26 @@
+package components
+
+import (
+"fmt"
+"github.com/enchant97/hasty-paste/app/database"
+)
+
+templ PastePage(username string, paste database.Paste, attachments []database.Attachment) {
+@base("Paste") {
+@header()
+<div class="p-2">
+    <h1 class="text-2xl font-bold my-2">Paste</h1>
+    <h2 class="text-xl font-bold my-2">Attachments</h2>
+    <ul class="list-disc list-inside">
+        for _, attachment := range attachments {
+        <li>
+            <a href={ templ.URL(fmt.Sprintf("/@/%s/%s/%s", username, paste.Slug, attachment.Slug)) }>
+                { attachment.Slug }
+            </a>
+        </li>
+        }
+    </ul>
+</div>
+@footer()
+}
+}

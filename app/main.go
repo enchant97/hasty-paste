@@ -49,6 +49,7 @@ func main() {
 	r.Use(middleware.Recoverer)
 
 	handlers.HomeHandler{}.Setup(r, services.HomeService{}.New(&dao, &sc), validate)
+	handlers.UserHandler{}.Setup(r, services.UserService{}.New(&dao, &sc), validate)
 	handlers.PastesHandler{}.Setup(r, services.PastesService{}.New(&dao, &sc), validate)
 
 	log.Println("listening on: http://127.0.0.1:8080/")

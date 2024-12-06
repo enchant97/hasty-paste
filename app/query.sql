@@ -35,6 +35,10 @@ INNER JOIN users ON users.id = pastes.ownerId
 WHERE users.username = ? AND pastes.slug = ?
 LIMIT 1;
 
+-- name: GetAttachmentsByPasteId :many
+SELECT * FROM attachments
+WHERE pasteId = ?;
+
 -- name: GetAttachmentBySlug :one
 SELECT attachments.* FROM attachments
 INNER JOIN users ON users.id = pastes.ownerId
