@@ -12,8 +12,6 @@ import (
 	"github.com/go-playground/validator/v10"
 	_ "modernc.org/sqlite"
 
-	"github.com/a-h/templ"
-	"github.com/enchant97/hasty-paste/app/components"
 	"github.com/enchant97/hasty-paste/app/core"
 	"github.com/enchant97/hasty-paste/app/database"
 	"github.com/enchant97/hasty-paste/app/handlers"
@@ -50,7 +48,7 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
-	r.Get("/", templ.Handler(components.IndexPage()).ServeHTTP)
+	handlers.HomeHandler{}.Setup(r, services.HomeService{}.New(&dao, &sc), validate)
 	handlers.PastesHandler{}.Setup(r, services.PastesService{}.New(&dao, &sc), validate)
 
 	log.Println("listening on: http://127.0.0.1:8080/")

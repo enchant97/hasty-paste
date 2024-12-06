@@ -1,12 +1,27 @@
 package components
 
-templ IndexPage() {
+import (
+	"fmt"
+	"github.com/enchant97/hasty-paste/app/database"
+)
+
+templ IndexPage(latestPastes []database.GetLatestPastesRow) {
 	@base("Home") {
 		@header()
 		<div class="p-2">
 			<h1 class="text-2xl font-bold my-2">Welcome To Hasty Paste II.</h1>
-            <p>Paste it all, with haste.</p>
+			<p>Paste it all, with haste.</p>
 			<h2 class="text-xl font-bold my-2">Recent Pastes</h2>
+			<ul>
+				for _, paste := range latestPastes {
+					<li>
+						<a href={ templ.URL(fmt.Sprintf("/@/%s/%s", paste.Username, paste.Slug)) }>
+							{ paste.Slug } by {
+                paste.Username }
+						</a>
+					</li>
+				}
+			</ul>
 		</div>
 		@footer()
 	}

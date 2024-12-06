@@ -18,8 +18,10 @@ SELECT * FROM users
 WHERE username = ? LIMIT 1;
 
 -- name: GetLatestPastes :many
-SELECT * FROM pastes
-ORDER BY id DESC;
+SELECT pastes.*, users.username FROM pastes
+INNER JOIN users ON users.id = pastes.ownerId
+ORDER BY pastes.id DESC
+LIMIT ?;
 
 -- name: GetLatestPastesByUser :many
 SELECT pastes.* FROM pastes
