@@ -1,22 +1,22 @@
 package components
 
 templ NewPastePage() {
-@base("Home") {
-@header()
-<div class="p-2">
-    <h1 class="text-2xl font-bold my-2">New Paste</h1>
-    <form class="flex flex-col gap-2" method="post" enctype="multipart/form-data" action="/pastes/new/_post">
-        <label class="flex flex-col gap-2">
-            <span class="text-sm">Slug</span>
-            <input class="border p-1 rounded" type="text" name="pasteSlug" placeholder="__RANDOM__" />
-        </label>
-        <label class="flex flex-col gap-2">
-            <span class="text-sm">Attachment</span>
-            <input class="border p-1 rounded" type="file" name="pasteAttachmentFile" required />
-        </label>
-        <button class="px-4 py-1 bg-blue-200 hover:bg-blue-400 shadow-sm rounded-md" type="submit">Upload</button>
-    </form>
-</div>
-@footer()
-}
+	@base("Home") {
+		@header()
+		<div class="p-2">
+			<h1 class="text-2xl font-bold my-2">New Paste</h1>
+			<form class="flex flex-col gap-2" method="post" enctype="multipart/form-data" action="/pastes/new/_post">
+				<label class="flex flex-col gap-2">
+					<span class="text-sm">Slug</span>
+					<input class="border p-1 rounded" type="text" name="pasteSlug" placeholder="__RANDOM__"/>
+				</label>
+				<label class="flex flex-col gap-2">
+					<span class="text-sm">Attachments</span>
+					<input class="border p-1 rounded" type="file" name="pasteAttachmentFile[]" multiple required/>
+				</label>
+				<button class="px-4 py-1 bg-blue-200 hover:bg-blue-400 shadow-sm rounded-md" type="submit">Upload</button>
+			</form>
+		</div>
+		@footer()
+	}
 }

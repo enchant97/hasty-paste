@@ -40,21 +40,25 @@ func (h *PastesHandler) PostNewPastePage(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	attachmentReader, attachmentHeader, err := r.FormFile("pasteAttachmentFile")
-	if err != nil {
-		http.Error(w, "Bad Request", http.StatusBadRequest)
-		return
+    // Process all given attachments
+	// TODO needs some error checking
+	attachments := make([]core.NewPasteFormAttachment, len(r.MultipartForm.File["pasteAttachmentFile[]"]))
+	for i, fileHeader := range r.MultipartForm.File["pasteAttachmentFile[]"] {
+		attachment := core.NewPasteFormAttachment{
+			Slug: strings.Trim(fileHeader.Filename, " "),
+			Open: fileHeader.Open,
+		}
+		attachments[i] = attachment
 	}
-	defer attachmentReader.Close()
 
 	pasteSlug := r.PostFormValue("pasteSlug")
 	if pasteSlug == "" {
 		pasteSlug = core.GenerateRandomSlug(10)
 	}
+
 	form := core.NewPasteForm{
-		Slug:             strings.Trim(pasteSlug, " "),
-		AttachmentSlug:   strings.Trim(attachmentHeader.Filename, " "),
-		AttachmentReader: attachmentReader,
+		Slug:        strings.Trim(pasteSlug, " "),
+		Attachments: attachments,
 	}
 
 	if err := h.validator.Struct(form); err != nil {
@@ -67,5 +71,6 @@ func (h *PastesHandler) PostNewPastePage(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+    // TODO redirect to the created paste
 	http.Redirect(w, r, "/pastes/new", http.StatusSeeOther)
 }

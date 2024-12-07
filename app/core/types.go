@@ -1,9 +1,15 @@
 package core
 
-import "io"
+import (
+	"mime/multipart"
+)
+
+type NewPasteFormAttachment struct {
+	Slug string `validate:"printascii,required"`
+	Open func() (multipart.File, error)
+}
 
 type NewPasteForm struct {
-	Slug             string `validate:"printascii,required"`
-	AttachmentSlug   string `validate:"printascii,required"`
-	AttachmentReader io.ReadSeeker
+	Slug        string `validate:"printascii,required"`
+	Attachments []NewPasteFormAttachment
 }

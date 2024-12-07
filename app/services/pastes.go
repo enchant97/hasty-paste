@@ -37,16 +37,30 @@ func (s *PastesService) NewPaste(ownerID int64, pasteForm core.NewPasteForm) err
 	if err != nil {
 		return err
 	}
-	attachmentID, err := dbQueries.InsertPasteAttachment(ctx, database.InsertPasteAttachmentParams{
-		Pasteid: pasteID,
-		Slug:    pasteForm.AttachmentSlug,
-	})
-	if err != nil {
-		return err
+
+    // Process each attachment one by one (maybe make it do parallel in future?)
+	for _, attachment := range pasteForm.Attachments {
+		if err := func() error {
+			attachmentID, err := dbQueries.InsertPasteAttachment(ctx, database.InsertPasteAttachmentParams{
+				Pasteid: pasteID,
+				Slug:    attachment.Slug,
+			})
+			if err != nil {
+				return err
+			}
+			if reader, err := attachment.Open(); err != nil {
+				return err
+			} else {
+				defer reader.Close()
+				if err := s.sc.WritePasteAttachment(strconv.Itoa(int(attachmentID)), reader); err != nil {
+					return err
+				}
+			}
+			return nil
+		}(); err != nil {
+			return err
+		}
 	}
 
-	if err := s.sc.WritePasteAttachment(strconv.Itoa(int(attachmentID)), pasteForm.AttachmentReader); err != nil {
-		return err
-	}
 	return tx.Commit()
 }
