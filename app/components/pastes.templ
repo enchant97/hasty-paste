@@ -1,0 +1,28 @@
+package components
+
+import (
+	"fmt"
+	"github.com/enchant97/hasty-paste/app/database"
+)
+
+templ PastesPage(username string, pastes []database.Paste) {
+	@base(fmt.Sprintf("%s's Pastes", username)) {
+		@header()
+		<div class="p-2">
+			<h1 class="text-2xl font-bold my-2">{ fmt.Sprintf("%s's Pastes", username) }</h1>
+			<div class="bg-stone-200 rounded-md shadow-sm p-4">
+				<ul class="flex flex-col gap-2">
+					for _, paste := range pastes {
+						<li class="p-4 bg-white rounded-md shadow-sm hover:bg-stone-400">
+							<a href={ templ.URL(fmt.Sprintf("/@/%s/%s", username, paste.Slug)) }>
+								<span class="block">{ paste.Slug }</span>
+								<span class="text-xs block ml-4">by <span class="italic">{ username }</span></span>
+							</a>
+						</li>
+					}
+				</ul>
+			</div>
+		</div>
+		@footer()
+	}
+}

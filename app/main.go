@@ -15,6 +15,7 @@ import (
 	"github.com/enchant97/hasty-paste/app/core"
 	"github.com/enchant97/hasty-paste/app/database"
 	"github.com/enchant97/hasty-paste/app/handlers"
+	app_middleware "github.com/enchant97/hasty-paste/app/middleware"
 	"github.com/enchant97/hasty-paste/app/migrations"
 	"github.com/enchant97/hasty-paste/app/services"
 	"github.com/enchant97/hasty-paste/app/storage"
@@ -44,9 +45,12 @@ func main() {
 	dao := core.DAO{}.New(db, dbQueries)
 	validate := validator.New(validator.WithRequiredStructEnabled())
 
+	userMiddleware := app_middleware.CurrentUserMiddleware{}.New()
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
+	r.Use(userMiddleware.Handler)
 
 	handlers.HomeHandler{}.Setup(r, services.HomeService{}.New(&dao, &sc), validate)
 	handlers.UserHandler{}.Setup(r, services.UserService{}.New(&dao, &sc), validate)

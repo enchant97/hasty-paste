@@ -26,8 +26,18 @@ func (h UserHandler) Setup(
 		validator: v,
 		service:   service,
 	}
+	r.Get("/@/{username}", h.GetPastes)
 	r.Get("/@/{username}/{pasteSlug}", h.GetPaste)
 	r.Get("/@/{username}/{pasteSlug}/{attachmentSlug}", h.GetPasteAttachment)
+}
+
+func (h *UserHandler) GetPastes(w http.ResponseWriter, r *http.Request) {
+	username := r.PathValue("username")
+	if pastes, err := h.service.GetPastes(username); err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	} else {
+		templ.Handler(components.PastesPage(username, pastes)).ServeHTTP(w, r)
+	}
 }
 
 func (h *UserHandler) GetPaste(w http.ResponseWriter, r *http.Request) {
