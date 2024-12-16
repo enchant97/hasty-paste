@@ -5,7 +5,7 @@ templ NewPastePage() {
 		@header()
 		<div class="p-2">
 			<h1 class="text-2xl font-bold my-2">New Paste</h1>
-			<form class="flex flex-col gap-2" method="post" enctype="multipart/form-data" action="/pastes/new/_post">
+			<form class="flex flex-col gap-2" method="post" enctype="multipart/form-data" action="/new/_post">
 				<label class="flex flex-col gap-2">
 					<span class="text-sm">Slug</span>
 					<input class="border p-1 rounded" type="text" name="pasteSlug" placeholder="__RANDOM__"/>
