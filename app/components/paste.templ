@@ -9,7 +9,13 @@ templ PastePage(username string, paste database.Paste, attachments []database.At
 @base("Paste") {
 @header()
 <div class="p-2">
-    <h1 class="text-2xl font-bold my-2">Paste</h1>
+    <div class="my-2">
+        <h1 class="text-2xl font-bold">{ paste.Slug }</h1>
+        <span class="text-xs block ml-4">
+            by
+            <span class="italic">{ username }</span>
+        </span>
+    </div>
     <h2 class="text-xl font-bold my-2">Attachments</h2>
     if len(attachments) == 0 {
     <p>No attachments were uploaded.</p>
