@@ -22,7 +22,7 @@ func (s UserService) New(dao *core.DAO, sc *storage.StorageController) UserServi
 	}
 }
 
-func (s *UserService) GetPastes(username string) ([]database.Paste, error) {
+func (s *UserService) GetPastes(username string) ([]database.GetLatestPastesByUserRow, error) {
 	return s.dao.Queries.GetLatestPastesByUser(context.Background(), username)
 }
 

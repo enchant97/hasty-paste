@@ -5,7 +5,7 @@ import (
 	"github.com/enchant97/hasty-paste/app/database"
 )
 
-templ PastesPage(username string, pastes []database.Paste) {
+templ PastesPage(username string, pastes []database.GetLatestPastesByUserRow) {
 	@base(fmt.Sprintf("%s's Pastes", username)) {
 		@header()
 		<div class="p-2">
