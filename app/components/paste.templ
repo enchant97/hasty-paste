@@ -20,6 +20,8 @@ templ PastePage(username string, paste database.Paste, attachments []database.At
         </li>
         }
     </ul>
+    <h2 class="text-xl font-bold my-2">Content</h2>
+    <pre class="text-wrap font-sans">{ paste.Content }</pre>
 </div>
 @footer()
 }

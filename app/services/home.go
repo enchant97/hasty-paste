@@ -37,6 +37,7 @@ func (s *HomeService) NewPaste(ownerID int64, pasteForm core.NewPasteForm) error
 	pasteID, err := dbQueries.InsertPaste(ctx, database.InsertPasteParams{
 		Ownerid: ownerID,
 		Slug:    pasteForm.Slug,
+		Content: pasteForm.Content,
 	})
 	if err != nil {
 		return err

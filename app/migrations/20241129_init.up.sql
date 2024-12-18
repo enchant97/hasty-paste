@@ -4,17 +4,18 @@ CREATE TABLE users (
 );
 
 CREATE TABLE pastes (
-    id        INTEGER PRIMARY KEY,
-    ownerId   INTEGER NOT NULL,
-    slug      TEXT    NOT NULL,
+    id      INTEGER PRIMARY KEY,
+    ownerId INTEGER NOT NULL,
+    slug    TEXT    NOT NULL,
+    content TEXT    NOT NULL,
     UNIQUE(ownerId, slug),
     FOREIGN KEY(ownerId) REFERENCES users(id)
 );
 
 CREATE TABLE attachments (
-    id        INTEGER PRIMARY KEY,
-    pasteId   INTEGER NOT NULL,
-    slug      TEXT    NOT NULL,
+    id      INTEGER PRIMARY KEY,
+    pasteId INTEGER NOT NULL,
+    slug    TEXT    NOT NULL,
     UNIQUE(pasteId, slug),
     FOREIGN KEY(pasteId) REFERENCES pastes(id)
 );

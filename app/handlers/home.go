@@ -67,6 +67,7 @@ func (h *HomeHandler) PostNewPastePage(w http.ResponseWriter, r *http.Request) {
 
 	form := core.NewPasteForm{
 		Slug:        strings.Trim(pasteSlug, " "),
+		Content:     r.PostFormValue("pasteContent"),
 		Attachments: attachments,
 	}
 

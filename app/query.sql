@@ -6,7 +6,7 @@ RETURNING id;
 INSERT OR IGNORE INTO users (id, username) VALUES (0, "anonymous");
 
 -- name: InsertPaste :one
-INSERT INTO pastes (ownerId,slug) VALUES (?,?)
+INSERT INTO pastes (ownerId,slug,content) VALUES (?,?,?)
 RETURNING id;
 
 -- name: InsertPasteAttachment :one

@@ -12,9 +12,19 @@ templ NewPastePage() {
 				</label>
 				<label class="flex flex-col gap-2">
 					<span class="text-sm">Attachments</span>
-					<input class="border p-1 rounded" type="file" name="pasteAttachmentFile[]" multiple required/>
+					<input class="border p-1 rounded" type="file" name="pasteAttachmentFile[]" multiple/>
 				</label>
-				<button class="px-4 py-1 bg-blue-200 hover:bg-blue-400 shadow-sm rounded-md" type="submit">Upload</button>
+				<label class="flex flex-col gap-2">
+					<span class="text-sm">Content</span>
+					<textarea
+						class="border p-1 rounded h-96"
+						name="pasteContent"
+						placeholder="your text here..."
+						autofocus
+						required
+					></textarea>
+				</label>
+				<button class="px-4 py-1 bg-blue-200 hover:bg-blue-400 shadow-sm rounded-md" type="submit">Create</button>
 			</form>
 		</div>
 		@footer()
