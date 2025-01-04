@@ -1,21 +1,22 @@
 CREATE TABLE users (
-    id        INTEGER PRIMARY KEY,
-    username  TEXT    NOT NULL UNIQUE
+    id            INTEGER PRIMARY KEY,
+    username      TEXT    NOT NULL UNIQUE,
+    password_hash BLOB
 );
 
 CREATE TABLE pastes (
     id      INTEGER PRIMARY KEY,
-    ownerId INTEGER NOT NULL,
+    owner_id INTEGER NOT NULL,
     slug    TEXT    NOT NULL,
     content TEXT    NOT NULL,
-    UNIQUE(ownerId, slug),
-    FOREIGN KEY(ownerId) REFERENCES users(id)
+    UNIQUE(owner_id, slug),
+    FOREIGN KEY(owner_id) REFERENCES users(id)
 );
 
 CREATE TABLE attachments (
     id      INTEGER PRIMARY KEY,
-    pasteId INTEGER NOT NULL,
+    paste_id INTEGER NOT NULL,
     slug    TEXT    NOT NULL,
-    UNIQUE(pasteId, slug),
-    FOREIGN KEY(pasteId) REFERENCES pastes(id)
+    UNIQUE(paste_id, slug),
+    FOREIGN KEY(paste_id) REFERENCES pastes(id)
 );

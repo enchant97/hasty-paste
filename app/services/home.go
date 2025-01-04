@@ -35,7 +35,7 @@ func (s *HomeService) NewPaste(ownerID int64, pasteForm core.NewPasteForm) error
 
 	dbQueries := s.dao.Queries.WithTx(tx)
 	pasteID, err := dbQueries.InsertPaste(ctx, database.InsertPasteParams{
-		Ownerid: ownerID,
+		OwnerID: ownerID,
 		Slug:    pasteForm.Slug,
 		Content: pasteForm.Content,
 	})
@@ -47,7 +47,7 @@ func (s *HomeService) NewPaste(ownerID int64, pasteForm core.NewPasteForm) error
 	for _, attachment := range pasteForm.Attachments {
 		if err := func() error {
 			attachmentID, err := dbQueries.InsertPasteAttachment(ctx, database.InsertPasteAttachmentParams{
-				Pasteid: pasteID,
+				PasteID: pasteID,
 				Slug:    attachment.Slug,
 			})
 			if err != nil {

@@ -34,7 +34,7 @@ func (s *UserService) GetPaste(username string, slug string) (database.Paste, er
 }
 
 func (s *UserService) GetPasteAttachments(pasteId int64) ([]database.Attachment, error) {
-	return s.dao.Queries.GetAttachmentsByPasteId(context.Background(), pasteId)
+	return s.dao.Queries.GetAttachmentsByPasteID(context.Background(), pasteId)
 }
 
 func (s *UserService) GetPasteAttachment(
