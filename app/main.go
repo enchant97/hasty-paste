@@ -54,6 +54,7 @@ func main() {
 
 	handlers.HomeHandler{}.Setup(r, services.HomeService{}.New(&dao, &sc), validate)
 	handlers.UserHandler{}.Setup(r, services.UserService{}.New(&dao, &sc), validate)
+	handlers.AuthHandler{}.Setup(r, services.AuthService{}.New(&dao), validate)
 
 	log.Println("listening on: http://127.0.0.1:8080/")
 	http.ListenAndServe(":8080", r)
