@@ -1,0 +1,28 @@
+package components
+
+templ UserLoginPage() {
+	@base("Sign In") {
+		@header()
+		<div class="p-2">
+			<h1 class="text-2xl font-bold my-2">Sign In</h1>
+			<form class="flex flex-col gap-2 bg-stone-200 rounded-md shadow-sm p-4" method="post" action="/login/_post">
+				<label class="flex flex-col gap-2">
+					<span class="text-sm">Username</span>
+					<input class="border p-1 rounded bg-white" type="text" name="username" autocomplete="username" required/>
+				</label>
+				<label class="flex flex-col gap-2">
+					<span class="text-sm">Password</span>
+					<input
+						class="border p-1 rounded bg-white"
+						type="password"
+						name="password"
+						autocomplete="current-password"
+						required
+					/>
+				</label>
+				<button class="px-4 py-1 bg-blue-300 hover:bg-blue-400 shadow-sm rounded-md" type="submit">Sign In</button>
+			</form>
+		</div>
+		@footer()
+	}
+}

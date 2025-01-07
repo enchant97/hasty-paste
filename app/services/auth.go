@@ -23,3 +23,11 @@ func (s *AuthService) CreateNewUser(form core.NewUserForm) (int64, error) {
 		PasswordHash: core.HashPassword(form.Password),
 	})
 }
+
+func (s *AuthService) CheckIfValidUser(form core.LoginUserForm) (bool, error) {
+	user, err := s.dao.Queries.GetUserByUsername(context.Background(), form.Username)
+	if err != nil {
+		return false, err
+	}
+	return core.IsValidPassword(form.Password, user.PasswordHash), nil
+}

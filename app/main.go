@@ -45,16 +45,16 @@ func main() {
 	dao := core.DAO{}.New(db, dbQueries)
 	validate := validator.New(validator.WithRequiredStructEnabled())
 
-	userMiddleware := app_middleware.CurrentUserMiddleware{}.New()
+	authenticationProvider := app_middleware.AuthenticationProvider{}.New(appConfig.TokenSecret)
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
-	r.Use(userMiddleware.Handler)
+	r.Use(authenticationProvider.ProviderMiddleware)
 
 	handlers.HomeHandler{}.Setup(r, services.HomeService{}.New(&dao, &sc), validate)
 	handlers.UserHandler{}.Setup(r, services.UserService{}.New(&dao, &sc), validate)
-	handlers.AuthHandler{}.Setup(r, services.AuthService{}.New(&dao), validate)
+	handlers.AuthHandler{}.Setup(r, appConfig, services.AuthService{}.New(&dao), validate, &authenticationProvider)
 
 	log.Println("listening on: http://127.0.0.1:8080/")
 	http.ListenAndServe(":8080", r)

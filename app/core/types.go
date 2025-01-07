@@ -20,3 +20,8 @@ type NewUserForm struct {
 	Password        string `validate:"min=8,required"`
 	PasswordConfirm string `validate:"eqcsfield=Password,required"`
 }
+
+type LoginUserForm struct {
+	Username string `validate:"required"`
+	Password string `validate:"required"`
+}
