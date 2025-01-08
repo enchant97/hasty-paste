@@ -29,16 +29,16 @@ templ header() {
                     class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md"
                     href={ templ.URL(fmt.Sprintf("/@/%s",currentUsername)) }
                 >Public Area</a>
-                <a class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md" href="/login">Login</a>
+                <a class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md" href="/login">Sign In</a>
             } else {
                 <a
                     class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md"
                     href={ templ.URL(fmt.Sprintf("/@/%s",currentUsername)) }
                 >My Area</a>
-                <a class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md" href="/logout">Logout</a>
+                <a class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md" href="/logout">Sign Out</a>
             }
 		} else {
-            <a class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md" href="/login">Login</a>
+            <a class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md" href="/login">Sign In</a>
         }
 	</header>
 }
