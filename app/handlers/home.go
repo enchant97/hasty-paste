@@ -7,24 +7,28 @@ import (
 	"github.com/a-h/templ"
 	"github.com/enchant97/hasty-paste/app/components"
 	"github.com/enchant97/hasty-paste/app/core"
+	"github.com/enchant97/hasty-paste/app/middleware"
 	"github.com/enchant97/hasty-paste/app/services"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-playground/validator/v10"
 )
 
 type HomeHandler struct {
-	validator *validator.Validate
-	service   services.HomeService
+	service      services.HomeService
+	validator    *validator.Validate
+	authProvider *middleware.AuthenticationProvider
 }
 
 func (h HomeHandler) Setup(
 	r *chi.Mux,
 	service services.HomeService,
 	v *validator.Validate,
+	ap *middleware.AuthenticationProvider,
 ) {
 	h = HomeHandler{
-		validator: v,
-		service:   service,
+		service:      service,
+		validator:    v,
+		authProvider: ap,
 	}
 	r.Get("/", h.GetHomePage)
 	r.Get("/new", h.GetNewPastePage)
@@ -76,7 +80,7 @@ func (h *HomeHandler) PostNewPastePage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.service.NewPaste(0, form); err != nil {
+	if err := h.service.NewPaste(h.authProvider.GetCurrentUserID(r), form); err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}

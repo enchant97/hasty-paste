@@ -23,12 +23,23 @@ templ header() {
 		<a class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md" href="/">Home</a>
 		if currentUsername, ok := ctx.Value("currentUsername").(string); ok {
 			<a class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md" href="/new">New Paste</a>
-			<a
-				class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md"
-				href={ templ.URL(fmt.Sprintf("/@/%s",
-        currentUsername)) }
-			>My Pastes</a>
-		}
+
+            if currentUsername == "anonymous" {
+                <a
+                    class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md"
+                    href={ templ.URL(fmt.Sprintf("/@/%s",currentUsername)) }
+                >Public Area</a>
+                <a class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md" href="/login">Login</a>
+            } else {
+                <a
+                    class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md"
+                    href={ templ.URL(fmt.Sprintf("/@/%s",currentUsername)) }
+                >My Area</a>
+                <a class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md" href="/logout">Logout</a>
+            }
+		} else {
+            <a class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md" href="/login">Login</a>
+        }
 	</header>
 }
 

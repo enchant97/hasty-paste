@@ -45,14 +45,14 @@ func main() {
 	dao := core.DAO{}.New(db, dbQueries)
 	validate := validator.New(validator.WithRequiredStructEnabled())
 
-	authenticationProvider := app_middleware.AuthenticationProvider{}.New(appConfig.TokenSecret)
+	authenticationProvider := app_middleware.AuthenticationProvider{}.New(appConfig.TokenSecret, &dao)
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(authenticationProvider.ProviderMiddleware)
 
-	handlers.HomeHandler{}.Setup(r, services.HomeService{}.New(&dao, &sc), validate)
+	handlers.HomeHandler{}.Setup(r, services.HomeService{}.New(&dao, &sc), validate, &authenticationProvider)
 	handlers.UserHandler{}.Setup(r, services.UserService{}.New(&dao, &sc), validate)
 	handlers.AuthHandler{}.Setup(r, appConfig, services.AuthService{}.New(&dao), validate, &authenticationProvider)
 
