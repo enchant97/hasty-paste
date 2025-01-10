@@ -14,9 +14,12 @@ CREATE TABLE pastes (
 );
 
 CREATE TABLE attachments (
-    id      INTEGER PRIMARY KEY,
-    paste_id INTEGER NOT NULL,
-    slug    TEXT    NOT NULL,
+    id        INTEGER PRIMARY KEY,
+    paste_id  INTEGER NOT NULL,
+    slug      TEXT    NOT NULL,
+    mime_type TEXT    NOT NULL DEFAULT 'application/octet-stream',
+    size      INTEGER NOT NULL,
+    checksum  TEXT    NOT NULL,
     UNIQUE(paste_id, slug),
     FOREIGN KEY(paste_id) REFERENCES pastes(id)
 );

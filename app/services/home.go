@@ -46,20 +46,28 @@ func (s *HomeService) NewPaste(ownerID int64, pasteForm core.NewPasteForm) error
 	// Process each attachment one by one (maybe make it do parallel in future?)
 	for _, attachment := range pasteForm.Attachments {
 		if err := func() error {
+			r, err := attachment.Open()
+			if err != nil {
+				return err
+			}
+			defer r.Close()
+			checksum, err := core.MakeChecksum(r)
+			if err != nil {
+				return err
+			}
+			r.Seek(0, 0)
 			attachmentID, err := dbQueries.InsertPasteAttachment(ctx, database.InsertPasteAttachmentParams{
-				PasteID: pasteID,
-				Slug:    attachment.Slug,
+				PasteID:  pasteID,
+				Slug:     attachment.Slug,
+				MimeType: attachment.Type,
+				Size:     attachment.Size,
+				Checksum: checksum,
 			})
 			if err != nil {
 				return err
 			}
-			if reader, err := attachment.Open(); err != nil {
+			if err := s.sc.WritePasteAttachment(strconv.Itoa(int(attachmentID)), r); err != nil {
 				return err
-			} else {
-				defer reader.Close()
-				if err := s.sc.WritePasteAttachment(strconv.Itoa(int(attachmentID)), reader); err != nil {
-					return err
-				}
 			}
 			return nil
 		}(); err != nil {

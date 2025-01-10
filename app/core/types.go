@@ -6,6 +6,8 @@ import (
 
 type NewPasteFormAttachment struct {
 	Slug string `validate:"printascii,required"`
+	Type string `validate:"required"`
+	Size int64  `validate:"required"`
 	Open func() (multipart.File, error)
 }
 

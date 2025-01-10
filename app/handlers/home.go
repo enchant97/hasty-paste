@@ -59,6 +59,8 @@ func (h *HomeHandler) PostNewPastePage(w http.ResponseWriter, r *http.Request) {
 	for i, fileHeader := range r.MultipartForm.File["pasteAttachmentFile[]"] {
 		attachment := core.NewPasteFormAttachment{
 			Slug: strings.Trim(fileHeader.Filename, " "),
+			Size: fileHeader.Size,
+			Type: fileHeader.Header.Get("Content-Type"),
 			Open: fileHeader.Open,
 		}
 		attachments[i] = attachment

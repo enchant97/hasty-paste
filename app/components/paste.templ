@@ -24,7 +24,10 @@ templ PastePage(username string, paste database.Paste, attachments []database.At
 					<ul class="flex gap-4">
 						for _, attachment := range attachments {
 							<li class="rounded-md shadow-sm bg-white px-4 py-2 hover:bg-stone-400">
-								<a href={ templ.URL(fmt.Sprintf("/@/%s/%s/%s", username, paste.Slug, attachment.Slug)) }>
+								<a
+									target="_blank"
+									href={ templ.URL(fmt.Sprintf("/@/%s/%s/%s", username, paste.Slug, attachment.Slug)) }
+								>
 									{ attachment.Slug }
 								</a>
 							</li>

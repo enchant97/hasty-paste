@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 
@@ -67,7 +66,8 @@ func (h *UserHandler) GetPasteAttachment(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	defer attachmentReader.Close()
-	w.Header().Add("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", attachment.Slug))
+	w.Header().Add("Content-Type", attachment.MimeType)
+	w.Header().Add("ETag", attachment.Checksum)
 	w.WriteHeader(http.StatusOK)
 	io.Copy(w, attachmentReader)
 }
