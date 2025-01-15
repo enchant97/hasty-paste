@@ -15,6 +15,18 @@ templ NewPastePage() {
 					<span class="text-sm">Slug</span>
 					<input class="border p-1 rounded bg-white" type="text" name="pasteSlug" placeholder="__RANDOM__"/>
 				</label>
+                if getCurrentUsername(ctx) == "anonymous" {
+                    <input type="hidden" name="pasteVisibility" value="public" />
+                } else {
+                    <label class="flex flex-col gap-2">
+                        <span class="text-sm">Visibility</span>
+                        <select class="border p-1 rounded bg-white" name="pasteVisibility">
+                            <option value="public" selected>Public</option>
+                            <option value="unlisted">Unlisted</option>
+                            <option value="private">Private</option>
+                        </select>
+                    </label>
+                }
 				<label class="flex flex-col gap-2">
 					<span class="text-sm">Attachments</span>
 					<input class="border p-1 rounded bg-white" type="file" name="pasteAttachmentFile[]" multiple/>

@@ -22,14 +22,18 @@ func (s UserService) New(dao *core.DAO, sc *storage.StorageController) UserServi
 	}
 }
 
-func (s *UserService) GetPastes(username string) ([]database.GetLatestPastesByUserRow, error) {
-	return s.dao.Queries.GetLatestPastesByUser(context.Background(), username)
+func (s *UserService) GetPastes(currentUserID int64, username string) ([]database.GetLatestPastesByUserRow, error) {
+	return s.dao.Queries.GetLatestPastesByUser(context.Background(), database.GetLatestPastesByUserParams{
+		Username:      username,
+		CurrentUserID: currentUserID,
+	})
 }
 
-func (s *UserService) GetPaste(username string, slug string) (database.Paste, error) {
+func (s *UserService) GetPaste(currentUserID int64, username string, slug string) (database.Paste, error) {
 	return s.dao.Queries.GetPasteBySlug(context.Background(), database.GetPasteBySlugParams{
-		Username: username,
-		Slug:     slug,
+		CurrentUserID: currentUserID,
+		Username:      username,
+		PasteSlug:     slug,
 	})
 }
 
@@ -38,11 +42,13 @@ func (s *UserService) GetPasteAttachments(pasteId int64) ([]database.Attachment,
 }
 
 func (s *UserService) GetPasteAttachment(
+	currentUserID int64,
 	username string,
 	pasteSlug string,
 	attachmentSlug string,
 ) (database.Attachment, io.ReadCloser, error) {
 	attachment, err := s.dao.Queries.GetAttachmentBySlug(context.Background(), database.GetAttachmentBySlugParams{
+		CurrentUserID:  currentUserID,
 		Username:       username,
 		PasteSlug:      pasteSlug,
 		AttachmentSlug: attachmentSlug,

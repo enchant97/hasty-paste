@@ -5,7 +5,7 @@ import (
 	"github.com/enchant97/hasty-paste/app/database"
 )
 
-templ IndexPage(latestPastes []database.GetLatestPastesRow) {
+templ IndexPage(latestPastes []database.GetLatestPublicPastesRow) {
 	@base("Home") {
 		@header()
 		<div class="p-2">

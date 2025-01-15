@@ -1,53 +1,58 @@
 package components
 
-import "fmt"
+import (
+"context"
+"fmt"
+)
+
+func getCurrentUsername(ctx context.Context) string {
+    if currentUsername, ok := ctx.Value("currentUsername").(string); ok {
+        return currentUsername
+    }
+        return "anonymous"
+}
 
 templ base(title string) {
-	<!DOCTYPE html>
-	<html lang="en">
-		<head>
-			<meta charset="utf-8"/>
-			<meta name="viewport" content="width=device-width, initial-scale=1"/>
-			<title>{ title } - Hasty Paste II</title>
-			<script src="https://cdn.tailwindcss.com"></script>
-		</head>
-		<body>
-			{ children... }
-		</body>
-	</html>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{ title } - Hasty Paste II</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+    { children... }
+</body>
+
+</html>
 }
 
 templ header() {
-	<header class="flex items-center gap-2 p-2 border-b-4 border-blue-800 mb-4">
-		<a class="px-4 py-1 rounded-md hover:bg-stone-400 mr-auto" href="/">Hasty Paste II</a>
-		<a class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md" href="/">Home</a>
-		if currentUsername, ok := ctx.Value("currentUsername").(string); ok {
-			<a class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md" href="/new">New Paste</a>
-
-            if currentUsername == "anonymous" {
-                <a
-                    class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md"
-                    href={ templ.URL(fmt.Sprintf("/@/%s",currentUsername)) }
-                >Public Area</a>
-                <a class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md" href="/login">Sign In</a>
-            } else {
-                <a
-                    class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md"
-                    href={ templ.URL(fmt.Sprintf("/@/%s",currentUsername)) }
-                >My Area</a>
-                <a class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md" href="/logout">Sign Out</a>
-            }
-		} else {
+    {{ currentUsername := getCurrentUsername(ctx) }}
+    <header class="flex items-center gap-2 p-2 border-b-4 border-blue-800 mb-4">
+        <a class="px-4 py-1 rounded-md hover:bg-stone-400 mr-auto" href="/">Hasty Paste II</a>
+        <a class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md" href="/">Home</a>
+        <a class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md" href="/new">New Paste</a>
+        if currentUsername == "anonymous" {
+            <a class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md" href={ templ.URL(fmt.Sprintf("/@/%s",
+                currentUsername)) }>Public Area</a>
             <a class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md" href="/login">Sign In</a>
+        } else {
+            <a class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md" href={ templ.URL(fmt.Sprintf("/@/%s",
+                currentUsername)) }>My Area</a>
+            <a class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md" href="/logout">Sign Out</a>
         }
-	</header>
+    </header>
 }
 
 templ footer() {
-	<footer class="p-2 mt-10 border-t-2 border-blue-800">
-		<a href="https://github.com/enchant97/hasty-paste">
-			<span class="font-bold">Hasty Paste II</span>
-			<span class="italic text-sm">By Leo Spratt</span>
-		</a>
-	</footer>
+<footer class="p-2 mt-10 border-t-2 border-blue-800">
+    <a href="https://github.com/enchant97/hasty-paste">
+        <span class="font-bold">Hasty Paste II</span>
+        <span class="italic text-sm">By Leo Spratt</span>
+    </a>
+</footer>
 }

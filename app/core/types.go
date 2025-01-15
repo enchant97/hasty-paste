@@ -14,6 +14,7 @@ type NewPasteFormAttachment struct {
 type NewPasteForm struct {
 	Slug        string `validate:"printascii,required"`
 	Content     string `validate:"required"`
+	Visibility  string `validate:"required,oneof=public unlisted private"`
 	Attachments []NewPasteFormAttachment
 }
 

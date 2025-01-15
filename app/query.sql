@@ -6,7 +6,7 @@ RETURNING id;
 INSERT OR IGNORE INTO users (id, username) VALUES (0, "anonymous");
 
 -- name: InsertPaste :one
-INSERT INTO pastes (owner_id,slug,content) VALUES (?,?,?)
+INSERT INTO pastes (owner_id,slug,content,visibility) VALUES (?,?,?,?)
 RETURNING id;
 
 -- name: InsertPasteAttachment :one
@@ -17,22 +17,35 @@ RETURNING id;
 SELECT * FROM users
 WHERE username = ? LIMIT 1;
 
--- name: GetLatestPastes :many
+-- name: GetLatestPublicPastes :many
 SELECT p.id, p.owner_id, p.slug, users.username FROM pastes as p
 INNER JOIN users ON users.id = p.owner_id
+WHERE p.visibility = 'public'
 ORDER BY p.id DESC
 LIMIT ?;
 
 -- name: GetLatestPastesByUser :many
-SELECT p.id, p.owner_id, p.slug FROM pastes as p
+SELECT p.id, p.owner_id, p.slug, p.visibility FROM pastes as p
 INNER JOIN users ON users.id = p.owner_id
-WHERE users.username = ?
+WHERE username = sqlc.arg(username) AND (
+    (visibility = 'public' AND NOT p.owner_id = sqlc.arg(current_user_id))
+    OR
+    (p.owner_id = sqlc.arg(current_user_id))
+)
 ORDER BY p.id DESC;
 
 -- name: GetPasteBySlug :one
-SELECT pastes.* FROM pastes
-INNER JOIN users ON users.id = pastes.owner_id
-WHERE users.username = ? AND pastes.slug = ?
+SELECT p.* FROM pastes as p
+INNER JOIN users AS u ON u.id = p.owner_id
+WHERE (
+    (u.username = sqlc.arg(username) AND p.slug = sqlc.arg(paste_slug))
+    AND
+       (
+           (p.visibility IN ('public', 'unlisted') AND NOT p.owner_id = sqlc.arg(current_user_id))
+           OR
+           (p.owner_id = sqlc.arg(current_user_id))
+       )
+    )
 LIMIT 1;
 
 -- name: GetAttachmentsByPasteID :many
@@ -40,8 +53,17 @@ SELECT * FROM attachments
 WHERE paste_id = ?;
 
 -- name: GetAttachmentBySlug :one
-SELECT attachments.* FROM attachments
-INNER JOIN users ON users.id = pastes.owner_id
-INNER JOIN pastes ON attachments.paste_id = pastes.id
-WHERE users.username = ? AND pastes.slug = sqlc.arg(paste_slug) AND attachments.slug = sqlc.arg(attachment_slug)
+SELECT a.* FROM attachments as a
+INNER JOIN pastes AS p ON a.paste_id = p.id
+INNER JOIN users AS u ON u.id = p.owner_id
+WHERE
+    (
+        (u.username = sqlc.arg(username) AND p.slug = sqlc.arg(paste_slug) AND a.slug = sqlc.arg(attachment_slug))
+        AND
+        (
+            (p.visibility IN ('public', 'unlisted') AND NOT p.owner_id = sqlc.arg(current_user_id))
+            OR
+            (p.owner_id = sqlc.arg(current_user_id))
+        )
+    )
 LIMIT 1;

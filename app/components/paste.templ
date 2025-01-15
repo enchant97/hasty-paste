@@ -14,6 +14,10 @@ templ PastePage(username string, paste database.Paste, attachments []database.At
 				<span class="text-xs block ml-4">
 					by
 					<a class="italic underline" href={ templ.URL(fmt.Sprintf("/@/%s", username)) }>{ username }</a>
+                    -
+					<span class="italic">
+						({ paste.Visibility })
+					</span>
 				</span>
 			</div>
 			<div class="bg-stone-200 rounded-md shadow-sm p-4">

@@ -78,6 +78,10 @@ func (m *AuthenticationProvider) GetCurrentUserID(r *http.Request) int64 {
 	return r.Context().Value(ContextCurrentUserIDKey).(int64)
 }
 
+func (m *AuthenticationProvider) IsCurrentUserAnonymous(r *http.Request) bool {
+	return m.GetCurrentUsername(r) == AnonymousUsername
+}
+
 func (m *AuthenticationProvider) SetCookieAuthToken(w http.ResponseWriter, token core.AuthenticationToken) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     CookieAuthTokenName,

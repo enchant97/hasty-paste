@@ -53,7 +53,7 @@ func main() {
 	r.Use(authenticationProvider.ProviderMiddleware)
 
 	handlers.HomeHandler{}.Setup(r, services.HomeService{}.New(&dao, &sc), validate, &authenticationProvider)
-	handlers.UserHandler{}.Setup(r, services.UserService{}.New(&dao, &sc), validate)
+	handlers.UserHandler{}.Setup(r, services.UserService{}.New(&dao, &sc), validate, &authenticationProvider)
 	handlers.AuthHandler{}.Setup(r, appConfig, services.AuthService{}.New(&dao), validate, &authenticationProvider)
 
 	log.Println("listening on: http://127.0.0.1:8080/")

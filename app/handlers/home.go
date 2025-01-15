@@ -36,7 +36,7 @@ func (h HomeHandler) Setup(
 }
 
 func (h *HomeHandler) GetHomePage(w http.ResponseWriter, r *http.Request) {
-	if latestPastes, err := h.service.GetLatestPastes(); err != nil {
+	if latestPastes, err := h.service.GetLatestPublicPastes(); err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	} else {
 		templ.Handler(components.IndexPage(latestPastes)).ServeHTTP(w, r)
@@ -71,9 +71,15 @@ func (h *HomeHandler) PostNewPastePage(w http.ResponseWriter, r *http.Request) {
 		pasteSlug = core.GenerateRandomSlug(10)
 	}
 
+	visibility := r.PostFormValue("pasteVisibility")
+	if h.authProvider.IsCurrentUserAnonymous(r) {
+		visibility = "public"
+	}
+
 	form := core.NewPasteForm{
 		Slug:        strings.Trim(pasteSlug, " "),
 		Content:     r.PostFormValue("pasteContent"),
+		Visibility:  visibility,
 		Attachments: attachments,
 	}
 

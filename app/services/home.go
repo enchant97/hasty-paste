@@ -21,8 +21,8 @@ func (s HomeService) New(dao *core.DAO, sc *storage.StorageController) HomeServi
 	}
 }
 
-func (s *HomeService) GetLatestPastes() ([]database.GetLatestPastesRow, error) {
-	return s.dao.Queries.GetLatestPastes(context.Background(), 5)
+func (s *HomeService) GetLatestPublicPastes() ([]database.GetLatestPublicPastesRow, error) {
+	return s.dao.Queries.GetLatestPublicPastes(context.Background(), 5)
 }
 
 func (s *HomeService) NewPaste(ownerID int64, pasteForm core.NewPasteForm) error {
@@ -35,9 +35,10 @@ func (s *HomeService) NewPaste(ownerID int64, pasteForm core.NewPasteForm) error
 
 	dbQueries := s.dao.Queries.WithTx(tx)
 	pasteID, err := dbQueries.InsertPaste(ctx, database.InsertPasteParams{
-		OwnerID: ownerID,
-		Slug:    pasteForm.Slug,
-		Content: pasteForm.Content,
+		OwnerID:   ownerID,
+		Slug:      pasteForm.Slug,
+		Content:   pasteForm.Content,
+		Visibility: pasteForm.Visibility,
 	})
 	if err != nil {
 		return err

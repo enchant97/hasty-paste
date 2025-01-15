@@ -16,7 +16,12 @@ templ PastesPage(username string, pastes []database.GetLatestPastesByUserRow) {
 						<li class="p-4 bg-white rounded-md shadow-sm hover:bg-stone-400">
 							<a href={ templ.URL(fmt.Sprintf("/@/%s/%s", username, paste.Slug)) }>
 								<span class="block">{ paste.Slug }</span>
-								<span class="text-xs block ml-4">by <span class="italic">{ username }</span></span>
+								<span class="text-xs block ml-4">
+									by
+									<span class="italic">
+										{ username } - ({ paste.Visibility })
+									</span>
+								</span>
 							</a>
 						</li>
 					}
