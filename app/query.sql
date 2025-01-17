@@ -6,7 +6,7 @@ RETURNING id;
 INSERT OR IGNORE INTO users (id, username) VALUES (0, "anonymous");
 
 -- name: InsertPaste :one
-INSERT INTO pastes (owner_id,slug,content,visibility) VALUES (?,?,?,?)
+INSERT INTO pastes (owner_id,slug,content,visibility,expires_at) VALUES (?,?,?,?,?)
 RETURNING id;
 
 -- name: InsertPasteAttachment :one
@@ -20,7 +20,10 @@ WHERE username = ? LIMIT 1;
 -- name: GetLatestPublicPastes :many
 SELECT p.id, p.owner_id, p.slug, p.created_at, users.username FROM pastes as p
 INNER JOIN users ON users.id = p.owner_id
-WHERE p.visibility = 'public'
+WHERE (
+    p.visibility = 'public'
+    AND (p.expires_at IS NULL OR p.expires_at > CURRENT_TIMESTAMP)
+)
 ORDER BY p.id DESC
 LIMIT ?;
 
@@ -31,7 +34,7 @@ WHERE username = sqlc.arg(username) AND (
     (visibility = 'public' AND NOT p.owner_id = sqlc.arg(current_user_id))
     OR
     (p.owner_id = sqlc.arg(current_user_id))
-)
+) AND (p.expires_at IS NULL OR p.expires_at > CURRENT_TIMESTAMP)
 ORDER BY p.id DESC;
 
 -- name: GetPasteBySlug :one
@@ -45,12 +48,18 @@ WHERE (
            OR
            (p.owner_id = sqlc.arg(current_user_id))
        )
+    AND (p.expires_at IS NULL OR p.expires_at > CURRENT_TIMESTAMP)
     )
 LIMIT 1;
 
 -- name: GetAttachmentsByPasteID :many
-SELECT * FROM attachments
-WHERE paste_id = ?;
+SELECT a.* FROM attachments AS a
+INNER JOIN pastes AS p ON a.paste_id = p.id
+WHERE (
+    a.paste_id = ?
+    AND
+    (p.expires_at IS NULL OR p.expires_at > CURRENT_TIMESTAMP)
+);
 
 -- name: GetAttachmentBySlug :one
 SELECT a.* FROM attachments as a
@@ -65,5 +74,6 @@ WHERE
             OR
             (p.owner_id = sqlc.arg(current_user_id))
         )
+        AND (p.expires_at IS NULL OR p.expires_at > CURRENT_TIMESTAMP)
     )
 LIMIT 1;

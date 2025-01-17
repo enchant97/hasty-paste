@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"database/sql"
 	"strconv"
 
 	"github.com/enchant97/hasty-paste/app/core"
@@ -33,12 +34,20 @@ func (s *HomeService) NewPaste(ownerID int64, pasteForm core.NewPasteForm) error
 	}
 	defer tx.Rollback()
 
+	var expiry sql.NullTime
+	if pasteForm.Expiry != nil {
+		if err := expiry.Scan(*pasteForm.Expiry); err != nil {
+			return err
+		}
+	}
+
 	dbQueries := s.dao.Queries.WithTx(tx)
 	pasteID, err := dbQueries.InsertPaste(ctx, database.InsertPasteParams{
-		OwnerID:   ownerID,
-		Slug:      pasteForm.Slug,
-		Content:   pasteForm.Content,
+		OwnerID:    ownerID,
+		Slug:       pasteForm.Slug,
+		Content:    pasteForm.Content,
 		Visibility: pasteForm.Visibility,
+		ExpiresAt:  expiry,
 	})
 	if err != nil {
 		return err

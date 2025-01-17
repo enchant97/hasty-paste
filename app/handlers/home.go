@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/a-h/templ"
 	"github.com/enchant97/hasty-paste/app/components"
@@ -76,10 +77,22 @@ func (h *HomeHandler) PostNewPastePage(w http.ResponseWriter, r *http.Request) {
 		visibility = "public"
 	}
 
+	var expiry *time.Time
+
+	if v := r.PostFormValue("pasteExpiry"); v != "" {
+		if t, err := time.Parse("2006-01-02T15:04", v); err != nil {
+			http.Error(w, "Bad Request", http.StatusBadRequest)
+			return
+		} else {
+			expiry = &t
+		}
+	}
+
 	form := core.NewPasteForm{
 		Slug:        strings.Trim(pasteSlug, " "),
 		Content:     r.PostFormValue("pasteContent"),
 		Visibility:  visibility,
+		Expiry:      expiry,
 		Attachments: attachments,
 	}
 
