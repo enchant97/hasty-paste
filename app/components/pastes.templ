@@ -3,6 +3,7 @@ package components
 import (
 	"fmt"
 	"github.com/enchant97/hasty-paste/app/database"
+	"time"
 )
 
 templ PastesPage(username string, pastes []database.GetLatestPastesByUserRow) {
@@ -19,7 +20,15 @@ templ PastesPage(username string, pastes []database.GetLatestPastesByUserRow) {
 								<span class="text-xs block ml-4">
 									by
 									<span class="italic">
-										{ username } - ({ paste.Visibility })
+										{ username }
+									</span>
+                                    at
+                                    <time class="italic" datetime={ paste.CreatedAt.Format(time.RFC3339) }>
+                                        { paste.CreatedAt.Format(time.DateOnly) }
+                                    </time>
+                                    -
+									<span class="italic">
+										({ paste.Visibility })
 									</span>
 								</span>
 							</a>

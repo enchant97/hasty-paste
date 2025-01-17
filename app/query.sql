@@ -18,14 +18,14 @@ SELECT * FROM users
 WHERE username = ? LIMIT 1;
 
 -- name: GetLatestPublicPastes :many
-SELECT p.id, p.owner_id, p.slug, users.username FROM pastes as p
+SELECT p.id, p.owner_id, p.slug, p.created_at, users.username FROM pastes as p
 INNER JOIN users ON users.id = p.owner_id
 WHERE p.visibility = 'public'
 ORDER BY p.id DESC
 LIMIT ?;
 
 -- name: GetLatestPastesByUser :many
-SELECT p.id, p.owner_id, p.slug, p.visibility FROM pastes as p
+SELECT p.id, p.owner_id, p.slug, p.created_at, p.visibility FROM pastes as p
 INNER JOIN users ON users.id = p.owner_id
 WHERE username = sqlc.arg(username) AND (
     (visibility = 'public' AND NOT p.owner_id = sqlc.arg(current_user_id))

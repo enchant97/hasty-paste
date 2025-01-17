@@ -3,6 +3,7 @@ package components
 import (
 	"fmt"
 	"github.com/enchant97/hasty-paste/app/database"
+	"time"
 )
 
 templ IndexPage(latestPastes []database.GetLatestPublicPastesRow) {
@@ -18,7 +19,14 @@ templ IndexPage(latestPastes []database.GetLatestPublicPastesRow) {
 						<li class="p-4 bg-white rounded-md shadow-sm hover:bg-stone-400">
 							<a href={ templ.URL(fmt.Sprintf("/@/%s/%s", paste.Username, paste.Slug)) }>
 								<span class="block">{ paste.Slug }</span>
-								<span class="text-xs block ml-4">by <span class="italic">{ paste.Username }</span></span>
+								<span class="text-xs block ml-4">
+                                    by
+                                    <span class="italic">{ paste.Username }</span>
+                                    at
+                                    <time class="italic" datetime={ paste.CreatedAt.Format(time.RFC3339) }>
+                                        { paste.CreatedAt.Format(time.DateOnly) }
+                                    </time>
+                                </span>
 							</a>
 						</li>
 					}

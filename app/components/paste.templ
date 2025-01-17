@@ -2,6 +2,7 @@ package components
 
 import (
 	"fmt"
+    "time"
 	"github.com/enchant97/hasty-paste/app/database"
 )
 
@@ -14,6 +15,10 @@ templ PastePage(username string, paste database.Paste, attachments []database.At
 				<span class="text-xs block ml-4">
 					by
 					<a class="italic underline" href={ templ.URL(fmt.Sprintf("/@/%s", username)) }>{ username }</a>
+                    at
+					<time class="italic" datetime={ paste.CreatedAt.Format(time.RFC3339) }>
+						{ paste.CreatedAt.Format(time.DateOnly) }
+					</time>
                     -
 					<span class="italic">
 						({ paste.Visibility })
