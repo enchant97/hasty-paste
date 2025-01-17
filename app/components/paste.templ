@@ -12,18 +12,42 @@ templ PastePage(username string, paste database.Paste, attachments []database.At
 		<div class="p-2 gap-2 flex flex-col">
 			<div class="my-2">
 				<h1 class="text-2xl font-bold">{ paste.Slug }</h1>
-				<span class="text-xs block ml-4">
-					by
-					<a class="italic underline" href={ templ.URL(fmt.Sprintf("/@/%s", username)) }>{ username }</a>
-                    at
-					<time class="italic" datetime={ paste.CreatedAt.Format(time.RFC3339) }>
-						{ paste.CreatedAt.Format(time.DateOnly) }
-					</time>
-                    -
-					<span class="italic">
-						({ paste.Visibility })
-					</span>
-				</span>
+			</div>
+			<div class="bg-stone-200 rounded-md shadow-sm p-4">
+				<h2 class="text-xl font-bold my-2">Info</h2>
+                <table class="text-left text-sm">
+                    <tbody>
+                        <tr>
+                            <th class="pr-4">Owner</th>
+                            <td><a
+                                class="italic underline"
+                                href={ templ.URL(fmt.Sprintf("/@/%s", username)) }
+                            >{ username }</a></td>
+                        </tr>
+                        <tr>
+                            <th class="pr-4">Created At</th>
+                            <td><time
+                                class="italic"
+                                datetime={ paste.CreatedAt.Format(time.RFC3339) }
+                            >{ paste.CreatedAt.Format(time.DateOnly) }
+                            </time></td>
+                        </tr>
+                        if paste.ExpiresAt.Valid {
+                            <tr>
+                                <th class="pr-4">Expires At</th>
+                                <td><time
+                                    class="italic"
+                                    datetime={ paste.ExpiresAt.Time.Format(time.RFC3339) }
+                                >{ paste.ExpiresAt.Time.Format(time.DateOnly) }
+                                </time></td>
+                            </tr>
+                        }
+                        <tr>
+                            <th class="pr-4">Visibility</th>
+                            <td>{ paste.Visibility }</td>
+                        </tr>
+                    </tbody>
+                </table>
 			</div>
 			<div class="bg-stone-200 rounded-md shadow-sm p-4">
 				<h2 class="text-xl font-bold my-2">Attachments</h2>
