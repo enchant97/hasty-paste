@@ -45,13 +45,16 @@ func main() {
 	dao := core.DAO{}.New(db, dbQueries)
 	validate := validator.New(validator.WithRequiredStructEnabled())
 
+	devProvider := app_middleware.ViteProvider{}.New(appConfig.Dev)
 	authenticationProvider := app_middleware.AuthenticationProvider{}.New(appConfig.TokenSecret, &dao)
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
+	r.Use(devProvider.ProviderMiddleware)
 	r.Use(authenticationProvider.ProviderMiddleware)
 
+	devProvider.SetupHandlers(r)
 	handlers.HomeHandler{}.Setup(r, services.HomeService{}.New(&dao, &sc), validate, &authenticationProvider)
 	handlers.UserHandler{}.Setup(r, services.UserService{}.New(&dao, &sc), validate, &authenticationProvider)
 	handlers.AuthHandler{}.Setup(r, appConfig, services.AuthService{}.New(&dao), validate, &authenticationProvider)

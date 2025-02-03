@@ -5,6 +5,8 @@ import (
 "fmt"
 )
 
+var viteHeadHandler = templ.NewOnceHandle()
+
 func getCurrentUsername(ctx context.Context) string {
     if currentUsername, ok := ctx.Value("currentUsername").(string); ok {
         return currentUsername
@@ -20,7 +22,9 @@ templ base(title string) {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{ title } - Hasty Paste II</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    @viteHeadHandler.Once() {
+        @templ.Raw(ctx.Value("viteHead").(string))
+    }
 </head>
 
 <body>

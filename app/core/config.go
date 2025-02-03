@@ -40,7 +40,14 @@ func (c *BindConfig) AsAddress() string {
 	return fmt.Sprintf("%s:%d", c.Host, c.Port)
 }
 
+type DevConfig struct {
+	Enabled      bool   `env:"ENABLED" envDefault:"false"`
+	ViteDevHost  string `env:"VITE_DEV_HOST,notEmpty" envDefault:"localhost:5173"`
+	ViteDistPath string `env:"VITE_DIST_PATH,notEmpty" envDefault:"./dist/assets"`
+}
+
 type AppConfig struct {
+	Dev         DevConfig     `envPrefix:"DEV__"`
 	Bind        BindConfig    `envPrefix:"BIND__"`
 	DbUri       string        `env:"DB__URI,notEmpty"`
 	DataPath    string        `env:"DATA_PATH,notEmpty"`
