@@ -1,2 +1,83 @@
 @import "tailwindcss" source(none);
 @source "./components/*.templ";
+
+@theme {
+    --color-brand: oklch(55.14% 0.1251 248.34);
+    --color-brand-400: oklch(from var(--color-brand) calc(l/2 + .4) c h);
+    --color-brand-500: var(--color-brand);
+    --color-brand-600: oklch(from var(--color-brand) calc(l/2 + .2) c h);
+    --color-brand-700: oklch(from var(--color-brand) calc(l/2 + .1) c h);
+
+    --color-base-light-100: var(--color-white);
+    --color-base-light-200: var(--color-zinc-100);
+    --color-base-light-300: var(--color-zinc-300);
+    --color-base-dark-100: var(--color-zinc-900);
+    --color-base-dark-200: var(--color-zinc-800);
+    --color-base-dark-300: var(--color-zinc-700);
+}
+
+@layer base {
+    body {
+        @apply bg-base-light-100;
+
+        @variant dark {
+            @apply bg-base-dark-100 text-zinc-300;
+        }
+    }
+
+    h1,
+    h2,
+    h3 {
+        @apply font-bold;
+    }
+
+    h1 {
+        @apply text-4xl;
+    }
+
+    h2 {
+        @apply text-2xl;
+    }
+}
+
+@layer components {
+
+
+    .btn.btn-neutral {
+        @apply bg-base-light-100 shadow-sm;
+
+        @variant dark {
+            @apply bg-base-dark-100;
+        }
+    }
+
+
+    .btn.btn-primary {
+        @apply bg-brand-400 shadow-sm;
+
+        @variant dark {
+            @apply bg-brand-600;
+        }
+    }
+
+    .btn {
+        @apply px-4 py-2 cursor-pointer font-bold text-sm text-center rounded-md uppercase duration-200 hover:bg-base-light-300;
+
+        @variant dark {
+            @apply hover:bg-base-dark-300;
+        }
+    }
+
+    .label-text {
+        @apply text-sm
+    }
+
+    .input {
+        @apply px-2 py-1.5 rounded-md bg-zinc-200 duration-200 border border-zinc-300;
+
+        @variant dark {
+            @apply bg-base-dark-100 border-base-dark-300;
+        }
+    }
+
+}

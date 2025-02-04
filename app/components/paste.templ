@@ -10,11 +10,9 @@ templ PastePage(username string, paste database.Paste, attachments []database.At
 	@base("Paste") {
 		@header()
 		<div class="p-2 gap-2 flex flex-col">
-			<div class="my-2">
-				<h1 class="text-2xl font-bold">{ paste.Slug }</h1>
-			</div>
-			<div class="bg-stone-200 rounded-md shadow-sm p-4">
-				<h2 class="text-xl font-bold my-2">Info</h2>
+            <h1 class="my-2">{ paste.Slug }</h1>
+			<div class="bg-base-light-200 dark:bg-base-dark-200 rounded-md shadow-sm p-4">
+				<h2 class="my-2">Info</h2>
                 <table class="text-left text-sm">
                     <tbody>
                         <tr>
@@ -49,14 +47,14 @@ templ PastePage(username string, paste database.Paste, attachments []database.At
                     </tbody>
                 </table>
 			</div>
-			<div class="bg-stone-200 rounded-md shadow-sm p-4">
-				<h2 class="text-xl font-bold my-2">Attachments</h2>
+			<div class="bg-base-light-200 dark:bg-base-dark-200 rounded-md shadow-sm p-4">
+				<h2 class="my-2">Attachments</h2>
 				if len(attachments) == 0 {
 					<p>No attachments were uploaded.</p>
 				} else {
 					<ul class="flex gap-4">
 						for _, attachment := range attachments {
-							<li class="rounded-md shadow-sm bg-white px-4 py-2 hover:bg-stone-400">
+							<li class="btn btn-neutral px-4 py-2">
 								<a
 									target="_blank"
 									href={ templ.URL(fmt.Sprintf("/@/%s/%s/%s", username, paste.Slug, attachment.Slug)) }
@@ -68,9 +66,9 @@ templ PastePage(username string, paste database.Paste, attachments []database.At
 					</ul>
 				}
 			</div>
-			<div class="bg-stone-200 rounded-md shadow-sm p-4">
-				<h2 class="text-xl font-bold my-2">Content</h2>
-				<pre class="text-wrap font-sans bg-white p-4 rounded-md shadow-sm">{ paste.Content }</pre>
+			<div class="bg-base-light-200 dark:bg-base-dark-200 rounded-md shadow-sm p-4">
+				<h2 class="my-2">Content</h2>
+				<pre class="text-wrap font-sans bg-base-light-100 dark:bg-base-dark-100 p-4 rounded-md shadow-sm">{ paste.Content }</pre>
 			</div>
 		</div>
 		@footer()

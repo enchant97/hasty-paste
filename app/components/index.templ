@@ -10,13 +10,13 @@ templ IndexPage(latestPastes []database.GetLatestPublicPastesRow) {
 	@base("Home") {
 		@header()
 		<div class="p-2">
-			<h1 class="text-2xl font-bold my-2">Welcome To Hasty Paste II.</h1>
+			<h1 class="my-2">Welcome To Hasty Paste II.</h1>
 			<p class="py-2">Paste it all, with haste.</p>
-			<div class="bg-stone-200 rounded-md shadow-sm p-4">
-				<h2 class="text-xl font-bold mb-2">Recent Pastes</h2>
+			<div class="bg-base-light-200 dark:bg-base-dark-200 rounded-md shadow-sm p-4">
+				<h2 class="mb-2">Recent Pastes</h2>
 				<ul class="flex flex-col gap-2">
 					for _, paste := range latestPastes {
-						<li class="p-4 bg-white rounded-md shadow-sm hover:bg-stone-400">
+						<li class="p-4 rounded-md duration-200 bg-base-light-100 dark:bg-base-dark-100 shadow-sm hover:bg-base-light-300 dark:hover:bg-base-dark-300">
 							<a href={ templ.URL(fmt.Sprintf("/@/%s/%s", paste.Username, paste.Slug)) }>
 								<span class="block">{ paste.Slug }</span>
 								<span class="text-xs block ml-4">

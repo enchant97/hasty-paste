@@ -36,24 +36,24 @@ templ base(title string) {
 
 templ header() {
     {{ currentUsername := getCurrentUsername(ctx) }}
-    <header class="flex items-center gap-2 p-2 border-b-4 border-blue-800 mb-4">
-        <a class="px-4 py-1 rounded-md hover:bg-stone-400 mr-auto" href="/">Hasty Paste II</a>
-        <a class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md" href="/">Home</a>
-        <a class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md" href="/new">New Paste</a>
+    <header class="flex items-center gap-2 p-2 border-b-4 border-brand mb-4">
+        <a class="btn mr-auto" href="/">Hasty Paste II</a>
+        <a class="btn btn-neutral" href="/">Home</a>
+        <a class="btn btn-neutral" href="/new">New Paste</a>
         if currentUsername == "anonymous" {
-            <a class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md" href={ templ.URL(fmt.Sprintf("/@/%s",
+            <a class="btn btn-neutral" href={ templ.URL(fmt.Sprintf("/@/%s",
                 currentUsername)) }>Public Area</a>
-            <a class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md" href="/login">Sign In</a>
+            <a class="btn btn-neutral" href="/login">Sign In</a>
         } else {
-            <a class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md" href={ templ.URL(fmt.Sprintf("/@/%s",
+            <a class="btn btn-neutral" href={ templ.URL(fmt.Sprintf("/@/%s",
                 currentUsername)) }>My Area</a>
-            <a class="px-4 py-1 bg-stone-200 hover:bg-stone-400 shadow-sm rounded-md" href="/logout">Sign Out</a>
+            <a class="btn btn-neutral" href="/logout">Sign Out</a>
         }
     </header>
 }
 
 templ footer() {
-<footer class="p-2 mt-10 border-t-2 border-blue-800">
+<footer class="p-2 mt-10 border-t-2 border-brand">
     <a href="https://github.com/enchant97/hasty-paste">
         <span class="font-bold">Hasty Paste II</span>
         <span class="italic text-sm">By Leo Spratt</span>

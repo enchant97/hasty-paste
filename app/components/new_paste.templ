@@ -4,27 +4,27 @@ templ NewPastePage() {
 	@base("Home") {
 		@header()
 		<div class="p-2">
-			<h1 class="text-2xl font-bold my-2">New Paste</h1>
+			<h1 class="my-2">New Paste</h1>
 			<form
-				class="flex flex-col gap-2 bg-stone-200 rounded-md shadow-sm p-4"
+				class="flex flex-col gap-2 bg-base-light-200 dark:bg-base-dark-200 rounded-md shadow-sm p-4"
 				method="post"
 				enctype="multipart/form-data"
 				action="/new/_post"
 			>
 				<label class="flex flex-col gap-2">
-					<span class="text-sm">Slug</span>
-					<input class="border p-1 rounded bg-white" type="text" name="pasteSlug" placeholder="__RANDOM__"/>
+					<span class="label-text">Slug</span>
+					<input class="input" type="text" name="pasteSlug" placeholder="__RANDOM__"/>
 				</label>
 				<label class="flex flex-col gap-2">
-					<span class="text-sm">Expiry</span>
-					<input class="border p-1 rounded bg-white" type="datetime-local" name="pasteExpiry" />
+					<span class="label-text">Expiry</span>
+					<input class="input" type="datetime-local" name="pasteExpiry" />
 				</label>
                 if getCurrentUsername(ctx) == "anonymous" {
                     <input type="hidden" name="pasteVisibility" value="public" />
                 } else {
                     <label class="flex flex-col gap-2">
-                        <span class="text-sm">Visibility*</span>
-                        <select class="border p-1 rounded bg-white" name="pasteVisibility">
+                        <span class="label-text">Visibility*</span>
+                        <select class="input" name="pasteVisibility">
                             <option value="public" selected>Public</option>
                             <option value="unlisted">Unlisted</option>
                             <option value="private">Private</option>
@@ -32,20 +32,20 @@ templ NewPastePage() {
                     </label>
                 }
 				<label class="flex flex-col gap-2">
-					<span class="text-sm">Attachments</span>
-					<input class="border p-1 rounded bg-white" type="file" name="pasteAttachmentFile[]" multiple/>
+					<span class="label-text">Attachments</span>
+					<input class="input" type="file" name="pasteAttachmentFile[]" multiple/>
 				</label>
 				<label class="flex flex-col gap-2">
-					<span class="text-sm">Content*</span>
+					<span class="label-text">Content*</span>
 					<textarea
-						class="border p-1 rounded h-96 bg-white"
+						class="input h-96"
 						name="pasteContent"
 						placeholder="your text here..."
 						autofocus
 						required
 					></textarea>
 				</label>
-				<button class="px-4 py-1 bg-blue-300 hover:bg-blue-400 shadow-sm rounded-md" type="submit">Create</button>
+				<button class="btn btn-primary" type="submit">Create</button>
 			</form>
 		</div>
 		@footer()
