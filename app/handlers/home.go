@@ -89,11 +89,12 @@ func (h *HomeHandler) PostNewPastePage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	form := core.NewPasteForm{
-		Slug:        strings.Trim(pasteSlug, " "),
-		Content:     r.PostFormValue("pasteContent"),
-		Visibility:  visibility,
-		Expiry:      expiry,
-		Attachments: attachments,
+		Slug:          strings.Trim(pasteSlug, " "),
+		Content:       r.PostFormValue("pasteContent"),
+		ContentFormat: r.PostFormValue("pasteContentFormat"),
+		Visibility:    visibility,
+		Expiry:        expiry,
+		Attachments:   attachments,
 	}
 
 	if err := h.validator.Struct(form); err != nil {

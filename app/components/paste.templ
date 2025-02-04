@@ -3,7 +3,9 @@ package components
 import (
 	"fmt"
     "time"
+    "bytes"
 	"github.com/enchant97/hasty-paste/app/database"
+	"github.com/enchant97/hasty-paste/app/core"
 )
 
 templ PastePage(username string, paste database.Paste, attachments []database.Attachment) {
@@ -68,7 +70,19 @@ templ PastePage(username string, paste database.Paste, attachments []database.At
 			</div>
 			<div class="bg-base-light-200 dark:bg-base-dark-200 rounded-md shadow-sm p-4">
 				<h2 class="my-2">Content</h2>
-				<pre class="text-wrap font-sans bg-base-light-100 dark:bg-base-dark-100 p-4 rounded-md shadow-sm">{ paste.Content }</pre>
+                if paste.ContentFormat == "markdown" {
+                    {{ var buf bytes.Buffer }}
+                    {{ core.RenderMarkdown([]byte(paste.Content), &buf) }}
+                    <div class="bg-base-light-100 dark:bg-base-dark-100 p-4 rounded-md shadow-sm">@templ.Raw(buf.String())</div>
+                }
+                else if paste.ContentFormat == "plain" {
+                    <pre class="text-wrap font-sans bg-base-light-100 dark:bg-base-dark-100 p-4 rounded-md shadow-sm">{ paste.Content }</pre>
+                }
+                else {
+                    {{ var buf bytes.Buffer }}
+                    {{ core.RenderSourceCode(paste.ContentFormat, paste.Content, &buf) }}
+                    <pre class="overflow-x-auto font-mono bg-[#0d1117] p-4 rounded-md shadow-sm">@templ.Raw(buf.String())</pre>
+                }
 			</div>
 		</div>
 		@footer()

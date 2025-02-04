@@ -43,11 +43,12 @@ func (s *HomeService) NewPaste(ownerID int64, pasteForm core.NewPasteForm) error
 
 	dbQueries := s.dao.Queries.WithTx(tx)
 	pasteID, err := dbQueries.InsertPaste(ctx, database.InsertPasteParams{
-		OwnerID:    ownerID,
-		Slug:       pasteForm.Slug,
-		Content:    pasteForm.Content,
-		Visibility: pasteForm.Visibility,
-		ExpiresAt:  expiry,
+		OwnerID:       ownerID,
+		Slug:          pasteForm.Slug,
+		Content:       pasteForm.Content,
+		ContentFormat: pasteForm.ContentFormat,
+		Visibility:    pasteForm.Visibility,
+		ExpiresAt:     expiry,
 	})
 	if err != nil {
 		return err

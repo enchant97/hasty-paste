@@ -1,5 +1,23 @@
 package components
 
+import "github.com/alecthomas/chroma/v2/lexers"
+
+templ contentFormatList(id string) {
+    <datalist id={id}>
+        <option value="plaintext"/>
+        <option value="markdown"/>
+        for _, lexer := range lexers.GlobalLexerRegistry.Lexers {
+            {{ name := lexer.Config().Name }}
+            if len(lexer.Config().Aliases) > 0 {
+                {{ name = lexer.Config().Aliases[0] }}
+            }
+            if name != "markdown" && name != "plaintext" {
+                <option value={name} />
+            }
+        }
+    </datalist>
+}
+
 templ NewPastePage() {
 	@base("Home") {
 		@header()
@@ -34,6 +52,19 @@ templ NewPastePage() {
 				<label class="flex flex-col gap-2">
 					<span class="label-text">Attachments</span>
 					<input class="input" type="file" name="pasteAttachmentFile[]" multiple/>
+				</label>
+				<label class="flex flex-col gap-2">
+					<span class="label-text">Content Format</span>
+					<input
+                        class="input"
+                        type="text"
+                        name="pasteContentFormat"
+                        list="languagesList"
+                        value="plaintext"
+                        onfocus="this.select()"
+                        maxlength="30"
+                    />
+                    @contentFormatList("languagesList")
 				</label>
 				<label class="flex flex-col gap-2">
 					<span class="label-text">Content*</span>

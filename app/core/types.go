@@ -13,11 +13,12 @@ type NewPasteFormAttachment struct {
 }
 
 type NewPasteForm struct {
-	Slug        string `validate:"printascii,required"`
-	Content     string `validate:"required"`
-	Visibility  string `validate:"required,oneof=public unlisted private"`
-	Expiry      *time.Time
-	Attachments []NewPasteFormAttachment
+	Slug          string `validate:"printascii,required"`
+	Content       string `validate:"required"`
+	ContentFormat string `validate:"required,lowercase,max=30"`
+	Visibility    string `validate:"required,oneof=public unlisted private"`
+	Expiry        *time.Time
+	Attachments   []NewPasteFormAttachment
 }
 
 type NewUserForm struct {

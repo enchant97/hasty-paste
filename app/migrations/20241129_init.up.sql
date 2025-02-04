@@ -12,6 +12,7 @@ CREATE TABLE
     owner_id INTEGER NOT NULL,
     slug TEXT NOT NULL,
     content TEXT NOT NULL,
+    content_format TEXT NOT NULL DEFAULT 'plain',
     visibility TEXT NOT NULL DEFAULT 'public',
     expires_at TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
