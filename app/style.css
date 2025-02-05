@@ -1,4 +1,5 @@
 @import "tailwindcss" source(none);
+@plugin "@tailwindcss/typography";
 @source "./components/*.templ";
 
 @theme {
@@ -27,7 +28,8 @@
 
     h1,
     h2,
-    h3 {
+    h3,
+    h4 {
         @apply font-bold;
     }
 
@@ -81,5 +83,4 @@
             @apply bg-base-dark-100 border-base-dark-300;
         }
     }
-
 }
