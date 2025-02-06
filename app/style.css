@@ -43,6 +43,34 @@
 }
 
 @layer components {
+    .flashes {
+        @apply fixed bottom-4 right-4 flex flex-col gap-2;
+    }
+
+    .flash {
+        @apply px-4 py-2 rounded-md shadow-sm bg-base-light-100 border-4 border-base-light-300 transition-discrete transition-opacity;
+
+        @variant dark {
+            @apply bg-base-dark-100 border-base-dark-300;
+        }
+    }
+
+    .flash.ok {
+        @apply border-green-600;
+
+        @variant dark {
+            @apply border-green-800;
+        }
+    }
+
+    .flash.error {
+        @apply border-red-600;
+
+        @variant dark {
+            @apply border-red-800;
+        }
+    }
+
     .footer.footer-center {
         @apply p-10 flex flex-col gap-1 items-center;
     }

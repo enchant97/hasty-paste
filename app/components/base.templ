@@ -3,6 +3,7 @@ package components
 import (
 "context"
 "fmt"
+"github.com/enchant97/hasty-paste/app/middleware"
 )
 
 var viteHeadHandler = templ.NewOnceHandle()
@@ -12,6 +13,18 @@ func getCurrentUsername(ctx context.Context) string {
         return currentUsername
     }
         return "anonymous"
+}
+
+templ flashes() {
+    <ul class="flashes" id="flashes">
+        for _, flash := range middleware.GetFlashes(ctx) {
+            <li class={
+                "flash",
+                templ.KV("error", flash.Type == middleware.FlashTypeError),
+                templ.KV("ok", flash.Type == middleware.FlashTypeOk)}
+            >{ flash.Message }</li>
+        }
+    </ul>
 }
 
 templ base(title string) {
@@ -28,6 +41,7 @@ templ base(title string) {
 </head>
 
 <body>
+    @flashes()
     { children... }
 </body>
 

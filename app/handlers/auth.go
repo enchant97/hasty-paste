@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 	"time"
 
@@ -14,10 +15,11 @@ import (
 )
 
 type AuthHandler struct {
-	appConfig    core.AppConfig
-	validator    *validator.Validate
-	service      services.AuthService
-	authProvider *middleware.AuthenticationProvider
+	appConfig       core.AppConfig
+	validator       *validator.Validate
+	service         services.AuthService
+	authProvider    *middleware.AuthenticationProvider
+	sessionProvider *middleware.SessionProvider
 }
 
 func (h AuthHandler) Setup(
@@ -26,8 +28,9 @@ func (h AuthHandler) Setup(
 	s services.AuthService,
 	v *validator.Validate,
 	ap *middleware.AuthenticationProvider,
+	sp *middleware.SessionProvider,
 ) {
-	h = AuthHandler{appConfig: appConfig, validator: v, service: s, authProvider: ap}
+	h = AuthHandler{appConfig: appConfig, validator: v, service: s, authProvider: ap, sessionProvider: sp}
 	r.Group(func(r chi.Router) {
 		r.Use(ap.RequireAuthenticationMiddleware)
 		r.Get("/logout", h.GetLogoutPage)
@@ -58,14 +61,28 @@ func (h *AuthHandler) PostUserSignupPage(w http.ResponseWriter, r *http.Request)
 	}
 
 	if err := h.validator.Struct(form); err != nil {
-		http.Error(w, "Bad Request", http.StatusBadRequest)
+		s := h.sessionProvider.GetSession(r)
+		s.AddFlash(middleware.CreateErrorFlash("given details are invalid, do your passwords match?"))
+		s.Save(r, w) // TODO handle error
+		http.Redirect(w, r, "/signup", http.StatusFound)
 		return
 	}
 
 	if _, err := h.service.CreateNewUser(form); err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		if errors.Is(err, services.ErrConflict) {
+			s := h.sessionProvider.GetSession(r)
+			s.AddFlash(middleware.CreateErrorFlash("user with that username already exists"))
+			s.Save(r, w) // TODO handle error
+			http.Redirect(w, r, "/signup", http.StatusFound)
+		} else {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
 		return
 	}
+
+	s := h.sessionProvider.GetSession(r)
+	s.AddFlash(middleware.CreateOkFlash("user created"))
+	s.Save(r, w) // TODO handle error
 
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
@@ -91,9 +108,19 @@ func (h *AuthHandler) PostUserLoginPage(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if isValid, err := h.service.CheckIfValidUser(form); err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		if errors.Is(err, services.ErrNotFound) {
+			s := h.sessionProvider.GetSession(r)
+			s.AddFlash(middleware.CreateErrorFlash("username or password invalid"))
+			s.Save(r, w) // TODO handle error
+			http.Redirect(w, r, "/login", http.StatusFound)
+		} else {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
 		return
 	} else if !isValid {
+		s := h.sessionProvider.GetSession(r)
+		s.AddFlash(middleware.CreateErrorFlash("username or password invalid"))
+		s.Save(r, w) // TODO handle error
 		http.Redirect(w, r, "/login", http.StatusFound)
 		return
 	}

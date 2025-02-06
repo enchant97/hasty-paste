@@ -3,19 +3,19 @@ package components
 import "github.com/alecthomas/chroma/v2/lexers"
 
 templ contentFormatList(id string) {
-    <datalist id={id}>
-        <option value="plaintext"/>
-        <option value="markdown"/>
-        for _, lexer := range lexers.GlobalLexerRegistry.Lexers {
-            {{ name := lexer.Config().Name }}
-            if len(lexer.Config().Aliases) > 0 {
-                {{ name = lexer.Config().Aliases[0] }}
-            }
-            if name != "markdown" && name != "plaintext" {
-                <option value={name} />
-            }
-        }
-    </datalist>
+	<datalist id={ id }>
+		<option value="plaintext"></option>
+		<option value="markdown"></option>
+		for _, lexer := range lexers.GlobalLexerRegistry.Lexers {
+			{{ name := lexer.Config().Name }}
+			if len(lexer.Config().Aliases) > 0 {
+				{{ name = lexer.Config().Aliases[0] }}
+			}
+			if name != "markdown" && name != "plaintext" {
+				<option value={ name }></option>
+			}
+		}
+	</datalist>
 }
 
 templ NewPastePage() {
@@ -35,36 +35,37 @@ templ NewPastePage() {
 				</label>
 				<label class="flex flex-col gap-2">
 					<span class="label-text">Expiry</span>
-					<input class="input" type="datetime-local" name="pasteExpiry" />
+					<input class="input" type="datetime-local" name="pasteExpiry"/>
 				</label>
-                if getCurrentUsername(ctx) == "anonymous" {
-                    <input type="hidden" name="pasteVisibility" value="public" />
-                } else {
-                    <label class="flex flex-col gap-2">
-                        <span class="label-text">Visibility*</span>
-                        <select class="input" name="pasteVisibility">
-                            <option value="public" selected>Public</option>
-                            <option value="unlisted">Unlisted</option>
-                            <option value="private">Private</option>
-                        </select>
-                    </label>
-                }
+				if getCurrentUsername(ctx) == "anonymous" {
+					<input type="hidden" name="pasteVisibility" value="public"/>
+				} else {
+					<label class="flex flex-col gap-2">
+						<span class="label-text">Visibility*</span>
+						<select class="input" name="pasteVisibility">
+							<option value="public" selected>Public</option>
+							<option value="unlisted">Unlisted</option>
+							<option value="private">Private</option>
+						</select>
+					</label>
+				}
 				<label class="flex flex-col gap-2">
 					<span class="label-text">Attachments</span>
 					<input class="input" type="file" name="pasteAttachmentFile[]" multiple/>
 				</label>
 				<label class="flex flex-col gap-2">
-					<span class="label-text">Content Format</span>
+					<span class="label-text">Content Format*</span>
 					<input
-                        class="input"
-                        type="text"
-                        name="pasteContentFormat"
-                        list="languagesList"
-                        value="plaintext"
-                        onfocus="this.select()"
-                        maxlength="30"
-                    />
-                    @contentFormatList("languagesList")
+						class="input"
+						type="text"
+						name="pasteContentFormat"
+						list="languagesList"
+						value="plaintext"
+						onfocus="this.select()"
+						maxlength="30"
+						required
+					/>
+					@contentFormatList("languagesList")
 				</label>
 				<label class="flex flex-col gap-2">
 					<span class="label-text">Content*</span>

@@ -18,16 +18,17 @@ func (s AuthService) New(dao *core.DAO) AuthService {
 }
 
 func (s *AuthService) CreateNewUser(form core.NewUserForm) (int64, error) {
-	return s.dao.Queries.InsertUser(context.Background(), database.InsertUserParams{
+	id, err := s.dao.Queries.InsertUser(context.Background(), database.InsertUserParams{
 		Username:     form.Username,
 		PasswordHash: core.HashPassword(form.Password),
 	})
+	return id, wrapDbError(err)
 }
 
 func (s *AuthService) CheckIfValidUser(form core.LoginUserForm) (bool, error) {
 	user, err := s.dao.Queries.GetUserByUsername(context.Background(), form.Username)
 	if err != nil {
-		return false, err
+		return false, wrapDbError(err)
 	}
 	return core.IsValidPassword(form.Password, user.PasswordHash), nil
 }
