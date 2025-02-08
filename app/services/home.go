@@ -23,7 +23,7 @@ func (s HomeService) New(dao *core.DAO, sc *storage.StorageController) HomeServi
 }
 
 func (s *HomeService) GetLatestPublicPastes() ([]database.GetLatestPublicPastesRow, error) {
-	return s.dao.Queries.GetLatestPublicPastes(context.Background(), 5)
+	return wrapDbErrorWithValue(s.dao.Queries.GetLatestPublicPastes(context.Background(), 5))
 }
 
 func (s *HomeService) NewPaste(ownerID int64, pasteForm core.NewPasteForm) error {
@@ -51,7 +51,7 @@ func (s *HomeService) NewPaste(ownerID int64, pasteForm core.NewPasteForm) error
 		ExpiresAt:     expiry,
 	})
 	if err != nil {
-		return err
+		return wrapDbError(err)
 	}
 
 	// Process each attachment one by one (maybe make it do parallel in future?)
@@ -86,5 +86,5 @@ func (s *HomeService) NewPaste(ownerID int64, pasteForm core.NewPasteForm) error
 		}
 	}
 
-	return tx.Commit()
+	return wrapDbError(tx.Commit())
 }

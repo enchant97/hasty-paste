@@ -75,7 +75,7 @@ func (h *AuthHandler) PostUserSignupPage(w http.ResponseWriter, r *http.Request)
 			s.Save(r, w) // TODO handle error
 			http.Redirect(w, r, "/signup", http.StatusFound)
 		} else {
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			InternalErrorResponse(w, err)
 		}
 		return
 	}
@@ -114,7 +114,7 @@ func (h *AuthHandler) PostUserLoginPage(w http.ResponseWriter, r *http.Request) 
 			s.Save(r, w) // TODO handle error
 			http.Redirect(w, r, "/login", http.StatusFound)
 		} else {
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			InternalErrorResponse(w, err)
 		}
 		return
 	} else if !isValid {
@@ -130,7 +130,7 @@ func (h *AuthHandler) PostUserLoginPage(w http.ResponseWriter, r *http.Request) 
 		h.appConfig.TokenSecret,
 		time.Duration(int64(time.Second)*h.appConfig.TokenExpiry),
 	); err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		InternalErrorResponse(w, err)
 	} else {
 		h.authProvider.SetCookieAuthToken(w, token)
 		http.Redirect(w, r, "/", http.StatusFound)

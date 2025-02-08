@@ -23,22 +23,22 @@ func (s UserService) New(dao *core.DAO, sc *storage.StorageController) UserServi
 }
 
 func (s *UserService) GetPastes(currentUserID int64, username string) ([]database.GetLatestPastesByUserRow, error) {
-	return s.dao.Queries.GetLatestPastesByUser(context.Background(), database.GetLatestPastesByUserParams{
+	return wrapDbErrorWithValue(s.dao.Queries.GetLatestPastesByUser(context.Background(), database.GetLatestPastesByUserParams{
 		Username:      username,
 		CurrentUserID: currentUserID,
-	})
+	}))
 }
 
 func (s *UserService) GetPaste(currentUserID int64, username string, slug string) (database.Paste, error) {
-	return s.dao.Queries.GetPasteBySlug(context.Background(), database.GetPasteBySlugParams{
+	return wrapDbErrorWithValue(s.dao.Queries.GetPasteBySlug(context.Background(), database.GetPasteBySlugParams{
 		CurrentUserID: currentUserID,
 		Username:      username,
 		PasteSlug:     slug,
-	})
+	}))
 }
 
 func (s *UserService) GetPasteAttachments(pasteId int64) ([]database.Attachment, error) {
-	return s.dao.Queries.GetAttachmentsByPasteID(context.Background(), pasteId)
+	return wrapDbErrorWithValue(s.dao.Queries.GetAttachmentsByPasteID(context.Background(), pasteId))
 }
 
 func (s *UserService) GetPasteAttachment(
@@ -54,8 +54,8 @@ func (s *UserService) GetPasteAttachment(
 		AttachmentSlug: attachmentSlug,
 	})
 	if err != nil {
-		return database.Attachment{}, nil, err
+		return database.Attachment{}, nil, wrapDbError(err)
 	}
 	attachmentReader, err := s.sc.ReadPasteAttachment(strconv.Itoa(int(attachment.ID)))
-	return attachment, attachmentReader, err
+	return attachment, attachmentReader, wrapDbError(err)
 }

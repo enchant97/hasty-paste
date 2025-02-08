@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"io"
 	"net/http"
 
@@ -13,9 +14,10 @@ import (
 )
 
 type UserHandler struct {
-	service      services.UserService
-	validator    *validator.Validate
-	authProvider *middleware.AuthenticationProvider
+	service         services.UserService
+	validator       *validator.Validate
+	authProvider    *middleware.AuthenticationProvider
+	sessionProvider *middleware.SessionProvider
 }
 
 func (h UserHandler) Setup(
@@ -23,11 +25,13 @@ func (h UserHandler) Setup(
 	service services.UserService,
 	v *validator.Validate,
 	ap *middleware.AuthenticationProvider,
+	sp *middleware.SessionProvider,
 ) {
 	h = UserHandler{
-		service:      service,
-		validator:    v,
-		authProvider: ap,
+		service:         service,
+		validator:       v,
+		authProvider:    ap,
+		sessionProvider: sp,
 	}
 	r.Get("/@/{username}", h.GetPastes)
 	r.Get("/@/{username}/{pasteSlug}", h.GetPaste)
@@ -37,7 +41,7 @@ func (h UserHandler) Setup(
 func (h *UserHandler) GetPastes(w http.ResponseWriter, r *http.Request) {
 	username := r.PathValue("username")
 	if pastes, err := h.service.GetPastes(h.authProvider.GetCurrentUserID(r), username); err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		InternalErrorResponse(w, err)
 	} else {
 		templ.Handler(components.PastesPage(username, pastes)).ServeHTTP(w, r)
 	}
@@ -48,12 +52,16 @@ func (h *UserHandler) GetPaste(w http.ResponseWriter, r *http.Request) {
 	pasteSlug := r.PathValue("pasteSlug")
 	paste, err := h.service.GetPaste(h.authProvider.GetCurrentUserID(r), username, pasteSlug)
 	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		if errors.Is(err, services.ErrNotFound) {
+			NotFoundErrorResponse(w, r)
+		} else {
+			InternalErrorResponse(w, err)
+		}
 		return
 	}
 	attachments, err := h.service.GetPasteAttachments(paste.ID)
 	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		InternalErrorResponse(w, err)
 		return
 	}
 	templ.Handler(components.PastePage(username, paste, attachments)).ServeHTTP(w, r)
@@ -71,7 +79,11 @@ func (h *UserHandler) GetPasteAttachment(w http.ResponseWriter, r *http.Request)
 		attachmentSlug,
 	)
 	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		if errors.Is(err, services.ErrNotFound) {
+			NotFoundErrorResponse(w, r)
+		} else {
+			InternalErrorResponse(w, err)
+		}
 		return
 	}
 	defer attachmentReader.Close()

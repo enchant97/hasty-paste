@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 	"time"
@@ -15,9 +16,10 @@ import (
 )
 
 type HomeHandler struct {
-	service      services.HomeService
-	validator    *validator.Validate
-	authProvider *middleware.AuthenticationProvider
+	service         services.HomeService
+	validator       *validator.Validate
+	authProvider    *middleware.AuthenticationProvider
+	sessionProvider *middleware.SessionProvider
 }
 
 func (h HomeHandler) Setup(
@@ -25,11 +27,13 @@ func (h HomeHandler) Setup(
 	service services.HomeService,
 	v *validator.Validate,
 	ap *middleware.AuthenticationProvider,
+	sp *middleware.SessionProvider,
 ) {
 	h = HomeHandler{
-		service:      service,
-		validator:    v,
-		authProvider: ap,
+		service:         service,
+		validator:       v,
+		authProvider:    ap,
+		sessionProvider: sp,
 	}
 	r.Get("/", h.GetHomePage)
 	r.Get("/new", h.GetNewPastePage)
@@ -38,7 +42,7 @@ func (h HomeHandler) Setup(
 
 func (h *HomeHandler) GetHomePage(w http.ResponseWriter, r *http.Request) {
 	if latestPastes, err := h.service.GetLatestPublicPastes(); err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		InternalErrorResponse(w, err)
 	} else {
 		templ.Handler(components.IndexPage(latestPastes)).ServeHTTP(w, r)
 	}
@@ -103,7 +107,14 @@ func (h *HomeHandler) PostNewPastePage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.service.NewPaste(h.authProvider.GetCurrentUserID(r), form); err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		if errors.Is(err, services.ErrConflict) {
+			s := h.sessionProvider.GetSession(r)
+			s.AddFlash(middleware.CreateErrorFlash("paste with that slug already exists"))
+			s.Save(r, w) // TODO handle error
+			http.Redirect(w, r, "/new", http.StatusFound)
+		} else {
+			InternalErrorResponse(w, err)
+		}
 		return
 	}
 

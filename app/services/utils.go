@@ -23,3 +23,8 @@ func wrapDbError(err error) error {
 	}
 	return err
 }
+
+// / wrap a database error and it's potential value with a specific service error
+func wrapDbErrorWithValue[T any](v T, err error) (T, error) {
+	return v, wrapDbError(err)
+}
