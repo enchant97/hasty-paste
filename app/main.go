@@ -39,7 +39,7 @@ func main() {
 		panic(err)
 	}
 	dbQueries := database.New(db)
-	if err := dbQueries.InsertAnonymousUser(context.Background()); err != nil {
+	if err := dbQueries.InsertAnonymousUser(context.Background(), core.NewUUID()); err != nil {
 		panic(err)
 	}
 	dao := core.DAO{}.New(db, dbQueries)

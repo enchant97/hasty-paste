@@ -26,7 +26,7 @@ func (s *HomeService) GetLatestPublicPastes() ([]database.GetLatestPublicPastesR
 	return wrapDbErrorWithValue(s.dao.Queries.GetLatestPublicPastes(context.Background(), 5))
 }
 
-func (s *HomeService) NewPaste(ownerID int64, pasteForm core.NewPasteForm) error {
+func (s *HomeService) NewPaste(ownerID uuid.UUID, pasteForm core.NewPasteForm) error {
 	ctx := context.Background()
 	tx, err := s.dao.DB.Begin()
 	if err != nil {
@@ -43,6 +43,7 @@ func (s *HomeService) NewPaste(ownerID int64, pasteForm core.NewPasteForm) error
 
 	dbQueries := s.dao.Queries.WithTx(tx)
 	pasteID, err := dbQueries.InsertPaste(ctx, database.InsertPasteParams{
+		ID:            core.NewUUID(),
 		OwnerID:       ownerID,
 		Slug:          pasteForm.Slug,
 		Content:       pasteForm.Content,
@@ -68,13 +69,7 @@ func (s *HomeService) NewPaste(ownerID int64, pasteForm core.NewPasteForm) error
 			}
 			r.Seek(0, 0)
 			attachmentID, err := dbQueries.InsertPasteAttachment(ctx, database.InsertPasteAttachmentParams{
-				ID: func() uuid.UUID {
-					id, err := uuid.NewV7()
-					if err != nil {
-						panic(err)
-					}
-					return id
-				}(),
+				ID:       core.NewUUID(),
 				PasteID:  pasteID,
 				Slug:     attachment.Slug,
 				MimeType: attachment.Type,

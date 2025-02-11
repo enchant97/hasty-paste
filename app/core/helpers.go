@@ -7,6 +7,8 @@ import (
 	"io"
 	"math/big"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
 const RandomSlugCharacters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -39,4 +41,13 @@ func MakeChecksum(r io.Reader) (string, error) {
 		}
 	}
 	return fmt.Sprintf("crc32-%x", h.Sum32()), nil
+}
+
+// Create a UUID suitable for insertion into the database.
+func NewUUID() uuid.UUID {
+	id, err := uuid.NewV7()
+	if err != nil {
+		panic(err)
+	}
+	return id
 }

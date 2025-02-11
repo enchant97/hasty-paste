@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/enchant97/hasty-paste/app/core"
+	"github.com/google/uuid"
 )
 
 const (
@@ -74,8 +75,8 @@ func (m *AuthenticationProvider) GetCurrentUsername(r *http.Request) string {
 	return r.Context().Value(ContextCurrentUsernameKey).(string)
 }
 
-func (m *AuthenticationProvider) GetCurrentUserID(r *http.Request) int64 {
-	return r.Context().Value(ContextCurrentUserIDKey).(int64)
+func (m *AuthenticationProvider) GetCurrentUserID(r *http.Request) uuid.UUID {
+	return r.Context().Value(ContextCurrentUserIDKey).(uuid.UUID)
 }
 
 func (m *AuthenticationProvider) IsCurrentUserAnonymous(r *http.Request) bool {

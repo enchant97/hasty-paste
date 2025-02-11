@@ -1,6 +1,6 @@
 CREATE TABLE
   users (
-    id INTEGER PRIMARY KEY,
+    id UUID PRIMARY KEY,
     username TEXT NOT NULL UNIQUE,
     password_hash BLOB,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -8,8 +8,8 @@ CREATE TABLE
 
 CREATE TABLE
   pastes (
-    id INTEGER PRIMARY KEY,
-    owner_id INTEGER NOT NULL,
+    id UUID PRIMARY KEY,
+    owner_id UUID NOT NULL,
     slug TEXT NOT NULL,
     content TEXT NOT NULL,
     content_format TEXT NOT NULL DEFAULT 'plain',
@@ -23,7 +23,7 @@ CREATE TABLE
 CREATE TABLE
   attachments (
     id UUID PRIMARY KEY,
-    paste_id INTEGER NOT NULL,
+    paste_id UUID NOT NULL,
     slug TEXT NOT NULL,
     mime_type TEXT NOT NULL DEFAULT 'application/octet-stream',
     size INTEGER NOT NULL,

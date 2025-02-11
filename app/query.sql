@@ -1,12 +1,12 @@
 -- name: InsertUser :one
-INSERT INTO users (username, password_hash) VALUES (?,?)
+INSERT INTO users (id,username, password_hash) VALUES (?,?,?)
 RETURNING id;
 
 -- name: InsertAnonymousUser :exec
-INSERT OR IGNORE INTO users (id, username) VALUES (0, "anonymous");
+INSERT OR IGNORE INTO users (id, username) VALUES (?, "anonymous");
 
 -- name: InsertPaste :one
-INSERT INTO pastes (owner_id,slug,content,content_format,visibility,expires_at) VALUES (?,?,?,?,?,?)
+INSERT INTO pastes (id, owner_id,slug,content,content_format,visibility,expires_at) VALUES (?,?,?,?,?,?,?)
 RETURNING id;
 
 -- name: InsertPasteAttachment :one

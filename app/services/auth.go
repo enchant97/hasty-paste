@@ -5,6 +5,7 @@ import (
 
 	"github.com/enchant97/hasty-paste/app/core"
 	"github.com/enchant97/hasty-paste/app/database"
+	"github.com/google/uuid"
 )
 
 type AuthService struct {
@@ -17,8 +18,9 @@ func (s AuthService) New(dao *core.DAO) AuthService {
 	}
 }
 
-func (s *AuthService) CreateNewUser(form core.NewUserForm) (int64, error) {
+func (s *AuthService) CreateNewUser(form core.NewUserForm) (uuid.UUID, error) {
 	id, err := s.dao.Queries.InsertUser(context.Background(), database.InsertUserParams{
+		ID:           core.NewUUID(),
 		Username:     form.Username,
 		PasswordHash: core.HashPassword(form.Password),
 	})
