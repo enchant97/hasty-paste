@@ -5,6 +5,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/google/uuid"
 )
 
 type StorageController struct {
@@ -22,10 +24,10 @@ func (sc StorageController) New(rootPath string) (StorageController, error) {
 }
 
 func (sc *StorageController) WritePasteAttachment(
-	attachmentUID string,
+	attachmentUID uuid.UUID,
 	r io.Reader,
 ) error {
-	filePath := filepath.Join(sc.rootPath, attachmentUID+".bin")
+	filePath := filepath.Join(sc.rootPath, attachmentUID.String()+".bin")
 	f, err := os.Create(filePath)
 	if err != nil {
 		return err
@@ -39,15 +41,15 @@ func (sc *StorageController) WritePasteAttachment(
 }
 
 func (sc *StorageController) ReadPasteAttachment(
-	attachmentUID string,
+	attachmentUID uuid.UUID,
 ) (io.ReadCloser, error) {
-	filePath := filepath.Join(sc.rootPath, attachmentUID+".bin")
+	filePath := filepath.Join(sc.rootPath, attachmentUID.String()+".bin")
 	return os.Open(filePath)
 }
 
 func (sc *StorageController) DeletePasteAttachment(
-	attachmentUID string,
+	attachmentUID uuid.UUID,
 ) error {
-	filePath := filepath.Join(sc.rootPath, attachmentUID+".bin")
+	filePath := filepath.Join(sc.rootPath, attachmentUID.String()+".bin")
 	return os.Remove(filePath)
 }

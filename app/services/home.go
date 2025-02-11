@@ -3,11 +3,11 @@ package services
 import (
 	"context"
 	"database/sql"
-	"strconv"
 
 	"github.com/enchant97/hasty-paste/app/core"
 	"github.com/enchant97/hasty-paste/app/database"
 	"github.com/enchant97/hasty-paste/app/storage"
+	"github.com/google/uuid"
 )
 
 type HomeService struct {
@@ -68,6 +68,13 @@ func (s *HomeService) NewPaste(ownerID int64, pasteForm core.NewPasteForm) error
 			}
 			r.Seek(0, 0)
 			attachmentID, err := dbQueries.InsertPasteAttachment(ctx, database.InsertPasteAttachmentParams{
+				ID: func() uuid.UUID {
+					id, err := uuid.NewV7()
+					if err != nil {
+						panic(err)
+					}
+					return id
+				}(),
 				PasteID:  pasteID,
 				Slug:     attachment.Slug,
 				MimeType: attachment.Type,
@@ -77,7 +84,7 @@ func (s *HomeService) NewPaste(ownerID int64, pasteForm core.NewPasteForm) error
 			if err != nil {
 				return err
 			}
-			if err := s.sc.WritePasteAttachment(strconv.Itoa(int(attachmentID)), r); err != nil {
+			if err := s.sc.WritePasteAttachment(attachmentID, r); err != nil {
 				return err
 			}
 			return nil

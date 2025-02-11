@@ -10,7 +10,7 @@ INSERT INTO pastes (owner_id,slug,content,content_format,visibility,expires_at) 
 RETURNING id;
 
 -- name: InsertPasteAttachment :one
-INSERT INTO attachments (paste_id,slug,mime_type,size,checksum) VALUES (?,?,?,?,?)
+INSERT INTO attachments (id, paste_id,slug,mime_type,size,checksum) VALUES (?,?,?,?,?,?)
 RETURNING id;
 
 -- name: GetUserByUsername :one

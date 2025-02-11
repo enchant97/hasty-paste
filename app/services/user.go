@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"io"
-	"strconv"
 
 	"github.com/enchant97/hasty-paste/app/core"
 	"github.com/enchant97/hasty-paste/app/database"
@@ -56,6 +55,6 @@ func (s *UserService) GetPasteAttachment(
 	if err != nil {
 		return database.Attachment{}, nil, wrapDbError(err)
 	}
-	attachmentReader, err := s.sc.ReadPasteAttachment(strconv.Itoa(int(attachment.ID)))
+	attachmentReader, err := s.sc.ReadPasteAttachment(attachment.ID)
 	return attachment, attachmentReader, wrapDbError(err)
 }

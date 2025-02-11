@@ -22,7 +22,7 @@ CREATE TABLE
 
 CREATE TABLE
   attachments (
-    id INTEGER PRIMARY KEY,
+    id UUID PRIMARY KEY,
     paste_id INTEGER NOT NULL,
     slug TEXT NOT NULL,
     mime_type TEXT NOT NULL DEFAULT 'application/octet-stream',
