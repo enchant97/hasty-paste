@@ -75,7 +75,7 @@ templ PastePage(username string, paste database.Paste, attachments []database.At
                     {{ core.RenderMarkdown([]byte(paste.Content), &buf) }}
                     <div class="prose dark:prose-invert prose-zinc max-w-none bg-base-light-100 dark:bg-base-dark-100 p-4 rounded-md shadow-sm">@templ.Raw(buf.String())</div>
                 }
-                else if paste.ContentFormat == "plain" {
+                else if paste.ContentFormat == "plaintext" {
                     <pre class="text-wrap font-sans bg-base-light-100 dark:bg-base-dark-100 p-4 rounded-md shadow-sm">{ paste.Content }</pre>
                 }
                 else {
