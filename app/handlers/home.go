@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -131,7 +132,7 @@ func (h *HomeHandler) PostNewPastePage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.service.NewPaste(h.authProvider.GetCurrentUserID(r), form); err != nil {
+	if pasteID, err := h.service.NewPaste(h.authProvider.GetCurrentUserID(r), form); err != nil {
 		if errors.Is(err, services.ErrConflict) {
 			s := h.sessionProvider.GetSession(r)
 			s.AddFlash(middleware.CreateErrorFlash("paste with that slug already exists"))
@@ -141,8 +142,7 @@ func (h *HomeHandler) PostNewPastePage(w http.ResponseWriter, r *http.Request) {
 			InternalErrorResponse(w, err)
 		}
 		return
+	} else {
+		http.Redirect(w, r, fmt.Sprintf("/~/%s", pasteID.String()), http.StatusSeeOther)
 	}
-
-	// TODO redirect to the created paste
-	http.Redirect(w, r, "/new", http.StatusSeeOther)
 }

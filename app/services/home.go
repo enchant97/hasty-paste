@@ -30,18 +30,18 @@ func (s *HomeService) GetLatestPublicPastes() ([]database.GetLatestPublicPastesR
 	return wrapDbErrorWithValue(s.dao.Queries.GetLatestPublicPastes(context.Background(), 5))
 }
 
-func (s *HomeService) NewPaste(ownerID uuid.UUID, pasteForm core.NewPasteForm) error {
+func (s *HomeService) NewPaste(ownerID uuid.UUID, pasteForm core.NewPasteForm) (uuid.UUID, error) {
 	ctx := context.Background()
 	tx, err := s.dao.DB.Begin()
 	if err != nil {
-		return err
+		return uuid.Nil, err
 	}
 	defer tx.Rollback()
 
 	var expiry sql.NullTime
 	if pasteForm.Expiry != nil {
 		if err := expiry.Scan(*pasteForm.Expiry); err != nil {
-			return err
+			return uuid.Nil, err
 		}
 	}
 
@@ -56,7 +56,7 @@ func (s *HomeService) NewPaste(ownerID uuid.UUID, pasteForm core.NewPasteForm) e
 		ExpiresAt:     expiry,
 	})
 	if err != nil {
-		return wrapDbError(err)
+		return wrapDbErrorWithValue(uuid.Nil, err)
 	}
 
 	// Process each attachment one by one (maybe make it do parallel in future?)
@@ -88,9 +88,9 @@ func (s *HomeService) NewPaste(ownerID uuid.UUID, pasteForm core.NewPasteForm) e
 			}
 			return nil
 		}(); err != nil {
-			return err
+			return uuid.Nil, err
 		}
 	}
 
-	return wrapDbError(tx.Commit())
+	return wrapDbErrorWithValue(pasteID, tx.Commit())
 }
