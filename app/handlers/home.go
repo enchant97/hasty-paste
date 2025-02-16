@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -13,6 +14,7 @@ import (
 	"github.com/enchant97/hasty-paste/app/services"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 )
 
 type HomeHandler struct {
@@ -36,6 +38,7 @@ func (h HomeHandler) Setup(
 		sessionProvider: sp,
 	}
 	r.Get("/", h.GetHomePage)
+	r.Get("/~/{pasteID}", h.GetPasteIDRedirect)
 	r.Get("/new", h.GetNewPastePage)
 	r.Post("/new/_post", h.PostNewPastePage)
 }
@@ -45,6 +48,28 @@ func (h *HomeHandler) GetHomePage(w http.ResponseWriter, r *http.Request) {
 		InternalErrorResponse(w, err)
 	} else {
 		templ.Handler(components.IndexPage(latestPastes)).ServeHTTP(w, r)
+	}
+}
+
+func (h *HomeHandler) GetPasteIDRedirect(w http.ResponseWriter, r *http.Request) {
+	pasteID, err := uuid.Parse(r.PathValue("pasteID"))
+	if err != nil {
+		NotFoundErrorResponse(w, r)
+		return
+	}
+	if parts, err := h.service.GetPastePathPartsByPasteID(pasteID); err != nil {
+		if errors.Is(err, services.ErrNotFound) {
+			NotFoundErrorResponse(w, r)
+		} else {
+			InternalErrorResponse(w, err)
+		}
+	} else {
+		p, err := url.JoinPath("/@/", parts.Username, parts.Slug)
+		if err != nil {
+			InternalErrorResponse(w, err)
+		} else {
+			http.Redirect(w, r, p, http.StatusTemporaryRedirect)
+		}
 	}
 }
 

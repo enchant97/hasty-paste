@@ -46,6 +46,7 @@ func main() {
 	validate := validator.New(validator.WithRequiredStructEnabled())
 
 	devProvider := app_middleware.ViteProvider{}.New(appConfig.Dev)
+	configProvider := app_middleware.AppConfigProvider{}.New(appConfig)
 	authenticationProvider := app_middleware.AuthenticationProvider{}.New(appConfig.TokenSecret, &dao)
 	sessionProvider := app_middleware.SessionProvider{}.New(appConfig.TokenSecret)
 
@@ -53,6 +54,7 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(devProvider.ProviderMiddleware)
+	r.Use(configProvider.ProviderMiddleware)
 	r.Use(authenticationProvider.ProviderMiddleware)
 	r.Use(sessionProvider.ProviderMiddleware)
 

@@ -6,7 +6,16 @@ import (
     "bytes"
 	"github.com/enchant97/hasty-paste/app/database"
 	"github.com/enchant97/hasty-paste/app/core"
+	"github.com/enchant97/hasty-paste/app/middleware"
+	"github.com/google/uuid"
+	"context"
+	"net/url"
 )
+
+func makeDirectPasteURL(ctx context.Context, pasteID uuid.UUID) string {
+    p, _ := url.JoinPath(middleware.GetAppConfig(ctx).PublicURL, fmt.Sprintf("~/%s", pasteID.String()))
+    return p
+}
 
 templ PastePage(username string, paste database.Paste, attachments []database.Attachment) {
 	@base("Paste") {
@@ -45,6 +54,10 @@ templ PastePage(username string, paste database.Paste, attachments []database.At
                         <tr>
                             <th class="pr-4">Visibility</th>
                             <td>{ paste.Visibility }</td>
+                        </tr>
+                        <tr>
+                            <th class="pr-4">Direct Link</th>
+                            <td><span class="select-all">{ makeDirectPasteURL(ctx, paste.ID) }</span></td>
                         </tr>
                     </tbody>
                 </table>

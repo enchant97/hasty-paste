@@ -49,6 +49,7 @@ type DevConfig struct {
 type AppConfig struct {
 	Dev         DevConfig     `envPrefix:"DEV__"`
 	Bind        BindConfig    `envPrefix:"BIND__"`
+	PublicURL   string        `env:"PUBLIC_URL,notEmpty"`
 	DbUri       string        `env:"DB__URI,notEmpty"`
 	DataPath    string        `env:"DATA_PATH,notEmpty"`
 	TokenSecret Base64Decoded `env:"TOKEN_SECRET,notEmpty"`

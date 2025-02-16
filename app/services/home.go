@@ -22,6 +22,10 @@ func (s HomeService) New(dao *core.DAO, sc *storage.StorageController) HomeServi
 	}
 }
 
+func (s *HomeService) GetPastePathPartsByPasteID(pasteID uuid.UUID) (database.GetPastePathPartsRow, error) {
+	return wrapDbErrorWithValue(s.dao.Queries.GetPastePathParts(context.Background(), pasteID))
+}
+
 func (s *HomeService) GetLatestPublicPastes() ([]database.GetLatestPublicPastesRow, error) {
 	return wrapDbErrorWithValue(s.dao.Queries.GetLatestPublicPastes(context.Background(), 5))
 }

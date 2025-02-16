@@ -52,6 +52,12 @@ WHERE (
     )
 LIMIT 1;
 
+-- name: GetPastePathParts :one
+SELECT p.slug, u.username FROM pastes as p
+INNER JOIN users AS u ON u.id = p.owner_id
+WHERE p.id = ?
+LIMIT 1;
+
 -- name: GetAttachmentsByPasteID :many
 SELECT a.* FROM attachments AS a
 INNER JOIN pastes AS p ON a.paste_id = p.id
