@@ -16,7 +16,10 @@ templ IndexPage(latestPastes []database.GetLatestPublicPastesRow) {
 				<h2 class="mb-2">Recent Pastes</h2>
 				<ul class="flex flex-col gap-2">
 					for _, paste := range latestPastes {
-						<li class="p-4 rounded-md duration-200 bg-base-light-100 dark:bg-base-dark-100 shadow-sm hover:bg-base-light-300 dark:hover:bg-base-dark-300">
+						<li
+                            data-paste-id={ paste.ID.String() }
+                            class="p-4 rounded-md duration-200 bg-base-light-100 dark:bg-base-dark-100 shadow-sm hover:bg-base-light-300 dark:hover:bg-base-dark-300"
+                        >
 							<a href={ templ.URL(fmt.Sprintf("/@/%s/%s", paste.Username, paste.Slug)) }>
 								<span class="block">{ paste.Slug }</span>
 								<span class="text-xs block ml-4">

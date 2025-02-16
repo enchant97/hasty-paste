@@ -14,7 +14,10 @@ templ PastesPage(username string, pastes []database.GetLatestPastesByUserRow) {
 			<div class="bg-base-light-200 dark:bg-base-dark-200 rounded-md shadow-sm p-4">
 				<ul class="flex flex-col gap-2">
 					for _, paste := range pastes {
-						<li class="p-4 rounded-md duration-200 bg-base-light-100 dark:bg-base-dark-100 shadow-sm hover:bg-base-light-300 dark:hover:bg-base-dark-300">
+						<li
+                            data-paste-id={ paste.ID.String() }
+                            class="p-4 rounded-md duration-200 bg-base-light-100 dark:bg-base-dark-100 shadow-sm hover:bg-base-light-300 dark:hover:bg-base-dark-300"
+                        >
 							<a href={ templ.URL(fmt.Sprintf("/@/%s/%s", username, paste.Slug)) }>
 								<span class="block">{ paste.Slug }</span>
 								<span class="text-xs block ml-4">

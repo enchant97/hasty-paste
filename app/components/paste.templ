@@ -20,7 +20,7 @@ func makeDirectPasteURL(ctx context.Context, pasteID uuid.UUID) string {
 templ PastePage(username string, paste database.Paste, attachments []database.Attachment) {
 	@base("Paste") {
 		@header()
-		<div class="p-2 gap-2 flex flex-col">
+		<div data-paste-id={ paste.ID.String() } class="p-2 gap-2 flex flex-col">
             <h1 class="my-2">{ paste.Slug }</h1>
 			<div class="bg-base-light-200 dark:bg-base-dark-200 rounded-md shadow-sm p-4">
 				<h2 class="my-2">Info</h2>
@@ -69,7 +69,10 @@ templ PastePage(username string, paste database.Paste, attachments []database.At
 				} else {
 					<ul class="flex gap-4">
 						for _, attachment := range attachments {
-							<li class="btn btn-neutral px-4 py-2">
+							<li
+                                data-attachment-id={ attachment.ID.String() }
+                                class="btn btn-neutral px-4 py-2"
+                            >
 								<a
 									target="_blank"
 									href={ templ.URL(fmt.Sprintf("/@/%s/%s/%s", username, paste.Slug, attachment.Slug)) }
