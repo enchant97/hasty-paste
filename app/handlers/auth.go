@@ -204,7 +204,7 @@ func (h *AuthHandler) GetOIDCPage(w http.ResponseWriter, r *http.Request) {
 		Path:     "/sso/oidc",
 		Value:    state,
 		HttpOnly: true,
-		// TODO Add Secure (if running under server https)
+		Secure:   h.appConfig.SecureMode(),
 	})
 	http.Redirect(w, r, h.OAuth2Config.AuthCodeURL(state), http.StatusSeeOther)
 }
@@ -221,7 +221,7 @@ func (h *AuthHandler) GetOIDCCallbackPage(w http.ResponseWriter, r *http.Request
 		Value:    "",
 		Expires:  time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC),
 		HttpOnly: true,
-		// TODO Add Secure (if running under server https)
+		Secure:   h.appConfig.SecureMode(),
 	})
 	if r.URL.Query().Get("state") != state.Value {
 		http.Error(w, "state did not match", http.StatusBadRequest)

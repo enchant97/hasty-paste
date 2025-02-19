@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/caarlos0/env/v11"
 	"github.com/labstack/gommon/bytes"
@@ -55,14 +56,19 @@ type OIDCConfig struct {
 }
 
 type AppConfig struct {
-	Dev         DevConfig     `envPrefix:"DEV__"`
-	Bind        BindConfig    `envPrefix:"BIND__"`
-	OIDC        OIDCConfig    `envPrefix:"OIDC__"`
-	PublicURL   string        `env:"PUBLIC_URL,notEmpty"`
-	DbUri       string        `env:"DB__URI,notEmpty"`
-	DataPath    string        `env:"DATA_PATH,notEmpty"`
-	TokenSecret Base64Decoded `env:"TOKEN_SECRET,notEmpty"`
-	TokenExpiry int64         `env:"TOKEN_EXPIRY" envDefault:"604800"`
+	Dev           DevConfig     `envPrefix:"DEV__"`
+	Bind          BindConfig    `envPrefix:"BIND__"`
+	OIDC          OIDCConfig    `envPrefix:"OIDC__"`
+	PublicURL     string        `env:"PUBLIC_URL,notEmpty"`
+	DbUri         string        `env:"DB__URI,notEmpty"`
+	DataPath      string        `env:"DATA_PATH,notEmpty"`
+	TokenSecret   Base64Decoded `env:"TOKEN_SECRET,notEmpty"`
+	TokenExpiry   int64         `env:"TOKEN_EXPIRY" envDefault:"604800"`
+	SessionSecret Base64Decoded `env:"SESSION_SECRET,notEmpty"`
+}
+
+func (ac *AppConfig) SecureMode() bool {
+	return strings.HasPrefix(ac.PublicURL, "https://")
 }
 
 func (appConfig *AppConfig) ParseConfig() error {

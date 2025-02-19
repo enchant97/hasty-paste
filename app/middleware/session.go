@@ -27,12 +27,12 @@ type SessionProvider struct {
 	store sessions.Store
 }
 
-func (m SessionProvider) New(sessionSecret []byte) SessionProvider {
+func (m SessionProvider) New(secureMode bool, sessionSecret []byte) SessionProvider {
 	gob.Register(Flash{})
 	store := sessions.NewCookieStore(sessionSecret)
-	store.Options.Secure = false // TODO Add Secure (if running under server https)
 	store.Options.SameSite = http.SameSiteDefaultMode
 	store.Options.HttpOnly = true
+	store.Options.Secure = secureMode
 	return SessionProvider{store: store}
 }
 

@@ -47,8 +47,8 @@ func main() {
 
 	devProvider := app_middleware.ViteProvider{}.New(appConfig.Dev)
 	configProvider := app_middleware.AppConfigProvider{}.New(appConfig)
-	authenticationProvider := app_middleware.AuthenticationProvider{}.New(appConfig.TokenSecret, &dao)
-	sessionProvider := app_middleware.SessionProvider{}.New(appConfig.TokenSecret)
+	authenticationProvider := app_middleware.AuthenticationProvider{}.New(appConfig.SecureMode(), appConfig.TokenSecret, &dao)
+	sessionProvider := app_middleware.SessionProvider{}.New(appConfig.SecureMode(), appConfig.SessionSecret)
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)

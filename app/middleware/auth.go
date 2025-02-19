@@ -17,12 +17,13 @@ const (
 )
 
 type AuthenticationProvider struct {
+	secureMode  bool
 	tokenSecret []byte
 	dao         *core.DAO
 }
 
-func (m AuthenticationProvider) New(tokenSecret []byte, dao *core.DAO) AuthenticationProvider {
-	return AuthenticationProvider{tokenSecret: tokenSecret, dao: dao}
+func (m AuthenticationProvider) New(secureMode bool, tokenSecret []byte, dao *core.DAO) AuthenticationProvider {
+	return AuthenticationProvider{secureMode: secureMode, tokenSecret: tokenSecret, dao: dao}
 }
 
 func (m *AuthenticationProvider) ProviderMiddleware(next http.Handler) http.Handler {
@@ -90,7 +91,7 @@ func (m *AuthenticationProvider) SetCookieAuthToken(w http.ResponseWriter, token
 		Value:    token.TokenContent,
 		Expires:  token.ExpiresAt,
 		HttpOnly: true,
-		// TODO Add Secure (if running under server https)
+		Secure:   m.secureMode,
 	})
 }
 
@@ -101,6 +102,6 @@ func (m *AuthenticationProvider) ClearCookieAuthToken(w http.ResponseWriter) {
 		Value:    "",
 		Expires:  time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC),
 		HttpOnly: true,
-		// TODO Add Secure (if running under server https)
+		Secure:   m.secureMode,
 	})
 }
