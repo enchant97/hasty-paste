@@ -46,9 +46,18 @@ type DevConfig struct {
 	ViteDistPath string `env:"VITE_DIST_PATH,notEmpty" envDefault:"./dist/assets"`
 }
 
+type OIDCConfig struct {
+	Enabled      bool   `env:"ENABLED" envDefault:"false"`
+	Name         string `env:"NAME"`
+	IssuerUrl    string `env:"ISSUER_URL"`
+	ClientID     string `env:"CLIENT_ID"`
+	ClientSecret string `env:"CLIENT_SECRET"`
+}
+
 type AppConfig struct {
 	Dev         DevConfig     `envPrefix:"DEV__"`
 	Bind        BindConfig    `envPrefix:"BIND__"`
+	OIDC        OIDCConfig    `envPrefix:"OIDC__"`
 	PublicURL   string        `env:"PUBLIC_URL,notEmpty"`
 	DbUri       string        `env:"DB__URI,notEmpty"`
 	DataPath    string        `env:"DATA_PATH,notEmpty"`

@@ -5,6 +5,9 @@ RETURNING id;
 -- name: InsertAnonymousUser :exec
 INSERT OR IGNORE INTO users (id, username) VALUES (?, "anonymous");
 
+-- name: InsertOIDCUser :exec
+INSERT INTO oidc_users (user_id, client_id, user_sub) VALUES (?,?,?);
+
 -- name: InsertPaste :one
 INSERT INTO pastes (id, owner_id,slug,content,content_format,visibility,expires_at) VALUES (?,?,?,?,?,?,?)
 RETURNING id;
@@ -13,9 +16,19 @@ RETURNING id;
 INSERT INTO attachments (id, paste_id,slug,mime_type,size,checksum) VALUES (?,?,?,?,?,?)
 RETURNING id;
 
+-- name: GetUserByID :one
+SELECT * FROM users
+WHERE id = ? LIMIT 1;
+
 -- name: GetUserByUsername :one
 SELECT * FROM users
 WHERE username = ? LIMIT 1;
+
+-- name: GetUserByOIDC :one
+SELECT u.* FROM oidc_users AS o
+INNER JOIN users AS u ON u.id = o.user_id
+WHERE client_id = ? AND user_sub = ?
+LIMIT 1;
 
 -- name: GetLatestPublicPastes :many
 SELECT p.id, p.owner_id, p.slug, p.created_at, users.username FROM pastes as p

@@ -90,7 +90,6 @@ func (m *AuthenticationProvider) SetCookieAuthToken(w http.ResponseWriter, token
 		Value:    token.TokenContent,
 		Expires:  token.ExpiresAt,
 		HttpOnly: true,
-		SameSite: http.SameSiteStrictMode,
 		// TODO Add Secure (if running under server https)
 	})
 }
@@ -102,7 +101,6 @@ func (m *AuthenticationProvider) ClearCookieAuthToken(w http.ResponseWriter) {
 		Value:    "",
 		Expires:  time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC),
 		HttpOnly: true,
-		SameSite: http.SameSiteStrictMode,
 		// TODO Add Secure (if running under server https)
 	})
 }

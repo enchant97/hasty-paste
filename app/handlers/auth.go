@@ -1,18 +1,49 @@
 package handlers
 
 import (
+	"context"
 	"errors"
+	"log"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/a-h/templ"
+	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/enchant97/hasty-paste/app/components"
 	"github.com/enchant97/hasty-paste/app/core"
 	"github.com/enchant97/hasty-paste/app/middleware"
 	"github.com/enchant97/hasty-paste/app/services"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
+	"golang.org/x/oauth2"
 )
+
+type OIDCUserClaims struct {
+	Subject           string `json:"sub"`
+	PreferredUsername string `json:"preferred_username"`
+	Name              string `json:"name"`
+}
+
+func setupOIDC(appConfig core.AppConfig) (*oidc.Provider, oauth2.Config, error) {
+	provider, err := oidc.NewProvider(context.Background(), appConfig.OIDC.IssuerUrl)
+	if err != nil {
+		return nil, oauth2.Config{}, err
+	}
+	callbackURL, err := url.JoinPath(appConfig.PublicURL, "/sso/oidc/callback")
+	if err != nil {
+		return nil, oauth2.Config{}, err
+	}
+	config := oauth2.Config{
+		ClientID:     appConfig.OIDC.ClientID,
+		ClientSecret: appConfig.OIDC.ClientSecret,
+		Endpoint:     provider.Endpoint(),
+		RedirectURL:  callbackURL,
+		Scopes:       []string{oidc.ScopeOpenID, "profile"},
+	}
+	return provider, config, nil
+}
 
 type AuthHandler struct {
 	appConfig       core.AppConfig
@@ -20,6 +51,8 @@ type AuthHandler struct {
 	service         services.AuthService
 	authProvider    *middleware.AuthenticationProvider
 	sessionProvider *middleware.SessionProvider
+	OIDCProvider    *oidc.Provider
+	OAuth2Config    oauth2.Config
 }
 
 func (h AuthHandler) Setup(
@@ -30,7 +63,24 @@ func (h AuthHandler) Setup(
 	ap *middleware.AuthenticationProvider,
 	sp *middleware.SessionProvider,
 ) {
-	h = AuthHandler{appConfig: appConfig, validator: v, service: s, authProvider: ap, sessionProvider: sp}
+	var OIDCProvider *oidc.Provider
+	var OAuth2Config oauth2.Config
+	if appConfig.OIDC.Enabled {
+		var err error
+		OIDCProvider, OAuth2Config, err = setupOIDC(appConfig)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	h = AuthHandler{
+		appConfig:       appConfig,
+		validator:       v,
+		service:         s,
+		authProvider:    ap,
+		sessionProvider: sp,
+		OIDCProvider:    OIDCProvider,
+		OAuth2Config:    OAuth2Config,
+	}
 	r.Group(func(r chi.Router) {
 		r.Use(ap.RequireAuthenticationMiddleware)
 		r.Get("/logout", h.GetLogoutPage)
@@ -41,6 +91,10 @@ func (h AuthHandler) Setup(
 		r.Post("/signup/_post", h.PostUserSignupPage)
 		r.Get("/login", h.GetUserLoginPage)
 		r.Post("/login/_post", h.PostUserLoginPage)
+		if appConfig.OIDC.Enabled {
+			r.Get("/sso/oidc", h.GetOIDCPage)
+			r.Get("/sso/oidc/callback", h.GetOIDCCallbackPage)
+		}
 	})
 }
 
@@ -88,7 +142,7 @@ func (h *AuthHandler) PostUserSignupPage(w http.ResponseWriter, r *http.Request)
 }
 
 func (h *AuthHandler) GetUserLoginPage(w http.ResponseWriter, r *http.Request) {
-	templ.Handler(components.UserLoginPage()).ServeHTTP(w, r)
+	templ.Handler(components.UserLoginPage(h.appConfig.OIDC)).ServeHTTP(w, r)
 }
 
 func (h *AuthHandler) PostUserLoginPage(w http.ResponseWriter, r *http.Request) {
@@ -141,4 +195,77 @@ func (h *AuthHandler) PostUserLoginPage(w http.ResponseWriter, r *http.Request) 
 func (h *AuthHandler) GetLogoutPage(w http.ResponseWriter, r *http.Request) {
 	h.authProvider.ClearCookieAuthToken(w)
 	http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
+}
+
+func (h *AuthHandler) GetOIDCPage(w http.ResponseWriter, r *http.Request) {
+	state := uuid.New().String()
+	http.SetCookie(w, &http.Cookie{
+		Name:     "OpenIdState",
+		Path:     "/sso/oidc",
+		Value:    state,
+		HttpOnly: true,
+		// TODO Add Secure (if running under server https)
+	})
+	http.Redirect(w, r, h.OAuth2Config.AuthCodeURL(state), http.StatusSeeOther)
+}
+
+func (h *AuthHandler) GetOIDCCallbackPage(w http.ResponseWriter, r *http.Request) {
+	state, err := r.Cookie("OpenIdState")
+	if err != nil {
+		http.Error(w, "state cookie not found", http.StatusBadRequest)
+		return
+	}
+	http.SetCookie(w, &http.Cookie{
+		Name:     "OpenIdState",
+		Path:     "/sso/oidc",
+		Value:    "",
+		Expires:  time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC),
+		HttpOnly: true,
+		// TODO Add Secure (if running under server https)
+	})
+	if r.URL.Query().Get("state") != state.Value {
+		http.Error(w, "state did not match", http.StatusBadRequest)
+		return
+	}
+
+	oauth2Token, err := h.OAuth2Config.Exchange(context.Background(), r.URL.Query().Get("code"))
+	if err != nil {
+		InternalErrorResponse(w, err)
+		return
+	}
+	userInfo, err := h.OIDCProvider.UserInfo(context.Background(), oauth2.StaticTokenSource(oauth2Token))
+	if err != nil {
+		InternalErrorResponse(w, err)
+		return
+	}
+	var userClaims OIDCUserClaims
+	if err := userInfo.Claims(&userClaims); err != nil {
+		InternalErrorResponse(w, err)
+		return
+	}
+
+	// TODO validate username
+
+	user, err := h.service.GetOrCreateOIDCUser(userClaims.PreferredUsername, h.appConfig.OIDC.ClientID, userClaims.Subject)
+	if err != nil {
+		if errors.Is(err, services.ErrConflict) {
+			s := h.sessionProvider.GetSession(r)
+			s.AddFlash(middleware.CreateErrorFlash("user with that username already exists"))
+			s.Save(r, w) // TODO handle error
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+		} else {
+			InternalErrorResponse(w, err)
+		}
+	}
+
+	if token, err := core.CreateAuthenticationToken(
+		user.Username,
+		h.appConfig.TokenSecret,
+		time.Duration(int64(time.Second)*h.appConfig.TokenExpiry),
+	); err != nil {
+		InternalErrorResponse(w, err)
+	} else {
+		h.authProvider.SetCookieAuthToken(w, token)
+		http.Redirect(w, r, "/", http.StatusFound)
+	}
 }

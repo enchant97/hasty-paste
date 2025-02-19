@@ -1,6 +1,8 @@
 package components
 
-templ UserLoginPage() {
+import "github.com/enchant97/hasty-paste/app/core"
+
+templ UserLoginPage(oidcConfig core.OIDCConfig) {
 	@base("Sign In") {
 		@header()
 		<div class="p-2">
@@ -21,6 +23,9 @@ templ UserLoginPage() {
 					/>
 				</label>
 				<button class="btn btn-primary" type="submit">Sign In</button>
+                if oidcConfig.Enabled {
+				    <a class="btn btn-neutral" href="/sso/oidc">Sign In With { oidcConfig.Name }</a>
+                }
 				<a class="btn btn-neutral" href="/signup">Sign Up Instead?</a>
 			</form>
 		</div>
