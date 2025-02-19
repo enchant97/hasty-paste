@@ -65,6 +65,8 @@ type AppConfig struct {
 	TokenSecret   Base64Decoded `env:"TOKEN_SECRET,notEmpty"`
 	TokenExpiry   int64         `env:"TOKEN_EXPIRY" envDefault:"604800"`
 	SessionSecret Base64Decoded `env:"SESSION_SECRET,notEmpty"`
+	EnableSignup  bool          `env:"ENABLE_INTERNAL_SIGNUP" envDefault:"true"`
+	EnableLogin   bool          `env:"ENABLE_INTERNAL_LOGIN" envDefault:"true"`
 }
 
 func (ac *AppConfig) SecureMode() bool {

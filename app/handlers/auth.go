@@ -87,10 +87,14 @@ func (h AuthHandler) Setup(
 	})
 	r.Group(func(r chi.Router) {
 		r.Use(ap.RequireNoAuthenticationMiddleware)
-		r.Get("/signup", h.GetUserSignupPage)
-		r.Post("/signup/_post", h.PostUserSignupPage)
+		if appConfig.EnableSignup {
+			r.Get("/signup", h.GetUserSignupPage)
+			r.Post("/signup/_post", h.PostUserSignupPage)
+		}
 		r.Get("/login", h.GetUserLoginPage)
-		r.Post("/login/_post", h.PostUserLoginPage)
+		if appConfig.EnableLogin {
+			r.Post("/login/_post", h.PostUserLoginPage)
+		}
 		if appConfig.OIDC.Enabled {
 			r.Get("/sso/oidc", h.GetOIDCPage)
 			r.Get("/sso/oidc/callback", h.GetOIDCCallbackPage)
@@ -142,7 +146,7 @@ func (h *AuthHandler) PostUserSignupPage(w http.ResponseWriter, r *http.Request)
 }
 
 func (h *AuthHandler) GetUserLoginPage(w http.ResponseWriter, r *http.Request) {
-	templ.Handler(components.UserLoginPage(h.appConfig.OIDC)).ServeHTTP(w, r)
+	templ.Handler(components.UserLoginPage(h.appConfig.EnableLogin, h.appConfig.EnableSignup, h.appConfig.OIDC)).ServeHTTP(w, r)
 }
 
 func (h *AuthHandler) PostUserLoginPage(w http.ResponseWriter, r *http.Request) {

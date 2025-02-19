@@ -2,33 +2,35 @@ package components
 
 import "github.com/enchant97/hasty-paste/app/core"
 
-templ UserLoginPage(oidcConfig core.OIDCConfig) {
-	@base("Sign In") {
-		@header()
-		<div class="p-2">
-			<h1 class="my-2">Sign In</h1>
-			<form class="flex flex-col gap-2 bg-base-light-200 dark:bg-base-dark-200 rounded-md shadow-sm p-4" method="post" action="/login/_post">
-				<label class="flex flex-col gap-2">
-					<span class="label-text">Username</span>
-					<input class="input" type="text" name="username" autocomplete="username" required/>
-				</label>
-				<label class="flex flex-col gap-2">
-					<span class="label-text">Password</span>
-					<input
-						class="input"
-						type="password"
-						name="password"
-						autocomplete="current-password"
-						required
-					/>
-				</label>
-				<button class="btn btn-primary" type="submit">Sign In</button>
-                if oidcConfig.Enabled {
-				    <a class="btn btn-neutral" href="/sso/oidc">Sign In With { oidcConfig.Name }</a>
-                }
-				<a class="btn btn-neutral" href="/signup">Sign Up Instead?</a>
-			</form>
-		</div>
-		@footer()
-	}
+templ UserLoginPage(enableLogin bool, enableSignup bool, oidcConfig core.OIDCConfig) {
+@base("Sign In") {
+@header()
+<div class="p-2">
+    <h1 class="my-2">Sign In</h1>
+    if enableLogin {
+    <form class="flex flex-col gap-2 bg-base-light-200 dark:bg-base-dark-200 rounded-md shadow-sm p-4" method="post"
+        action="/login/_post">
+        <label class="flex flex-col gap-2">
+            <span class="label-text">Username</span>
+            <input class="input" type="text" name="username" autocomplete="username" required />
+        </label>
+        <label class="flex flex-col gap-2">
+            <span class="label-text">Password</span>
+            <input class="input" type="password" name="password" autocomplete="current-password" required />
+        </label>
+        <button class="btn btn-primary" type="submit">Sign In</button>
+        if oidcConfig.Enabled {
+        <a class="btn btn-primary" href="/sso/oidc">Sign In With { oidcConfig.Name }</a>
+        }
+        if enableSignup {
+        <a class="btn btn-neutral" href="/signup">Sign Up Instead?</a>
+        }
+    </form>
+    }
+    if oidcConfig.Enabled && !enableLogin {
+    <a class="btn btn-primary max-w-fit block mx-auto my-20" href="/sso/oidc">Sign In With { oidcConfig.Name }</a>
+    }
+</div>
+@footer()
+}
 }
