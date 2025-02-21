@@ -8,17 +8,17 @@ Configuration of the app is done through environment variables. See the below op
 | Key | Description | Default |
 |:----|:------------|:--------|
 | `BIND__HOST` | What interface to listen on | `127.0.0.1` |
-| `BIND_PORT` | What port to listen on | `8080` |
+| `BIND__PORT` | What port to listen on | `8080` |
 | `OIDC__ENABLED` | Whether OpenID/OAuth2 Is Enabled | `false` |
 | `OIDC__NAME` | The provider name (used for UI) | - |
 | `OIDC__ISSUER_URL` | The OIDC issuer url | - |
 | `OIDC__CLIENT_ID` | The client id | - |
 | `OIDC__CLIENT_SECRET` | The client secret | - |
 | `PUBLIC_URL` | Public URL where service can be accessed | - |
-| `DB__URI` | URI for database connection | - |
+| `DB_URI` | URI for database connection | - |
 | `DATA_PATH` | where paste assets will be stored | - |
-| `TOKEN_SECRET` | base64 encoded secret | - |
-| `TOKEN_EXPIRY` | seconds until a token expires | `604800` |
+| `AUTH_TOKEN_SECRET` | base64 encoded secret | - |
+| `AUTH_TOKEN_EXPIRY` | seconds until a token expires | `604800` |
 | `SESSION_SECRET` | base64 encoded secret | - |
 | `ENABLE_INTERNAL_SIGNUP` | Whether to allow sign-up for internal accounts | `true` |
 | `ENABLE_INTERNAL_LOGIN` | Whether to allow login for internal accounts | `true` |
