@@ -1,0 +1,4 @@
+database/
+components/*.go
+dist/
+node_modules/
