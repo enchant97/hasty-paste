@@ -61,7 +61,7 @@ type AppConfig struct {
 	OIDC                OIDCConfig    `envPrefix:"OIDC__"`
 	PublicURL           string        `env:"PUBLIC_URL,notEmpty"`
 	DbUri               string        `env:"DB_URI,notEmpty"`
-	DataPath            string        `env:"DATA_PATH,notEmpty"`
+	AttachmentsPath     string        `env:"ATTACHMENTS_PATH,notEmpty"`
 	TokenSecret         Base64Decoded `env:"AUTH_TOKEN_SECRET,notEmpty"`
 	TokenExpiry         int64         `env:"AUTH_TOKEN_EXPIRY" envDefault:"604800"`
 	SessionSecret       Base64Decoded `env:"SESSION_SECRET,notEmpty"`

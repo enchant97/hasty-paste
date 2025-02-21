@@ -26,7 +26,7 @@ func main() {
 	if err := appConfig.ParseConfig(); err != nil {
 		panic(err)
 	}
-	sc, err := storage.StorageController{}.New(appConfig.DataPath)
+	sc, err := storage.StorageController{}.New(appConfig.AttachmentsPath)
 	if err != nil {
 		panic(err)
 	}
