@@ -54,7 +54,6 @@ func (m *ViteProvider) ProviderMiddleware(next http.Handler) http.Handler {
 				`<script type="module" src="http://`+m.devConfig.ViteDevHost+`/@vite/client"></script>
             <script type="module" src="http://`+m.devConfig.ViteDevHost+`/main.js"></script>`)
 		} else {
-			// TODO implement production mode
 			builder := strings.Builder{}
 			for _, cssFile := range m.css {
 				builder.WriteString(`<link rel="stylesheet" href="/` + cssFile + `">`)
