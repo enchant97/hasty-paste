@@ -16,12 +16,12 @@ Configuration of the app is done through environment variables. See the below op
 | `OIDC__CLIENT_SECRET` | The client secret | - |
 | `PUBLIC_URL` | Public URL where service can be accessed | - |
 | `DB_URI` | URI for database connection | - |
-| `DATA_PATH` | where paste assets will be stored | - |
+| `ATTACHMENTS_PATH` | where paste attachments will be stored | - |
 | `AUTH_TOKEN_SECRET` | base64 encoded secret | - |
 | `AUTH_TOKEN_EXPIRY` | seconds until a token expires | `604800` |
 | `SESSION_SECRET` | base64 encoded secret | - |
-| `ENABLE_INTERNAL_SIGNUP` | Whether to allow sign-up for internal accounts | `true` |
-| `ENABLE_INTERNAL_LOGIN` | Whether to allow login for internal accounts | `true` |
+| `SIGNUP_ENABLED` | Whether to allow new accounts to be created | `true` |
+| `INTERNAL_AUTH_ENABLED` | Whether to allow login for internal accounts | `true` |
 
 ## OIDC
 Single-Sign-On is handled via OpenID Connect and OAuth2. To use SSO you must have a compatible provider that supports the following features:
