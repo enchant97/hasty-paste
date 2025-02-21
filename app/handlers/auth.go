@@ -12,6 +12,7 @@ import (
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/enchant97/hasty-paste/app/components"
 	"github.com/enchant97/hasty-paste/app/core"
+	"github.com/enchant97/hasty-paste/app/database"
 	"github.com/enchant97/hasty-paste/app/middleware"
 	"github.com/enchant97/hasty-paste/app/services"
 	"github.com/go-chi/chi/v5"
@@ -87,12 +88,12 @@ func (h AuthHandler) Setup(
 	})
 	r.Group(func(r chi.Router) {
 		r.Use(ap.RequireNoAuthenticationMiddleware)
-		if appConfig.EnableSignup {
+		if appConfig.SignupEnabled {
 			r.Get("/signup", h.GetUserSignupPage)
 			r.Post("/signup/_post", h.PostUserSignupPage)
 		}
 		r.Get("/login", h.GetUserLoginPage)
-		if appConfig.EnableLogin {
+		if appConfig.InternalAuthEnabled {
 			r.Post("/login/_post", h.PostUserLoginPage)
 		}
 		if appConfig.OIDC.Enabled {
@@ -146,7 +147,11 @@ func (h *AuthHandler) PostUserSignupPage(w http.ResponseWriter, r *http.Request)
 }
 
 func (h *AuthHandler) GetUserLoginPage(w http.ResponseWriter, r *http.Request) {
-	templ.Handler(components.UserLoginPage(h.appConfig.EnableLogin, h.appConfig.EnableSignup, h.appConfig.OIDC)).ServeHTTP(w, r)
+	templ.Handler(components.UserLoginPage(
+		h.appConfig.InternalAuthEnabled,
+		h.appConfig.SignupEnabled,
+		h.appConfig.OIDC,
+	)).ServeHTTP(w, r)
 }
 
 func (h *AuthHandler) PostUserLoginPage(w http.ResponseWriter, r *http.Request) {
@@ -250,16 +255,27 @@ func (h *AuthHandler) GetOIDCCallbackPage(w http.ResponseWriter, r *http.Request
 
 	// TODO validate username
 
-	user, err := h.service.GetOrCreateOIDCUser(userClaims.PreferredUsername, h.appConfig.OIDC.ClientID, userClaims.Subject)
+	var user database.User
+	if h.appConfig.SignupEnabled {
+		user, err = h.service.GetOrCreateOIDCUser(userClaims.PreferredUsername, h.appConfig.OIDC.ClientID, userClaims.Subject)
+	} else {
+		user, err = h.service.GetOIDCUser(h.appConfig.OIDC.ClientID, userClaims.Subject)
+	}
 	if err != nil {
 		if errors.Is(err, services.ErrConflict) {
 			s := h.sessionProvider.GetSession(r)
 			s.AddFlash(middleware.CreateErrorFlash("user with that username already exists"))
 			s.Save(r, w) // TODO handle error
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
+		} else if errors.Is(err, services.ErrNotFound) && !h.appConfig.SignupEnabled {
+			s := h.sessionProvider.GetSession(r)
+			s.AddFlash(middleware.CreateErrorFlash("user not found and new accounts are disabled"))
+			s.Save(r, w) // TODO handle error
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
 		} else {
 			InternalErrorResponse(w, err)
 		}
+		return
 	}
 
 	if token, err := core.CreateAuthenticationToken(

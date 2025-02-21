@@ -2,12 +2,12 @@ package components
 
 import "github.com/enchant97/hasty-paste/app/core"
 
-templ UserLoginPage(enableLogin bool, enableSignup bool, oidcConfig core.OIDCConfig) {
+templ UserLoginPage(internalLoginEnabled bool, internalSignupEnabled bool, oidcConfig core.OIDCConfig) {
 @base("Sign In") {
 @header()
 <div class="p-2">
     <h1 class="my-2">Sign In</h1>
-    if enableLogin {
+    if internalLoginEnabled {
     <form class="flex flex-col gap-2 bg-base-light-200 dark:bg-base-dark-200 rounded-md shadow-sm p-4" method="post"
         action="/login/_post">
         <label class="flex flex-col gap-2">
@@ -22,12 +22,11 @@ templ UserLoginPage(enableLogin bool, enableSignup bool, oidcConfig core.OIDCCon
         if oidcConfig.Enabled {
         <a class="btn btn-primary" href="/sso/oidc">Sign In With { oidcConfig.Name }</a>
         }
-        if enableSignup {
+        if internalSignupEnabled {
         <a class="btn btn-neutral" href="/signup">Sign Up Instead?</a>
         }
     </form>
-    }
-    if oidcConfig.Enabled && !enableLogin {
+    } else if oidcConfig.Enabled {
     <a class="btn btn-primary max-w-fit block mx-auto my-20" href="/sso/oidc">Sign In With { oidcConfig.Name }</a>
     }
 </div>

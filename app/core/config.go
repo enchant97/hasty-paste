@@ -56,17 +56,17 @@ type OIDCConfig struct {
 }
 
 type AppConfig struct {
-	Dev           DevConfig     `envPrefix:"DEV__"`
-	Bind          BindConfig    `envPrefix:"BIND__"`
-	OIDC          OIDCConfig    `envPrefix:"OIDC__"`
-	PublicURL     string        `env:"PUBLIC_URL,notEmpty"`
-	DbUri         string        `env:"DB_URI,notEmpty"`
-	DataPath      string        `env:"DATA_PATH,notEmpty"`
-	TokenSecret   Base64Decoded `env:"AUTH_TOKEN_SECRET,notEmpty"`
-	TokenExpiry   int64         `env:"AUTH_TOKEN_EXPIRY" envDefault:"604800"`
-	SessionSecret Base64Decoded `env:"SESSION_SECRET,notEmpty"`
-	EnableSignup  bool          `env:"ENABLE_INTERNAL_SIGNUP" envDefault:"true"`
-	EnableLogin   bool          `env:"ENABLE_INTERNAL_LOGIN" envDefault:"true"`
+	Dev                 DevConfig     `envPrefix:"DEV__"`
+	Bind                BindConfig    `envPrefix:"BIND__"`
+	OIDC                OIDCConfig    `envPrefix:"OIDC__"`
+	PublicURL           string        `env:"PUBLIC_URL,notEmpty"`
+	DbUri               string        `env:"DB_URI,notEmpty"`
+	DataPath            string        `env:"DATA_PATH,notEmpty"`
+	TokenSecret         Base64Decoded `env:"AUTH_TOKEN_SECRET,notEmpty"`
+	TokenExpiry         int64         `env:"AUTH_TOKEN_EXPIRY" envDefault:"604800"`
+	SessionSecret       Base64Decoded `env:"SESSION_SECRET,notEmpty"`
+	SignupEnabled       bool          `env:"SIGNUP_ENABLED" envDefault:"true"`
+	InternalAuthEnabled bool          `env:"INTERNAL_AUTH_ENABLED" envDefault:"true"`
 }
 
 func (ac *AppConfig) SecureMode() bool {
