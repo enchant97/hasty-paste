@@ -2,6 +2,9 @@ package middleware
 
 import (
 	"context"
+	"database/sql"
+	"errors"
+	"log"
 	"net/http"
 	"time"
 
@@ -34,7 +37,7 @@ func (m *AuthenticationProvider) ProviderMiddleware(next http.Handler) http.Hand
 			if username, err := core.ParseAuthenticationToken(cookie.Value, m.tokenSecret); err != nil {
 				// invalid authentication token
 				m.ClearCookieAuthToken(w)
-				http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
+				http.Redirect(w, r, "/login", http.StatusSeeOther)
 				return
 			} else {
 				currentUsername = username
@@ -42,7 +45,15 @@ func (m *AuthenticationProvider) ProviderMiddleware(next http.Handler) http.Hand
 		}
 
 		if user, err := m.dao.Queries.GetUserByUsername(context.Background(), currentUsername); err != nil {
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			if errors.Is(err, sql.ErrNoRows) {
+				// unknown user
+				m.ClearCookieAuthToken(w)
+				http.Redirect(w, r, "/login", http.StatusSeeOther)
+
+			} else {
+				log.Println(err)
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			}
 			return
 		} else {
 			ctx := context.WithValue(r.Context(), ContextCurrentUsernameKey, currentUsername)
@@ -55,7 +66,7 @@ func (m *AuthenticationProvider) ProviderMiddleware(next http.Handler) http.Hand
 func (m *AuthenticationProvider) RequireAuthenticationMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Context().Value(ContextCurrentUsernameKey) == AnonymousUsername {
-			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
 		next.ServeHTTP(w, r)
@@ -65,7 +76,7 @@ func (m *AuthenticationProvider) RequireAuthenticationMiddleware(next http.Handl
 func (m *AuthenticationProvider) RequireNoAuthenticationMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Context().Value(ContextCurrentUsernameKey) != AnonymousUsername {
-			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+			http.Redirect(w, r, "/", http.StatusSeeOther)
 			return
 		}
 		next.ServeHTTP(w, r)

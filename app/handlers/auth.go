@@ -203,7 +203,7 @@ func (h *AuthHandler) PostUserLoginPage(w http.ResponseWriter, r *http.Request) 
 
 func (h *AuthHandler) GetLogoutPage(w http.ResponseWriter, r *http.Request) {
 	h.authProvider.ClearCookieAuthToken(w)
-	http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
+	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
 func (h *AuthHandler) GetOIDCPage(w http.ResponseWriter, r *http.Request) {
