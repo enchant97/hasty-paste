@@ -60,6 +60,7 @@ type AppConfig struct {
 	Bind                BindConfig    `envPrefix:"BIND__"`
 	OIDC                OIDCConfig    `envPrefix:"OIDC__"`
 	PublicURL           string        `env:"PUBLIC_URL,notEmpty"`
+	BehindProxy         bool          `env:"BEHIND_PROXY" envDefault:"false"`
 	DbUri               string        `env:"DB_URI,notEmpty"`
 	AttachmentsPath     string        `env:"ATTACHMENTS_PATH,notEmpty"`
 	TokenSecret         Base64Decoded `env:"AUTH_TOKEN_SECRET,notEmpty"`

@@ -15,6 +15,7 @@ Configuration of the app is done through environment variables. See the below op
 | `OIDC__CLIENT_ID` | The client id | - |
 | `OIDC__CLIENT_SECRET` | The client secret | - |
 | `PUBLIC_URL` | Public URL where service can be accessed | - |
+| `BEHIND_PROXY` | Whether app is behind a reverse proxy | `false` |
 | `DB_URI` | URI for database connection | - |
 | `ATTACHMENTS_PATH` | where paste attachments will be stored | - |
 | `AUTH_TOKEN_SECRET` | base64 encoded secret | - |

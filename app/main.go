@@ -51,6 +51,9 @@ func main() {
 	sessionProvider := app_middleware.SessionProvider{}.New(appConfig.SecureMode(), appConfig.SessionSecret)
 
 	r := chi.NewRouter()
+	if appConfig.BehindProxy {
+		r.Use(middleware.RealIP)
+	}
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(devProvider.ProviderMiddleware)
