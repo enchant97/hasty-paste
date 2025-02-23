@@ -44,7 +44,7 @@ func (c *BindConfig) AsAddress() string {
 type DevConfig struct {
 	Enabled      bool   `env:"ENABLED" envDefault:"false"`
 	ViteDevHost  string `env:"VITE_DEV_HOST,notEmpty" envDefault:"localhost:5173"`
-	ViteDistPath string `env:"VITE_DIST_PATH,notEmpty" envDefault:"./dist/assets"`
+	ViteDistPath string `env:"VITE_DIST_PATH,notEmpty" envDefault:"./dist"`
 }
 
 type OIDCConfig struct {

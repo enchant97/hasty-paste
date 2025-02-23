@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path"
 	"strings"
 
 	"github.com/enchant97/hasty-paste/app/core"
@@ -29,7 +30,7 @@ func (m ViteProvider) New(devConfig core.DevConfig) ViteProvider {
 	scriptFiles := make([]string, 0)
 	cssFiles := make([]string, 0)
 	if !devConfig.Enabled {
-		rawContent, err := os.ReadFile("dist/.vite/manifest.json")
+		rawContent, err := os.ReadFile(path.Join(devConfig.ViteDistPath, ".vite/manifest.json"))
 		if err != nil {
 			log.Fatalln("vite manifest could not be found")
 		}
@@ -52,7 +53,8 @@ func (m *ViteProvider) ProviderMiddleware(next http.Handler) http.Handler {
 		if m.devConfig.Enabled {
 			ctx = context.WithValue(r.Context(), ContextViteHeadKey,
 				`<script type="module" src="http://`+m.devConfig.ViteDevHost+`/@vite/client"></script>
-            <script type="module" src="http://`+m.devConfig.ViteDevHost+`/main.js"></script>`)
+            <script type="module" src="http://`+m.devConfig.ViteDevHost+`/main.js"></script>
+            <link rel="icon" type="image/svg+xml" href="http://`+m.devConfig.ViteDevHost+`/icon.svg">`)
 		} else {
 			builder := strings.Builder{}
 			for _, cssFile := range m.css {
@@ -61,6 +63,7 @@ func (m *ViteProvider) ProviderMiddleware(next http.Handler) http.Handler {
 			for _, scriptFile := range m.scripts {
 				builder.WriteString(`<script type="module" src="/` + scriptFile + `"></script>`)
 			}
+			builder.WriteString(`<link rel="icon" type="image/svg+xml" href="/icon.svg">`)
 			ctx = context.WithValue(r.Context(), ContextViteHeadKey, builder.String())
 		}
 		next.ServeHTTP(w, r.WithContext(ctx))
@@ -69,5 +72,5 @@ func (m *ViteProvider) ProviderMiddleware(next http.Handler) http.Handler {
 
 func (m *ViteProvider) SetupHandlers(r *chi.Mux) {
 	fs := http.FileServer(http.Dir(m.devConfig.ViteDistPath))
-	r.Handle("/assets/*", http.StripPrefix("/assets/", fs))
+	r.Handle("/*", fs)
 }
