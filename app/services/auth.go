@@ -61,18 +61,18 @@ func (s *AuthService) CheckIfValidUser(form core.LoginUserForm) (bool, error) {
 	return core.IsValidPassword(form.Password, user.PasswordHash), nil
 }
 
-func (s *AuthService) GetOIDCUser(clientID string, userSub string) (database.User, error) {
+func (s *AuthService) GetOIDCUser(oidcUser core.OIDCUser) (database.User, error) {
 	return wrapDbErrorWithValue(s.dao.Queries.GetUserByOIDC(context.Background(), database.GetUserByOIDCParams{
-		ClientID: clientID,
-		UserSub:  userSub,
+		ClientID: oidcUser.ClientID,
+		UserSub:  oidcUser.Subject,
 	}))
 }
 
-func (s *AuthService) GetOrCreateOIDCUser(username string, clientID string, userSub string) (database.User, error) {
-	user, err := s.GetOIDCUser(clientID, userSub)
+func (s *AuthService) GetOrCreateOIDCUser(oidcUser core.OIDCUserWithUsername) (database.User, error) {
+	user, err := s.GetOIDCUser(oidcUser.OIDCUser)
 	if err != nil {
 		if errors.Is(err, ErrNotFound) {
-			userID, err := s.CreateNewOIDCUser(username, clientID, userSub)
+			userID, err := s.CreateNewOIDCUser(oidcUser.Username, oidcUser.ClientID, oidcUser.Subject)
 			if err != nil {
 				return database.User{}, err
 			}

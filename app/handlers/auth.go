@@ -253,13 +253,27 @@ func (h *AuthHandler) GetOIDCCallbackPage(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// TODO validate username
+	oidcUser := core.OIDCUserWithUsername{
+		Username: userClaims.PreferredUsername,
+		OIDCUser: core.OIDCUser{
+			ClientID: h.appConfig.OIDC.ClientID,
+			Subject:  userClaims.Subject,
+		},
+	}
+
+	if err := h.validator.Struct(oidcUser); err != nil {
+		s := h.sessionProvider.GetSession(r)
+		s.AddFlash(middleware.CreateErrorFlash("given details are invalid, maybe the username is not compatible?"))
+		s.Save(r, w) // TODO handle error
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
 
 	var user database.User
 	if h.appConfig.SignupEnabled {
-		user, err = h.service.GetOrCreateOIDCUser(userClaims.PreferredUsername, h.appConfig.OIDC.ClientID, userClaims.Subject)
+		user, err = h.service.GetOrCreateOIDCUser(oidcUser)
 	} else {
-		user, err = h.service.GetOIDCUser(h.appConfig.OIDC.ClientID, userClaims.Subject)
+		user, err = h.service.GetOIDCUser(oidcUser.OIDCUser)
 	}
 	if err != nil {
 		if errors.Is(err, services.ErrConflict) {

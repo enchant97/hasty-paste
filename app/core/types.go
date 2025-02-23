@@ -27,6 +27,16 @@ type NewUserForm struct {
 	PasswordConfirm string `validate:"eqcsfield=Password,required"`
 }
 
+type OIDCUser struct {
+	ClientID string `validate:"required"`
+	Subject  string `validate:"required"`
+}
+
+type OIDCUserWithUsername struct {
+	OIDCUser
+	Username string `validate:"alphanum,lowercase,min=3,max=30,required"`
+}
+
 type LoginUserForm struct {
 	Username string `validate:"required"`
 	Password string `validate:"required"`
