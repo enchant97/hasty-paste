@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -66,6 +67,20 @@ func main() {
 	handlers.UserHandler{}.Setup(r, services.UserService{}.New(&dao, &sc), validate, &authenticationProvider, &sessionProvider)
 	handlers.AuthHandler{}.Setup(r, appConfig, services.AuthService{}.New(&dao), validate, &authenticationProvider, &sessionProvider)
 
-	log.Println("listening on: http://127.0.0.1:8080/")
-	http.ListenAndServe(":8080", r)
+	fmt.Println(`
+ooooo ooooo      o       oooooooo8 ooooooooooo ooooo  oooo
+ 888   888      888     888        88  888  88   888  88
+ 888ooo888     8  88     888oooooo     888         888
+ 888   888    8oooo88           888    888         888
+o888o o888o o88o  o888o o88oooo888    o888o       o888o
+
+oooooooooo   o       oooooooo8 ooooooooooo ooooooooooo      ooooo ooooo
+ 888    888 888     888        88  888  88  888    88        888   888
+ 888oooo88 8  88     888oooooo     888      888ooo8          888   888
+ 888      8oooo88           888    888      888    oo        888   888
+o888o   o88o  o888o o88oooo888    o888o    o888ooo8888      o888o o888o`)
+	fmt.Println()
+	log.Printf("listening on: http://%s", appConfig.Bind.AsAddress())
+	log.Printf("public access at: %s", appConfig.PublicURL)
+	http.ListenAndServe(appConfig.Bind.AsAddress(), r)
 }
