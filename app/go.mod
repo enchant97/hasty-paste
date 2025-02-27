@@ -15,16 +15,16 @@ require (
 	github.com/gorilla/sessions v1.4.0
 	github.com/labstack/gommon v0.4.2
 	github.com/yuin/goldmark v1.7.8
-	golang.org/x/crypto v0.33.0
-	golang.org/x/oauth2 v0.26.0
-	modernc.org/sqlite v1.35.0
+	golang.org/x/crypto v0.35.0
+	golang.org/x/oauth2 v0.27.0
+	modernc.org/sqlite v1.36.0
 )
 
 require (
 	github.com/dlclark/regexp2 v1.11.5 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.8 // indirect
-	github.com/go-jose/go-jose/v4 v4.0.4 // indirect
+	github.com/go-jose/go-jose/v4 v4.0.5 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
