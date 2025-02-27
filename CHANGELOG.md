@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2025-02-27
+### Added
+- V2 app
+### Removed
+- V1 app
+
 ## [1.10.0] - 2024-02-17
 ### Changed
 - Bump deps & migrate some code

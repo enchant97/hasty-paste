@@ -5,8 +5,6 @@ Hasty Paste II is a lighting fast pastebin that features a sleek and responsive 
 
 > Paste it all, with haste.
 
-> V2 is in a very early stage of development.
-
 ## Top Features
 
 {{< container/container type="grid" classes="center" >}}
