@@ -31,7 +31,7 @@ volumes:
 
 services:
   hasty-paste:
-    image: ghcr.io/enchant97/hasty-paste:3
+    image: ghcr.io/enchant97/hasty-paste:2
     restart: unless-stopped
     volumes:
       - data:/opt/hasty-paste/data
