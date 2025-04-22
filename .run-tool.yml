@@ -24,3 +24,11 @@ targets:
       - run
       - dev
     cwd: app
+  dev-app-health-check:
+    program: go
+    args:
+      - run
+      - .
+      - health-check
+    cwd: app
+    env_file: .env

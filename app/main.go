@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/go-chi/chi/v5"
@@ -26,6 +27,16 @@ func main() {
 	var appConfig core.AppConfig
 	if err := appConfig.ParseConfig(); err != nil {
 		panic(err)
+	}
+	if len(os.Args) == 2 && os.Args[1] == "health-check" {
+		resp, err := http.Get(fmt.Sprintf("http://localhost:%d/_/is-healthy", appConfig.Bind.Port))
+		if err != nil || resp.StatusCode >= 400 {
+			fmt.Println("health-check failed")
+			os.Exit(1)
+		}
+		defer resp.Body.Close()
+		fmt.Println("health-check successful")
+		os.Exit(0)
 	}
 	sc, err := storage.StorageController{}.New(appConfig.AttachmentsPath)
 	if err != nil {
@@ -62,6 +73,7 @@ func main() {
 	r.Use(authenticationProvider.ProviderMiddleware)
 	r.Use(sessionProvider.ProviderMiddleware)
 
+	handlers.AuxHandler{}.Setup(r, services.AuxService{}.New(&dao))
 	devProvider.SetupHandlers(r)
 	handlers.HomeHandler{}.Setup(r, services.HomeService{}.New(&dao, &sc), validate, &authenticationProvider, &sessionProvider, &appConfig)
 	handlers.UserHandler{}.Setup(r, services.UserService{}.New(&dao, &sc), validate, &authenticationProvider, &sessionProvider)
