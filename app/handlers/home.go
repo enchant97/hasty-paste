@@ -78,10 +78,18 @@ func (h *HomeHandler) GetPasteIDRedirect(w http.ResponseWriter, r *http.Request)
 }
 
 func (h *HomeHandler) GetNewPastePage(w http.ResponseWriter, r *http.Request) {
+	if !h.appConfig.AnonymousPastesEnabled && h.authProvider.IsCurrentUserAnonymous(r) {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
 	templ.Handler(components.NewPastePage()).ServeHTTP(w, r)
 }
 
 func (h *HomeHandler) PostNewPastePage(w http.ResponseWriter, r *http.Request) {
+	if !h.appConfig.AnonymousPastesEnabled && h.authProvider.IsCurrentUserAnonymous(r) {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
 	if err := r.ParseMultipartForm(1048576); err != nil {
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return

@@ -24,6 +24,7 @@ Configuration of the app is done through environment variables. See the below op
 | `SIGNUP_ENABLED` | Whether to allow new accounts to be created | `true` |
 | `INTERNAL_AUTH_ENABLED` | Whether to allow login for internal accounts | `true` |
 | `RANDOM_SLUG_LENGTH` | How long the randomly generated slug will be | `10` |
+| `ANONYMOUS_PASTES_ENABLED` | Whether to allow anonymous users to create new pastes | `true` |
 
 ## OIDC
 Single-Sign-On is handled via OpenID Connect and OAuth2. To use SSO you must have a compatible provider that supports the following features:
