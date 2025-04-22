@@ -23,6 +23,7 @@ type HomeHandler struct {
 	validator       *validator.Validate
 	authProvider    *middleware.AuthenticationProvider
 	sessionProvider *middleware.SessionProvider
+	appConfig       *core.AppConfig
 }
 
 func (h HomeHandler) Setup(
@@ -31,12 +32,14 @@ func (h HomeHandler) Setup(
 	v *validator.Validate,
 	ap *middleware.AuthenticationProvider,
 	sp *middleware.SessionProvider,
+	appConfig *core.AppConfig,
 ) {
 	h = HomeHandler{
 		service:         service,
 		validator:       v,
 		authProvider:    ap,
 		sessionProvider: sp,
+		appConfig:       appConfig,
 	}
 	r.Get("/", h.GetHomePage)
 	r.Get("/~/{pasteID}", h.GetPasteIDRedirect)
@@ -99,7 +102,7 @@ func (h *HomeHandler) PostNewPastePage(w http.ResponseWriter, r *http.Request) {
 
 	pasteSlug := r.PostFormValue("pasteSlug")
 	if pasteSlug == "" {
-		pasteSlug = core.GenerateRandomSlug(10)
+		pasteSlug = core.GenerateRandomSlug(h.appConfig.RandomSlugLength)
 	}
 
 	visibility := r.PostFormValue("pasteVisibility")

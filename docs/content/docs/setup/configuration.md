@@ -23,6 +23,7 @@ Configuration of the app is done through environment variables. See the below op
 | `SESSION_SECRET` | base64 encoded secret | - |
 | `SIGNUP_ENABLED` | Whether to allow new accounts to be created | `true` |
 | `INTERNAL_AUTH_ENABLED` | Whether to allow login for internal accounts | `true` |
+| `RANDOM_SLUG_LENGTH` | How long the randomly generated slug will be | `10` |
 
 ## OIDC
 Single-Sign-On is handled via OpenID Connect and OAuth2. To use SSO you must have a compatible provider that supports the following features:

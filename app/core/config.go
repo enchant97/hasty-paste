@@ -68,6 +68,7 @@ type AppConfig struct {
 	SessionSecret       Base64Decoded `env:"SESSION_SECRET,notEmpty"`
 	SignupEnabled       bool          `env:"SIGNUP_ENABLED" envDefault:"true"`
 	InternalAuthEnabled bool          `env:"INTERNAL_AUTH_ENABLED" envDefault:"true"`
+	RandomSlugLength    int           `env:"RANDOM_SLUG_LENGTH" envDefault:"10"`
 }
 
 func (ac *AppConfig) SecureMode() bool {

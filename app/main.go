@@ -63,7 +63,7 @@ func main() {
 	r.Use(sessionProvider.ProviderMiddleware)
 
 	devProvider.SetupHandlers(r)
-	handlers.HomeHandler{}.Setup(r, services.HomeService{}.New(&dao, &sc), validate, &authenticationProvider, &sessionProvider)
+	handlers.HomeHandler{}.Setup(r, services.HomeService{}.New(&dao, &sc), validate, &authenticationProvider, &sessionProvider, &appConfig)
 	handlers.UserHandler{}.Setup(r, services.UserService{}.New(&dao, &sc), validate, &authenticationProvider, &sessionProvider)
 	handlers.AuthHandler{}.Setup(r, appConfig, services.AuthService{}.New(&dao), validate, &authenticationProvider, &sessionProvider)
 
