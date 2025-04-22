@@ -2,19 +2,19 @@ package components
 
 import "github.com/alecthomas/chroma/v2/lexers"
 
+var lexerAliasOptionsHandle = templ.NewOnceHandle()
+
 templ contentFormatList(id string) {
 	<datalist id={ id }>
-		<option value="plaintext"></option>
-		<option value="markdown"></option>
-		for _, lexer := range lexers.GlobalLexerRegistry.Lexers {
-			{{ name := lexer.Config().Name }}
-			if len(lexer.Config().Aliases) > 0 {
-				{{ name = lexer.Config().Aliases[0] }}
-			}
-			if name != "markdown" && name != "plaintext" {
-				<option value={ name }></option>
-			}
-		}
+        @lexerAliasOptionsHandle.Once() {
+            <option value="plaintext"></option>
+            <option value="markdown"></option>
+            for _, lexerAlias := range lexers.Aliases(false) {
+                if lexerAlias != "markdown" && lexerAlias != "plaintext" {
+                    <option value={ lexerAlias }></option>
+                }
+            }
+        }
 	</datalist>
 }
 
