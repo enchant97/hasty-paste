@@ -17,6 +17,11 @@ func makeDirectPasteURL(ctx context.Context, pasteID uuid.UUID) string {
     return p
 }
 
+func makePasteURL(ctx context.Context, username string, pasteSlug string) string {
+    p, _ := url.JoinPath(middleware.GetAppConfig(ctx).PublicURL, fmt.Sprintf("@/%s/%s", username, pasteSlug))
+    return p
+}
+
 templ PastePage(username string, paste database.Paste, attachments []database.Attachment) {
 	@base("Paste") {
 		@header()
@@ -58,6 +63,10 @@ templ PastePage(username string, paste database.Paste, attachments []database.At
                         <tr>
                             <th class="pr-4">Direct Link</th>
                             <td><span class="select-all">{ makeDirectPasteURL(ctx, paste.ID) }</span></td>
+                        </tr>
+                        <tr>
+                            <th class="pr-4">Paste Link</th>
+                            <td><span class="select-all">{ makePasteURL(ctx, username, paste.Slug) }</span></td>
                         </tr>
                     </tbody>
                 </table>
