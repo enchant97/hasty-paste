@@ -8,7 +8,7 @@ FROM node:20-slim AS node-base
     RUN npm install --global corepack@latest
     RUN corepack enable
 
-FROM golang:1.23-alpine AS go-base
+FROM golang:1.24-alpine AS go-base
     RUN go install github.com/a-h/templ/cmd/templ@latest
     RUN go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
 
