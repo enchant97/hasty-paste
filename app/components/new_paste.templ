@@ -18,7 +18,7 @@ templ contentFormatList(id string) {
 	</datalist>
 }
 
-templ NewPastePage() {
+templ NewPastePage(attachmentsEnabled bool) {
 	@base("Home") {
 		@header()
 		<div class="p-2">
@@ -49,10 +49,12 @@ templ NewPastePage() {
 						</select>
 					</label>
 				}
-				<label class="flex flex-col gap-2">
-					<span class="label-text">Attachments</span>
-					<input class="input" type="file" name="pasteAttachmentFile[]" multiple/>
-				</label>
+                if attachmentsEnabled {
+                    <label class="flex flex-col gap-2">
+                        <span class="label-text">Attachments</span>
+                        <input class="input" type="file" name="pasteAttachmentFile[]" multiple/>
+                    </label>
+                }
 				<label class="flex flex-col gap-2">
 					<span class="label-text">Content Format*</span>
 					<input

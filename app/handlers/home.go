@@ -82,30 +82,39 @@ func (h *HomeHandler) GetNewPastePage(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
-	templ.Handler(components.NewPastePage()).ServeHTTP(w, r)
+	templ.Handler(components.NewPastePage(h.appConfig.AttachmentsEnabled)).ServeHTTP(w, r)
 }
 
 func (h *HomeHandler) PostNewPastePage(w http.ResponseWriter, r *http.Request) {
+	// ensure current user can create new pastes
 	if !h.appConfig.AnonymousPastesEnabled && h.authProvider.IsCurrentUserAnonymous(r) {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
+	// impose max body size limit
+	r.Body = http.MaxBytesReader(w, r.Body, h.appConfig.MaxPasteSize)
+	// parse the form
 	if err := r.ParseMultipartForm(1048576); err != nil {
-		http.Error(w, "Bad Request", http.StatusBadRequest)
+		if _, ok := err.(*http.MaxBytesError); ok {
+			http.Error(w, "Content Too Large", http.StatusRequestEntityTooLarge)
+		} else {
+			http.Error(w, "Bad Request", http.StatusBadRequest)
+		}
 		return
 	}
-
-	// Process all given attachments
-	// TODO needs some error checking
-	attachments := make([]core.NewPasteFormAttachment, len(r.MultipartForm.File["pasteAttachmentFile[]"]))
-	for i, fileHeader := range r.MultipartForm.File["pasteAttachmentFile[]"] {
-		attachment := core.NewPasteFormAttachment{
-			Slug: strings.Trim(fileHeader.Filename, " "),
-			Size: fileHeader.Size,
-			Type: fileHeader.Header.Get("Content-Type"),
-			Open: fileHeader.Open,
+	// Process all given attachments (if enabled)
+	var attachments []core.NewPasteFormAttachment
+	if h.appConfig.AttachmentsEnabled {
+		attachments = make([]core.NewPasteFormAttachment, len(r.MultipartForm.File["pasteAttachmentFile[]"]))
+		for i, fileHeader := range r.MultipartForm.File["pasteAttachmentFile[]"] {
+			attachment := core.NewPasteFormAttachment{
+				Slug: strings.Trim(fileHeader.Filename, " "),
+				Size: fileHeader.Size,
+				Type: fileHeader.Header.Get("Content-Type"),
+				Open: fileHeader.Open,
+			}
+			attachments[i] = attachment
 		}
-		attachments[i] = attachment
 	}
 
 	pasteSlug := r.PostFormValue("pasteSlug")
