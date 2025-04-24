@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2025-04-24
+### Added
+- #121; ability to disable anonymous paste creation
+- #122; paste size limit & ability to disable attachments
+- #123; ability to change random slug length
+- #124; docker health check
+- #129; migrate lexer alias code to official method
+### Changed
+- show paste link on paste page
+- bump deps
+- update to go1.24
+
 ## [2.0.0] - 2025-02-27
 ### Added
 - V2 app
