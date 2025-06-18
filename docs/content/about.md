@@ -8,6 +8,11 @@ Hasty Paste II is a lighting fast pastebin that features a sleek and responsive 
 ## Showcase
 ![Showcase image, showing several app pages](/showcase.webp)
 
+## Demo Video
+[![Demo Video](https://img.youtube.com/vi/s_RX7hmnrGw/0.jpg)](https://youtu.be/s_RX7hmnrGw "Demo Video")
+
+<https://youtu.be/s_RX7hmnrGw>
+
 ## Features
 - Paste visibility
     - Private
