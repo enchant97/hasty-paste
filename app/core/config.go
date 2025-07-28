@@ -55,6 +55,19 @@ type OIDCConfig struct {
 	ClientSecret string `env:"CLIENT_SECRET"`
 }
 
+type ExpiryTimeConfig struct {
+	Enabled bool `env:"ENABLED" envDefault:"false"`
+	Years   int  `env:"YEARS" envDefault:"0"`
+	Months  int  `env:"MONTHS" envDefault:"0"`
+	Days    int  `env:"DAYS" envDefault:"2"`
+	Hours   int  `env:"HOURS" envDefault:"0"`
+}
+
+type ExpiryConfig struct {
+	Anonymous ExpiryTimeConfig `envPrefix:"ANONYMOUS__"`
+	Users     ExpiryTimeConfig `envPrefix:"USERS__"`
+}
+
 type AppConfig struct {
 	Dev                    DevConfig     `envPrefix:"DEV__"`
 	Bind                   BindConfig    `envPrefix:"BIND__"`
@@ -72,6 +85,7 @@ type AppConfig struct {
 	AnonymousPastesEnabled bool          `env:"ANONYMOUS_PASTES_ENABLED" envDefault:"true"`
 	MaxPasteSize           int64         `env:"MAX_PASTE_SIZE" envDefault:"12582912"`
 	AttachmentsEnabled     bool          `env:"ATTACHMENTS_ENABLED" envDefault:"true"`
+	Expiry                 ExpiryConfig  `envPrefix:"EXPIRY__"`
 }
 
 func (ac *AppConfig) SecureMode() bool {

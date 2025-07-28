@@ -82,7 +82,31 @@ func (h *HomeHandler) GetNewPastePage(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
-	templ.Handler(components.NewPastePage(h.appConfig.AttachmentsEnabled)).ServeHTTP(w, r)
+	var defaultExpiry *time.Time
+	if h.authProvider.IsCurrentUserAnonymous(r) && h.appConfig.Expiry.Anonymous.Enabled {
+		t := time.Now().UTC()
+		t = t.Add(time.Hour * time.Duration(h.appConfig.Expiry.Anonymous.Hours))
+		t = t.AddDate(
+			h.appConfig.Expiry.Anonymous.Years,
+			h.appConfig.Expiry.Anonymous.Months,
+			h.appConfig.Expiry.Anonymous.Days,
+		)
+		defaultExpiry = &t
+
+	} else if !h.authProvider.IsCurrentUserAnonymous(r) && h.appConfig.Expiry.Users.Enabled {
+		t := time.Now().UTC()
+		t = t.Add(time.Hour * time.Duration(h.appConfig.Expiry.Anonymous.Hours))
+		t = t.AddDate(
+			h.appConfig.Expiry.Anonymous.Years,
+			h.appConfig.Expiry.Anonymous.Months,
+			h.appConfig.Expiry.Anonymous.Days,
+		)
+		defaultExpiry = &t
+	}
+	templ.Handler(components.NewPastePage(
+		h.appConfig.AttachmentsEnabled,
+		defaultExpiry,
+	)).ServeHTTP(w, r)
 }
 
 func (h *HomeHandler) PostNewPastePage(w http.ResponseWriter, r *http.Request) {

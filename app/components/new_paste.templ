@@ -1,6 +1,7 @@
 package components
 
 import "github.com/alecthomas/chroma/v2/lexers"
+import "time"
 
 var lexerAliasOptionsHandle = templ.NewOnceHandle()
 
@@ -18,7 +19,7 @@ templ contentFormatList(id string) {
 	</datalist>
 }
 
-templ NewPastePage(attachmentsEnabled bool) {
+templ NewPastePage(attachmentsEnabled bool, defaultExpiry *time.Time) {
 	@base("Home") {
 		@header()
 		<div class="p-2">
@@ -35,7 +36,20 @@ templ NewPastePage(attachmentsEnabled bool) {
 				</label>
 				<label class="flex flex-col gap-2">
 					<span class="label-text">Expiry</span>
-					<input class="input" type="datetime-local" name="pasteExpiry"/>
+                    if defaultExpiry == nil {
+					    <input
+                            class="input"
+                            type="datetime-local"
+                            name="pasteExpiry"
+                        />
+                    } else {
+					    <input
+                            class="input"
+                            type="datetime-local"
+                            name="pasteExpiry"
+                            value={defaultExpiry.Format("2006-01-02T15:04")}
+                        />
+                    }
 				</label>
 				if getCurrentUsername(ctx) == "anonymous" {
 					<input type="hidden" name="pasteVisibility" value="public"/>

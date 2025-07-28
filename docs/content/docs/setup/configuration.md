@@ -27,6 +27,16 @@ Configuration of the app is done through environment variables. See the below op
 | `ANONYMOUS_PASTES_ENABLED` | Whether to allow anonymous users to create new pastes | `true` |
 | `MAX_PASTE_SIZE` | Max paste size in bytes including all attachments | `12582912` |
 | `ATTACHMENTS_ENABLED` | Whether to allow attachments | `true` |
+| `EXPIRY__ANONYMOUS__ENABLED` | Whether to enable default expiry for anonymous users | `false` |
+| `EXPIRY__ANONYMOUS__YEARS` | | `0` |
+| `EXPIRY__ANONYMOUS__MONTHS` | | `0` |
+| `EXPIRY__ANONYMOUS__DAYS` | | `2` |
+| `EXPIRY__ANONYMOUS__HOURS` | | `0` |
+| `EXPIRY__USERS__ENABLED` | Whether to enable default expiry for users with accounts | `false` |
+| `EXPIRY__USERS__YEARS` | | `0` |
+| `EXPIRY__USERS__MONTHS` | | `0` |
+| `EXPIRY__USERS__DAYS` | | `2` |
+| `EXPIRY__USERS__HOURS` | | `0` |
 
 ## OIDC
 Single-Sign-On is handled via OpenID Connect and OAuth2. To use SSO you must have a compatible provider that supports the following features:
