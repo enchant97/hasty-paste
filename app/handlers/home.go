@@ -18,6 +18,17 @@ import (
 	"github.com/google/uuid"
 )
 
+func makeExpiryTime(timeConfig core.ExpiryTimeConfig) time.Time {
+	t := time.Now().UTC()
+	t = t.Add(time.Hour * time.Duration(timeConfig.Hours))
+	t = t.AddDate(
+		timeConfig.Years,
+		timeConfig.Months,
+		timeConfig.Days,
+	)
+	return t
+}
+
 type HomeHandler struct {
 	service         services.HomeService
 	validator       *validator.Validate
@@ -84,23 +95,11 @@ func (h *HomeHandler) GetNewPastePage(w http.ResponseWriter, r *http.Request) {
 	}
 	var defaultExpiry *time.Time
 	if h.authProvider.IsCurrentUserAnonymous(r) && h.appConfig.Expiry.Anonymous.Enabled {
-		t := time.Now().UTC()
-		t = t.Add(time.Hour * time.Duration(h.appConfig.Expiry.Anonymous.Hours))
-		t = t.AddDate(
-			h.appConfig.Expiry.Anonymous.Years,
-			h.appConfig.Expiry.Anonymous.Months,
-			h.appConfig.Expiry.Anonymous.Days,
-		)
+		t := makeExpiryTime(h.appConfig.Expiry.Anonymous)
 		defaultExpiry = &t
 
 	} else if !h.authProvider.IsCurrentUserAnonymous(r) && h.appConfig.Expiry.Users.Enabled {
-		t := time.Now().UTC()
-		t = t.Add(time.Hour * time.Duration(h.appConfig.Expiry.Anonymous.Hours))
-		t = t.AddDate(
-			h.appConfig.Expiry.Anonymous.Years,
-			h.appConfig.Expiry.Anonymous.Months,
-			h.appConfig.Expiry.Anonymous.Days,
-		)
+		t := makeExpiryTime(h.appConfig.Expiry.Users)
 		defaultExpiry = &t
 	}
 	templ.Handler(components.NewPastePage(
@@ -160,6 +159,19 @@ func (h *HomeHandler) PostNewPastePage(w http.ResponseWriter, r *http.Request) {
 		} else {
 			expiry = &t
 		}
+	}
+
+	// set an expiry if provided is to long or unset when expiry limit is enabled
+	if h.authProvider.IsCurrentUserAnonymous(r) &&
+		h.appConfig.Expiry.Anonymous.LimitEnabled &&
+		(expiry == nil || expiry.After(makeExpiryTime(h.appConfig.Expiry.Anonymous))) {
+		t := makeExpiryTime(h.appConfig.Expiry.Anonymous)
+		expiry = &t
+	} else if !h.authProvider.IsCurrentUserAnonymous(r) &&
+		h.appConfig.Expiry.Users.LimitEnabled &&
+		(expiry == nil || expiry.After(makeExpiryTime(h.appConfig.Expiry.Users))) {
+		t := makeExpiryTime(h.appConfig.Expiry.Users)
+		expiry = &t
 	}
 
 	form := core.NewPasteForm{

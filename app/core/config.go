@@ -56,11 +56,12 @@ type OIDCConfig struct {
 }
 
 type ExpiryTimeConfig struct {
-	Enabled bool `env:"ENABLED" envDefault:"false"`
-	Years   int  `env:"YEARS" envDefault:"0"`
-	Months  int  `env:"MONTHS" envDefault:"0"`
-	Days    int  `env:"DAYS" envDefault:"2"`
-	Hours   int  `env:"HOURS" envDefault:"0"`
+	Enabled      bool `env:"ENABLED" envDefault:"false"`
+	LimitEnabled bool `env:"LIMIT_ENABLED" envDefault:"false"`
+	Years        int  `env:"YEARS" envDefault:"0"`
+	Months       int  `env:"MONTHS" envDefault:"0"`
+	Days         int  `env:"DAYS" envDefault:"2"`
+	Hours        int  `env:"HOURS" envDefault:"0"`
 }
 
 type ExpiryConfig struct {

@@ -28,11 +28,13 @@ Configuration of the app is done through environment variables. See the below op
 | `MAX_PASTE_SIZE` | Max paste size in bytes including all attachments | `12582912` |
 | `ATTACHMENTS_ENABLED` | Whether to allow attachments | `true` |
 | `EXPIRY__ANONYMOUS__ENABLED` | Whether to enable default expiry for anonymous users | `false` |
+| `EXPIRY__ANONYMOUS__LIMIT_ENABLED` | Whether to force an expiry for anonymous users | `false` |
 | `EXPIRY__ANONYMOUS__YEARS` | | `0` |
 | `EXPIRY__ANONYMOUS__MONTHS` | | `0` |
 | `EXPIRY__ANONYMOUS__DAYS` | | `2` |
 | `EXPIRY__ANONYMOUS__HOURS` | | `0` |
 | `EXPIRY__USERS__ENABLED` | Whether to enable default expiry for users with accounts | `false` |
+| `EXPIRY__USERS__LIMIT_ENABLED` | Whether to force an expiry for users with accounts | `false` |
 | `EXPIRY__USERS__YEARS` | | `0` |
 | `EXPIRY__USERS__MONTHS` | | `0` |
 | `EXPIRY__USERS__DAYS` | | `2` |
