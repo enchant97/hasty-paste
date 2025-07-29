@@ -28,6 +28,7 @@ jobs:
       run: |
         go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
         go install github.com/a-h/templ/cmd/templ@latest
+        export PATH=$PATH:$HOME/go/bin
 
     - name: Run codegen for go
       working-directory: app
