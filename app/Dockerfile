@@ -43,6 +43,7 @@ FROM gcr.io/distroless/static-debian12
     EXPOSE 8080
     VOLUME /opt/hasty-paste/data
 
-    CMD [ "./hasty-paste" ]
+    ENTRYPOINT [ "./hasty-paste" ]
+    CMD [ "serve" ]
     HEALTHCHECK --interval=2m --timeout=5s --start-period=20s --start-interval=5s --retries=3 \
         CMD [ "./hasty-paste", "health-check" ]
