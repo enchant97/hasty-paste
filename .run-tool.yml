@@ -19,6 +19,15 @@ targets:
     env_file: .env
     before_hooks:
       - gen-templates
+  dev-app-cmd:
+    program: go
+    args:
+      - run
+      - .
+    cwd: app
+    env_file: .env
+    before_hooks:
+      - gen-templates
   dev-app-vite:
     program: pnpm
     args:

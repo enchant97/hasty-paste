@@ -50,6 +50,11 @@ WHERE username = sqlc.arg(username) AND (
 ) AND (p.expires_at IS NULL OR p.expires_at > CURRENT_TIMESTAMP)
 ORDER BY p.id DESC;
 
+-- name: GetExpiredPastesWithLimit :many
+SELECT id FROM pastes
+WHERE expires_at IS NOT NULL AND expires_at < CURRENT_TIMESTAMP
+LIMIT 20;
+
 -- name: GetPasteBySlug :one
 SELECT p.* FROM pastes as p
 INNER JOIN users AS u ON u.id = p.owner_id
@@ -80,6 +85,10 @@ WHERE (
     (p.expires_at IS NULL OR p.expires_at > CURRENT_TIMESTAMP)
 );
 
+-- name: GetAttachmentsByPasteIdNoExpiryCheck :many
+SELECT id FROM attachments
+WHERE paste_id = ?;
+
 -- name: GetAttachmentBySlug :one
 SELECT a.* FROM attachments as a
 INNER JOIN pastes AS p ON a.paste_id = p.id
@@ -96,3 +105,9 @@ WHERE
         AND (p.expires_at IS NULL OR p.expires_at > CURRENT_TIMESTAMP)
     )
 LIMIT 1;
+
+-- name: DeletePasteByID :exec
+DELETE FROM pastes WHERE id = ?;
+
+-- name: DeleteAttachmentByID :exec
+DELETE FROM attachments WHERE id = ?;
