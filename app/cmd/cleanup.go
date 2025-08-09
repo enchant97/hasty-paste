@@ -25,7 +25,7 @@ var cleanupCmd = &cobra.Command{
 
 func removeExpired() error {
 	for {
-		pasteIDs, err := dao.Queries.GetExpiredPastesWithLimit(context.Background())
+		pasteIDs, err := dao.Queries.AdminGetExpiredPastesWithLimit(context.Background())
 		if err != nil {
 			return err
 		} else if len(pasteIDs) == 0 {
@@ -33,7 +33,7 @@ func removeExpired() error {
 		}
 		for _, pasteID := range pasteIDs {
 			log.Printf("found expired paste: '%s'\n", pasteID)
-			attachmentIDs, err := dao.Queries.GetAttachmentsByPasteIdNoExpiryCheck(context.Background(), pasteID)
+			attachmentIDs, err := dao.Queries.AdminGetAttachmentsByPasteId(context.Background(), pasteID)
 			if err != nil {
 				return err
 			}

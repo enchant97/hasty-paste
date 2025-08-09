@@ -50,7 +50,7 @@ WHERE username = sqlc.arg(username) AND (
 ) AND (p.expires_at IS NULL OR p.expires_at > CURRENT_TIMESTAMP)
 ORDER BY p.id DESC;
 
--- name: GetExpiredPastesWithLimit :many
+-- name: AdminGetExpiredPastesWithLimit :many
 SELECT id FROM pastes
 WHERE expires_at IS NOT NULL AND expires_at < CURRENT_TIMESTAMP
 LIMIT 20;
@@ -85,7 +85,7 @@ WHERE (
     (p.expires_at IS NULL OR p.expires_at > CURRENT_TIMESTAMP)
 );
 
--- name: GetAttachmentsByPasteIdNoExpiryCheck :many
+-- name: AdminGetAttachmentsByPasteId :many
 SELECT id FROM attachments
 WHERE paste_id = ?;
 
