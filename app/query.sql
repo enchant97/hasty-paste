@@ -111,3 +111,8 @@ DELETE FROM pastes WHERE id = ?;
 
 -- name: DeleteAttachmentByID :exec
 DELETE FROM attachments WHERE id = ?;
+
+-- name: AdminGetPastesInDateRangeWithLimit :many
+SELECT id FROM pastes as p
+WHERE created_at < sqlc.arg(before) AND created_at > sqlc.arg(after) AND (sqlc.arg(user_id) = NULL OR sqlc.arg(user_id) = owner_id)
+LIMIT 20;
