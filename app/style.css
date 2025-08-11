@@ -8,6 +8,7 @@
     --color-brand-500: var(--color-brand);
     --color-brand-600: oklch(from var(--color-brand) calc(l/2 + .2) c h);
     --color-brand-700: oklch(from var(--color-brand) calc(l/2 + .1) c h);
+    --color-brand-800: oklch(from var(--color-brand) calc(l/2 + .06) c h);
 
     --color-base-light-100: var(--color-white);
     --color-base-light-200: var(--color-zinc-100);
@@ -15,6 +16,14 @@
     --color-base-dark-100: var(--color-zinc-900);
     --color-base-dark-200: var(--color-zinc-800);
     --color-base-dark-300: var(--color-zinc-700);
+}
+
+@utility shadow-glass {
+    box-shadow: inset -1px 1px 3px 0 rgba(0, 0, 0, 0.2), 0px 0px 5px 0px rgba(0, 0, 0, 0.1);
+
+    @variant dark {
+        box-shadow: inset -1px 1px 3px 0 rgba(255, 255, 255, 0.3), 0px 0px 5px 0px rgba(0, 0, 0, 0.4);
+    }
 }
 
 @layer base {
@@ -43,6 +52,10 @@
 }
 
 @layer components {
+    .navbar {
+        @apply flex items-center gap-2 p-2 shadow-glass rounded-3xl min-h-16;
+    }
+
     .flashes {
         @apply fixed bottom-4 right-4 flex flex-col gap-2;
     }
@@ -75,17 +88,16 @@
         @apply p-10 flex flex-col gap-1 items-center;
     }
 
-    .btn.btn-neutral {
-        @apply bg-base-light-100 shadow-sm;
+    .btn-neutral {
+        @apply bg-base-light-100 shadow-sm shadow-glass;
 
         @variant dark {
             @apply bg-base-dark-100;
         }
     }
 
-
-    .btn.btn-primary {
-        @apply bg-brand-400 shadow-sm;
+    .btn-primary {
+        @apply bg-brand-400 shadow-sm shadow-glass hover:bg-brand-400;
 
         @variant dark {
             @apply bg-brand-600;
@@ -93,10 +105,18 @@
     }
 
     .btn {
-        @apply px-4 py-2 cursor-pointer font-bold text-sm text-center rounded-md uppercase duration-200 hover:bg-base-light-300;
+        @apply px-4 py-2 cursor-pointer font-bold text-sm text-center rounded-xl uppercase duration-200 hover:bg-base-light-300;
 
         @variant dark {
             @apply hover:bg-base-dark-300;
+        }
+    }
+
+    .btn-primary {
+        @apply text-white bg-brand-500 shadow-sm shadow-glass hover:bg-brand-600;
+
+        @variant dark {
+            @apply bg-brand-700 hover:bg-brand-800;
         }
     }
 
@@ -105,7 +125,7 @@
     }
 
     .input {
-        @apply px-2 py-1.5 rounded-md bg-zinc-200 duration-200 border border-zinc-300;
+        @apply px-2 py-1.5 rounded-xl duration-200 border border-zinc-300 shadow-glass;
 
         @variant dark {
             @apply bg-base-dark-100 border-base-dark-300;

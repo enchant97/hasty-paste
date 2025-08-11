@@ -50,19 +50,21 @@ templ base(title string) {
 
 templ header() {
     {{ currentUsername := getCurrentUsername(ctx) }}
-    <header class="flex items-center gap-2 p-2 border-b-4 border-brand mb-4">
-        <a class="btn mr-auto" href="/">Hasty Paste II</a>
-        <a class="btn btn-neutral" href="/">Home</a>
-        <a class="btn btn-neutral" href="/new">New Paste</a>
-        if currentUsername == "anonymous" {
-            <a class="btn btn-neutral" href={ templ.URL(fmt.Sprintf("/@/%s",
-                currentUsername)) }>Public Area</a>
-            <a class="btn btn-neutral" href="/login">Sign In</a>
-        } else {
-            <a class="btn btn-neutral" href={ templ.URL(fmt.Sprintf("/@/%s",
-                currentUsername)) }>My Area</a>
-            <a class="btn btn-neutral" href="/logout">Sign Out</a>
-        }
+    <header class="p-2 mb-4">
+        <nav class="navbar">
+            <a class="btn mr-auto" href="/">Hasty Paste II</a>
+            <a class="btn btn-neutral" href="/">Home</a>
+            <a class="btn btn-neutral" href="/new">New Paste</a>
+            if currentUsername == "anonymous" {
+                <a class="btn btn-neutral" href={ templ.URL(fmt.Sprintf("/@/%s",
+                    currentUsername)) }>Public Area</a>
+                <a class="btn btn-neutral" href="/login">Sign In</a>
+            } else {
+                <a class="btn btn-neutral" href={ templ.URL(fmt.Sprintf("/@/%s",
+                    currentUsername)) }>My Area</a>
+                <a class="btn btn-neutral" href="/logout">Sign Out</a>
+            }
+        </nav>
     </header>
 }
 

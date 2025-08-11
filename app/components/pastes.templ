@@ -10,35 +10,33 @@ templ PastesPage(username string, pastes []database.GetLatestPastesByUserRow) {
 	@base(fmt.Sprintf("%s's Pastes", username)) {
 		@header()
 		<div class="p-2">
-			<h1 class="my-2">{ fmt.Sprintf("%s's Pastes", username) }</h1>
-			<div class="bg-base-light-200 dark:bg-base-dark-200 rounded-md shadow-sm p-4">
-				<ul class="flex flex-col gap-2">
-					for _, paste := range pastes {
-						<li
-                            data-paste-id={ paste.ID.String() }
-                            class="p-4 rounded-md duration-200 bg-base-light-100 dark:bg-base-dark-100 shadow-sm hover:bg-base-light-300 dark:hover:bg-base-dark-300"
-                        >
-							<a href={ templ.URL(fmt.Sprintf("/@/%s/%s", username, paste.Slug)) }>
-								<span class="block">{ paste.Slug }</span>
-								<span class="text-xs block ml-4">
-									by
-									<span class="italic">
-										{ username }
-									</span>
-                                    at
-                                    <time class="italic" datetime={ paste.CreatedAt.Format(time.RFC3339) }>
-                                        { paste.CreatedAt.Format(time.DateOnly) }
-                                    </time>
-                                    -
-									<span class="italic">
-										({ paste.Visibility })
-									</span>
+			<h1 class="my-2 text-center">{ fmt.Sprintf("%s's Pastes", username) }</h1>
+			<ul class="flex flex-col gap-2">
+				for _, paste := range pastes {
+					<li
+						data-paste-id={ paste.ID.String() }
+						class="p-4 rounded-2xl shadow-glass duration-200 bg-base-light-100 dark:bg-base-dark-100 shadow-sm hover:bg-base-light-300 dark:hover:bg-base-dark-300"
+					>
+						<a href={ templ.URL(fmt.Sprintf("/@/%s/%s", username, paste.Slug)) }>
+							<span class="block">{ paste.Slug }</span>
+							<span class="text-xs block ml-4">
+								by
+								<span class="italic">
+									{ username }
 								</span>
-							</a>
-						</li>
-					}
-				</ul>
-			</div>
+								at
+								<time class="italic" datetime={ paste.CreatedAt.Format(time.RFC3339) }>
+									{ paste.CreatedAt.Format(time.DateOnly) }
+								</time>
+								-
+								<span class="italic">
+									({ paste.Visibility })
+								</span>
+							</span>
+						</a>
+					</li>
+				}
+			</ul>
 		</div>
 		@footer()
 	}

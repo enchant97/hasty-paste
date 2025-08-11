@@ -23,9 +23,9 @@ templ NewPastePage(attachmentsEnabled bool, defaultExpiry *time.Time) {
 	@base("Home") {
 		@header()
 		<div class="p-2">
-			<h1 class="my-2">New Paste</h1>
+			<h1 class="my-2 text-center">New Paste</h1>
 			<form
-				class="flex flex-col gap-2 bg-base-light-200 dark:bg-base-dark-200 rounded-md shadow-sm p-4"
+				class="flex flex-col gap-2 max-w-4xl mx-auto"
 				method="post"
 				enctype="multipart/form-data"
 				action="/new/_post"
