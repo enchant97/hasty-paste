@@ -53,7 +53,7 @@
 
 @layer components {
     .navbar {
-        @apply flex items-center gap-2 p-2 shadow-glass rounded-3xl min-h-16;
+        @apply flex max-sm:flex-col max-sm:items-stretch items-center gap-2 p-2 shadow-glass rounded-3xl min-h-16;
     }
 
     .flashes {
