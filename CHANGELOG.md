@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2025-08-18
+### Added
+- #127; more expiry controls
+- admin cli (part of #120)
+### Changed
+- match ui with Note Mark
+### Fixed
+- fix navbar going off screen on mobile
+
 ## [2.1.0] - 2025-04-24
 ### Added
 - #121; ability to disable anonymous paste creation
