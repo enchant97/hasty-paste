@@ -24,17 +24,11 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Install go build deps
-      run: |
-        go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
-        go install github.com/a-h/templ/cmd/templ@latest
-        export PATH=$PATH:$HOME/go/bin
-
     - name: Run codegen for go
       working-directory: app
       run: |
-        sqlc generate
-        templ generate
+        go tool sqlc generate
+        go tool templ generate
 
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3

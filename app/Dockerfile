@@ -8,10 +8,6 @@ FROM node:20-slim AS node-base
     RUN npm install --global corepack@latest
     RUN corepack enable
 
-FROM golang:1.24-alpine AS go-base
-    RUN go install github.com/a-h/templ/cmd/templ@latest
-    RUN go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
-
 FROM node-base AS node-build
     WORKDIR /opt/hasty-paste
 
@@ -20,13 +16,13 @@ FROM node-base AS node-build
     RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
     RUN pnpm run build
 
-FROM go-base AS go-build
+FROM golang:1.24-alpine AS go-build
     WORKDIR /opt/hasty-paste
 
     COPY . .
 
-    RUN sqlc generate
-    RUN templ generate
+    RUN go tool sqlc generate
+    RUN go tool templ generate
     RUN CGO_ENABLED=0 GOOS=linux go build -o ./hasty-paste
 
 FROM gcr.io/distroless/static-debian12
