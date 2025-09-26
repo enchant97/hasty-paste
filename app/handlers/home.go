@@ -56,6 +56,7 @@ func (h HomeHandler) Setup(
 	r.Get("/~/{pasteID}", h.GetPasteIDRedirect)
 	r.Get("/new", h.GetNewPastePage)
 	r.Post("/new/_post", h.PostNewPastePage)
+	r.Get("/manage/paste/{pasteID}/_delete", h.GetDeletePaste)
 }
 
 func (h *HomeHandler) GetHomePage(w http.ResponseWriter, r *http.Request) {
@@ -200,5 +201,22 @@ func (h *HomeHandler) PostNewPastePage(w http.ResponseWriter, r *http.Request) {
 		return
 	} else {
 		http.Redirect(w, r, fmt.Sprintf("/~/%s", pasteID.String()), http.StatusSeeOther)
+	}
+}
+
+func (h *HomeHandler) GetDeletePaste(w http.ResponseWriter, r *http.Request) {
+	if h.authProvider.IsCurrentUserAnonymous(r) {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+	pasteID, err := uuid.Parse(r.PathValue("pasteID"))
+	if err != nil {
+		NotFoundErrorResponse(w, r)
+		return
+	}
+	if err := h.service.DeletePasteByID(h.authProvider.GetCurrentUserID(r), pasteID); err != nil {
+		InternalErrorResponse(w, err)
+	} else {
+		http.Redirect(w, r, fmt.Sprintf("/@/%s", h.authProvider.GetCurrentUsername(r)), http.StatusSeeOther)
 	}
 }

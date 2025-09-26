@@ -45,11 +45,11 @@ var removePastesByIdCmd = &cobra.Command{
 				if err := sc.DeletePasteAttachment(attachmentID); err != nil {
 					return err
 				}
-				if err := dao.Queries.DeleteAttachmentByID(context.Background(), attachmentID); err != nil {
+				if err := dao.Queries.AdminDeleteAttachmentByID(context.Background(), attachmentID); err != nil {
 					return err
 				}
 			}
-			if err := dao.Queries.DeletePasteByID(context.Background(), pasteID); err != nil {
+			if err := dao.Queries.AdminDeletePasteByID(context.Background(), pasteID); err != nil {
 				return err
 			}
 			log.Printf("removed paste: '%s' and %d attachments\n", pasteID, len(attachmentIDs))
@@ -93,11 +93,11 @@ var removePastesInRangeCmd = &cobra.Command{
 					if err := sc.DeletePasteAttachment(attachmentID); err != nil {
 						return err
 					}
-					if err := dao.Queries.DeleteAttachmentByID(context.Background(), attachmentID); err != nil {
+					if err := dao.Queries.AdminDeleteAttachmentByID(context.Background(), attachmentID); err != nil {
 						return err
 					}
 				}
-				if err := dao.Queries.DeletePasteByID(context.Background(), pasteID); err != nil {
+				if err := dao.Queries.AdminDeletePasteByID(context.Background(), pasteID); err != nil {
 					return err
 				}
 				log.Printf("removed paste: '%s' and %d attachments\n", pasteID, len(attachmentIDs))

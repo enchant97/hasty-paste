@@ -94,3 +94,10 @@ func (s *HomeService) NewPaste(ownerID uuid.UUID, pasteForm core.NewPasteForm) (
 
 	return wrapDbErrorWithValue(pasteID, tx.Commit())
 }
+
+func (s *HomeService) DeletePasteByID(currentUserID uuid.UUID, pasteID uuid.UUID) error {
+	return s.dao.Queries.MarkPasteAsDeletedByID(context.Background(), database.MarkPasteAsDeletedByIDParams{
+		CurrentUserID: currentUserID,
+		PasteID:       pasteID,
+	})
+}

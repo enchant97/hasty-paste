@@ -27,6 +27,11 @@ templ PastePage(username string, paste database.Paste, attachments []database.At
 		@header()
 		<div data-paste-id={ paste.ID.String() } class="p-2 gap-2 flex flex-col">
             <h1 class="my-2 text-center">{ paste.Slug }</h1>
+            if getCurrentUsername(ctx) != "anonymous" && getCurrentUsername(ctx) == username {
+                <div class="flex justify-center gap-2 mx-auto">
+                    <a class="btn btn-neutral" href={ templ.URL(fmt.Sprintf("/manage/paste/%s/_delete", paste.ID)) }>Delete</a>
+                </div>
+            }
 			<div class="rounded-2xl shadow-sm shadow-glass p-4">
 				<h2 class="my-2">Info</h2>
                 <table class="text-left text-sm">
