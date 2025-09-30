@@ -101,3 +101,7 @@ func (s *HomeService) DeletePasteByID(currentUserID uuid.UUID, pasteID uuid.UUID
 		PasteID:       pasteID,
 	})
 }
+
+func (s *HomeService) DeleteUserByID(currentUserID uuid.UUID) error {
+	return s.dao.Queries.MarkUserAsDeletedByID(context.Background(), currentUserID)
+}

@@ -15,7 +15,7 @@ var (
 
 var cleanupCmd = &cobra.Command{
 	Use:   "cleanup",
-	Short: "Cleanup pastes",
+	Short: "Cleanup deleted and expired",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if cleanupExpiredEnabled {
 			if err := removeExpired(); err != nil {
@@ -70,6 +70,45 @@ func removeExpired() error {
 }
 
 func removeDeleted() error {
+	// remove deleted accounts and related pastes
+	for {
+		userIDs, err := dao.Queries.AdminGetDeletedUsersWithLimit(context.Background())
+		if err != nil {
+			return err
+		} else if len(userIDs) == 0 {
+			break
+		}
+		for _, userID := range userIDs {
+			log.Printf("found deleted user '%s'", userID)
+			if err := dao.Queries.AdminDeleteUserOidcMappingsByID(context.Background(), userID); err != nil {
+				return err
+			}
+			for {
+				pasteIDs, err := dao.Queries.AdminGetDeletedPastesWithLimit(context.Background())
+				if err != nil {
+					return err
+				} else if len(pasteIDs) == 0 {
+					break
+				}
+				for _, pasteID := range pasteIDs {
+					log.Printf("found paste: '%s'\n", pasteID)
+					attachmentCount, err := removeAttachments(pasteID)
+					if err != nil {
+						return err
+					}
+					if err := dao.Queries.AdminDeletePasteByID(context.Background(), pasteID); err != nil {
+						return err
+					}
+					log.Printf("removed paste: '%s' and %d attachments\n", pasteID, attachmentCount)
+				}
+			}
+			if err := dao.Queries.AdminDeleteUserByID(context.Background(), userID); err != nil {
+				return err
+			}
+			log.Printf("removed deleted user and their pastes '%s'", userID)
+		}
+	}
+	// remove just deleted pastes
 	for {
 		pasteIDs, err := dao.Queries.AdminGetDeletedPastesWithLimit(context.Background())
 		if err != nil {
@@ -93,6 +132,6 @@ func removeDeleted() error {
 
 func init() {
 	cleanupCmd.Flags().BoolVar(&cleanupExpiredEnabled, "expired", false, "Enable cleanup for expired pastes")
-	cleanupCmd.Flags().BoolVar(&cleanupDeletedEnabled, "deleted", false, "Enable cleanup for user deleted pastes")
+	cleanupCmd.Flags().BoolVar(&cleanupDeletedEnabled, "deleted", false, "Enable cleanup for user deleted pastes & accounts")
 	rootCmd.AddCommand(cleanupCmd)
 }

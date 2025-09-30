@@ -104,6 +104,14 @@
         }
     }
 
+    .btn-error {
+        @apply bg-red-600;
+
+        @variant dark {
+            @apply bg-red-800;
+        }
+    }
+
     .btn {
         @apply px-4 py-2 cursor-pointer font-bold text-sm text-center rounded-xl uppercase duration-200 hover:bg-base-light-300;
 
@@ -130,5 +138,13 @@
         @variant dark {
             @apply bg-base-dark-100 border-base-dark-300;
         }
+    }
+
+    .input-confirm {
+        @apply flex gap-4 items-center;
+    }
+
+    .input-confirm .input-confirm-request:not(:checked)~.input-confirm-confirm {
+        @apply hidden;
     }
 }

@@ -11,7 +11,16 @@ templ PastesPage(username string, pastes []database.GetLatestPastesByUserRow) {
 		@header()
 		<div class="p-2">
 			<h1 class="my-2 text-center">{ fmt.Sprintf("%s's Pastes", username) }</h1>
-			<ul class="flex flex-col gap-2">
+			if getCurrentUsername(ctx) != "anonymous" && getCurrentUsername(ctx) == username {
+				<div class="flex justify-center gap-2 mx-auto">
+					<label class="input input-confirm">
+						Delete Account
+						<input class="input-confirm-request" type="checkbox"/>
+						<a class="btn btn-error input-confirm-confirm" href="/manage/user/_delete">Confirm Deletion</a>
+					</label>
+				</div>
+			}
+			<ul class="flex flex-col gap-2 mt-4">
 				for _, paste := range pastes {
 					<li
 						data-paste-id={ paste.ID.String() }
