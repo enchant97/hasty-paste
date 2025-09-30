@@ -29,7 +29,11 @@ templ PastePage(username string, paste database.Paste, attachments []database.At
             <h1 class="my-2 text-center">{ paste.Slug }</h1>
             if getCurrentUsername(ctx) != "anonymous" && getCurrentUsername(ctx) == username {
                 <div class="flex justify-center gap-2 mx-auto">
-                    <a class="btn btn-neutral" href={ templ.URL(fmt.Sprintf("/manage/paste/%s/_delete", paste.ID)) }>Delete</a>
+					<label class="input input-confirm">
+						Delete Paste
+						<input class="input-confirm-request" type="checkbox"/>
+						<a class="btn btn-error input-confirm-confirm" href={ templ.URL(fmt.Sprintf("/manage/paste/%s/_delete", paste.ID)) }>Confirm Deletion</a>
+					</label>
                 </div>
             }
 			<div class="rounded-2xl shadow-sm shadow-glass p-4">
