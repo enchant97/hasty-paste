@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM node:20-slim AS node-base
+FROM node:22-slim AS node-base
     ENV PNPM_HOME="/pnpm"
     ENV PATH="$PNPM_HOME:$PATH"
 
@@ -16,7 +16,7 @@ FROM node-base AS node-build
     RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
     RUN pnpm run build
 
-FROM golang:1.24-alpine AS go-build
+FROM golang:1.25-alpine AS go-build
     WORKDIR /opt/hasty-paste
 
     COPY . .

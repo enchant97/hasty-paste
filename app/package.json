@@ -5,6 +5,10 @@
   "private": true,
   "license": "AGPL-3.0-only",
   "type": "module",
+  "engines": {
+      "node": "^22.10",
+      "pnpm": "^10.17.1"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
