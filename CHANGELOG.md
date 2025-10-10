@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2025-10-10
+### Added
+- #138; User can delete their own pastes and account
+### Changed
+- Cleanup now removes deleted accounts and pastes
+- Require Node V22 and Go V1.25
+
 ## [2.2.0] - 2025-08-18
 ### Added
 - #127; more expiry controls
