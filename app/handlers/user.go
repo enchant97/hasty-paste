@@ -33,9 +33,13 @@ func (h UserHandler) Setup(
 		authProvider:    ap,
 		sessionProvider: sp,
 	}
-	r.Get("/@/{username}", h.GetPastes)
-	r.Get("/@/{username}/{pasteSlug}", h.GetPaste)
-	r.Get("/@/{username}/{pasteSlug}/{attachmentSlug}", h.GetPasteAttachment)
+	r.Group(func(r chi.Router) {
+		r.Use(ap.ProviderMiddleware)
+		r.Use(sp.ProviderMiddleware)
+		r.Get("/@/{username}", h.GetPastes)
+		r.Get("/@/{username}/{pasteSlug}", h.GetPaste)
+		r.Get("/@/{username}/{pasteSlug}/{attachmentSlug}", h.GetPasteAttachment)
+	})
 }
 
 func (h *UserHandler) GetPastes(w http.ResponseWriter, r *http.Request) {

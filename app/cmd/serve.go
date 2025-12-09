@@ -27,6 +27,7 @@ var serveCmd = &cobra.Command{
 		sessionProvider := app_middleware.SessionProvider{}.New(appConfig.SecureMode(), appConfig.SessionSecret)
 
 		r := chi.NewRouter()
+		// global middleware
 		if appConfig.BehindProxy {
 			r.Use(middleware.RealIP)
 		}
@@ -34,9 +35,7 @@ var serveCmd = &cobra.Command{
 		r.Use(middleware.Recoverer)
 		r.Use(devProvider.ProviderMiddleware)
 		r.Use(configProvider.ProviderMiddleware)
-		r.Use(authenticationProvider.ProviderMiddleware)
-		r.Use(sessionProvider.ProviderMiddleware)
-
+		// route handlers
 		handlers.AuxHandler{}.Setup(r, services.AuxService{}.New(&dao))
 		devProvider.SetupHandlers(r)
 		handlers.HomeHandler{}.Setup(r, services.HomeService{}.New(&dao, &sc), validate, &authenticationProvider, &sessionProvider, &appConfig)

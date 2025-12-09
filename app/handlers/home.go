@@ -52,12 +52,16 @@ func (h HomeHandler) Setup(
 		sessionProvider: sp,
 		appConfig:       appConfig,
 	}
-	r.Get("/", h.GetHomePage)
-	r.Get("/~/{pasteID}", h.GetPasteIDRedirect)
-	r.Get("/new", h.GetNewPastePage)
-	r.Post("/new/_post", h.PostNewPastePage)
-	r.Get("/manage/paste/{pasteID}/_delete", h.GetDeletePaste)
-	r.Get("/manage/user/_delete", h.GetDeleteUser)
+	r.Group(func(r chi.Router) {
+		r.Use(ap.ProviderMiddleware)
+		r.Use(sp.ProviderMiddleware)
+		r.Get("/", h.GetHomePage)
+		r.Get("/~/{pasteID}", h.GetPasteIDRedirect)
+		r.Get("/new", h.GetNewPastePage)
+		r.Post("/new/_post", h.PostNewPastePage)
+		r.Get("/manage/paste/{pasteID}/_delete", h.GetDeletePaste)
+		r.Get("/manage/user/_delete", h.GetDeleteUser)
+	})
 }
 
 func (h *HomeHandler) GetHomePage(w http.ResponseWriter, r *http.Request) {

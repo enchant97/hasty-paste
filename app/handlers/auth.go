@@ -83,23 +83,27 @@ func (h AuthHandler) Setup(
 		OAuth2Config:    OAuth2Config,
 	}
 	r.Group(func(r chi.Router) {
-		r.Use(ap.RequireAuthenticationMiddleware)
-		r.Get("/logout", h.GetLogoutPage)
-	})
-	r.Group(func(r chi.Router) {
-		r.Use(ap.RequireNoAuthenticationMiddleware)
-		if appConfig.SignupEnabled {
-			r.Get("/signup", h.GetUserSignupPage)
-			r.Post("/signup/_post", h.PostUserSignupPage)
-		}
-		r.Get("/login", h.GetUserLoginPage)
-		if appConfig.InternalAuthEnabled {
-			r.Post("/login/_post", h.PostUserLoginPage)
-		}
-		if appConfig.OIDC.Enabled {
-			r.Get("/sso/oidc", h.GetOIDCPage)
-			r.Get("/sso/oidc/callback", h.GetOIDCCallbackPage)
-		}
+		r.Use(ap.ProviderMiddleware)
+		r.Use(sp.ProviderMiddleware)
+		r.Group(func(r chi.Router) {
+			r.Use(ap.RequireAuthenticationMiddleware)
+			r.Get("/logout", h.GetLogoutPage)
+		})
+		r.Group(func(r chi.Router) {
+			r.Use(ap.RequireNoAuthenticationMiddleware)
+			if appConfig.SignupEnabled {
+				r.Get("/signup", h.GetUserSignupPage)
+				r.Post("/signup/_post", h.PostUserSignupPage)
+			}
+			r.Get("/login", h.GetUserLoginPage)
+			if appConfig.InternalAuthEnabled {
+				r.Post("/login/_post", h.PostUserLoginPage)
+			}
+			if appConfig.OIDC.Enabled {
+				r.Get("/sso/oidc", h.GetOIDCPage)
+				r.Get("/sso/oidc/callback", h.GetOIDCCallbackPage)
+			}
+		})
 	})
 }
 
