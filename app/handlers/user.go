@@ -71,7 +71,19 @@ func (h *UserHandler) GetPasteAttachment(w http.ResponseWriter, r *http.Request)
 	username := r.PathValue("username")
 	pasteSlug := r.PathValue("pasteSlug")
 	attachmentSlug := r.PathValue("attachmentSlug")
-
+	visibility, err := h.service.GetPasteVisibilityBySlug(
+		h.authProvider.GetCurrentUserID(r),
+		username,
+		pasteSlug,
+	)
+	if err != nil {
+		if errors.Is(err, services.ErrNotFound) {
+			NotFoundErrorResponse(w, r)
+		} else {
+			InternalErrorResponse(w, err)
+		}
+		return
+	}
 	attachment, attachmentReader, err := h.service.GetPasteAttachment(
 		h.authProvider.GetCurrentUserID(r),
 		username,
@@ -89,6 +101,12 @@ func (h *UserHandler) GetPasteAttachment(w http.ResponseWriter, r *http.Request)
 	defer attachmentReader.Close()
 	w.Header().Add("Content-Type", attachment.MimeType)
 	w.Header().Add("ETag", attachment.Checksum)
+	w.Header().Del("Set-Cookie") // HACK session provider could interfere with cache
+	if visibility == "private" {
+		w.Header().Add("Cache-Control", "private, no-transform, max-age=3600")
+	} else {
+		w.Header().Add("Cache-Control", "public, no-transform, max-age=3600")
+	}
 	w.WriteHeader(http.StatusOK)
 	io.Copy(w, attachmentReader)
 }

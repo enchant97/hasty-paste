@@ -29,6 +29,14 @@ func (s *UserService) GetPastes(currentUserID uuid.UUID, username string) ([]dat
 	}))
 }
 
+func (s *UserService) GetPasteVisibilityBySlug(currentUserID uuid.UUID, username string, slug string) (string, error) {
+	return wrapDbErrorWithValue(s.dao.Queries.GetPasteVisibilityBySlug(context.Background(), database.GetPasteVisibilityBySlugParams{
+		CurrentUserID: currentUserID,
+		Username:      username,
+		PasteSlug:     slug,
+	}))
+}
+
 func (s *UserService) GetPaste(currentUserID uuid.UUID, username string, slug string) (database.Paste, error) {
 	return wrapDbErrorWithValue(s.dao.Queries.GetPasteBySlug(context.Background(), database.GetPasteBySlugParams{
 		CurrentUserID: currentUserID,

@@ -44,6 +44,22 @@ WHERE (
     )
 LIMIT 1;
 
+-- name: GetPasteVisibilityBySlug :one
+SELECT p.visibility FROM pastes as p
+INNER JOIN users AS u ON u.id = p.owner_id
+WHERE (
+    (u.username = sqlc.arg(username) AND p.slug = sqlc.arg(paste_slug))
+    AND
+       (
+           (p.visibility IN ('public', 'unlisted') AND NOT p.owner_id = sqlc.arg(current_user_id))
+           OR
+           (p.owner_id = sqlc.arg(current_user_id))
+       )
+    AND (p.expires_at IS NULL OR p.expires_at > CURRENT_TIMESTAMP)
+    AND p.deleted_at IS NULL AND u.deleted_at IS NULL
+    )
+LIMIT 1;
+
 -- name: GetPastePathParts :one
 SELECT p.slug, u.username FROM pastes as p
 INNER JOIN users AS u ON u.id = p.owner_id
