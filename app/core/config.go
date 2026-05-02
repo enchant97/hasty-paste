@@ -97,5 +97,11 @@ func (appConfig *AppConfig) ParseConfig() error {
 	if err := env.Parse(appConfig); err != nil {
 		return err
 	}
+	if len(appConfig.TokenSecret) < 32 {
+		return fmt.Errorf("AUTH_TOKEN_SECRET length must be at least 32, got %d", len(appConfig.TokenSecret))
+	}
+	if len(appConfig.SessionSecret) < 32 {
+		return fmt.Errorf("SESSION_SECRET length must be at least 32, got %d", len(appConfig.SessionSecret))
+	}
 	return nil
 }

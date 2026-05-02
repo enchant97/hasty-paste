@@ -18,9 +18,9 @@ Configuration of the app is done through environment variables. See the below op
 | `BEHIND_PROXY` | Whether app is behind a reverse proxy | `false` |
 | `DB_URI` | URI for database connection | - |
 | `ATTACHMENTS_PATH` | where paste attachments will be stored | - |
-| `AUTH_TOKEN_SECRET` | base64 encoded secret | - |
+| `AUTH_TOKEN_SECRET` | base64 encoded secret  (must be at least 32 bytes) | - |
 | `AUTH_TOKEN_EXPIRY` | seconds until a token expires | `604800` |
-| `SESSION_SECRET` | base64 encoded secret | - |
+| `SESSION_SECRET` | base64 encoded secret  (must be at least 32 bytes) | - |
 | `SIGNUP_ENABLED` | Whether to allow new accounts to be created | `true` |
 | `INTERNAL_AUTH_ENABLED` | Whether to allow login for internal accounts | `true` |
 | `RANDOM_SLUG_LENGTH` | How long the randomly generated slug will be | `10` |
