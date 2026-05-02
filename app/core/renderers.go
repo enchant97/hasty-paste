@@ -15,7 +15,9 @@ import (
 func RenderSourceCode(lexerAlias string, content string, w io.Writer) error {
 	lexer := chroma.Coalesce(lexers.Get(lexerAlias))
 	style := styles.Get("github-dark")
-	formatter := html.New(html.InlineCode(true))
+	formatter := html.New(
+		html.WithLineNumbers(true),
+	)
 	tokens, err := lexer.Tokenise(nil, content)
 	if err != nil {
 		return err
