@@ -39,6 +39,10 @@ services:
       AUTH_TOKEN_SECRET: "${AUTH_TOKEN_SECRET}"
       SESSION_SECRET: "${SESSION_SECRET}"
       PUBLIC_URL: "http://example.com"
+      # it is recommended to disable the anonymous account if hosting publicly
+      # ANONYMOUS_PASTES_ENABLED: "false"
+      # once users have been created, disable this, if hosting publicly
+      # SIGNUP_ENABLED: "false"
     ports:
       - 80:8080
 ```
