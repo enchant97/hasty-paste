@@ -10,32 +10,32 @@ Hasty Paste II is a lighting fast pastebin that features a sleek and responsive 
 {{< container/container type="grid" classes="center" >}}
 
 {{% container/element %}}
-### Fast ⚡️
+### Fast
 Using the latest web tech
 {{% /container/element %}}
 
 {{% container/element %}}
-### Open Source 🌐
+### Open Source
 Allowing for community improvement and inspection.
 {{% /container/element %}}
 
 {{% container/element %}}
-### Themes 🌙
+### Themes
 Includes both light and dark mode, to suite your preference.
 {{% /container/element %}}
 
 {{% container/element %}}
-### Assets 📷
+### Assets
 Upload and attach files to your pastes.
 {{% /container/element %}}
 
 {{% container/element %}}
-### SSO 🔑
+### SSO
 SSO support with OpenID/OAuth2.
 {{% /container/element %}}
 
 {{% container/element %}}
-### Access Control 🔒
+### Access Control
 Control how your paste is shared (Public, Unlisted, Private).
 
 {{% /container/element %}}
