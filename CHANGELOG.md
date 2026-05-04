@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.0] - 2026-05-04
+### Added
+- Closes #151; enable line numbers for source code pastes
+- Paste creation via quick-api
+- Cache headers to attachments
+### Changed
+- Require auth secrets to be at least 32 bytes long
+- Remove emojis from index page
+- Bump deps
+
 ## [2.3.1] - 2026-03-29
 ### Changed
 - Switch to node v24
