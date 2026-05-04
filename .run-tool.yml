@@ -46,3 +46,9 @@ targets:
       - health-check
     cwd: app
     env_file: .env
+  dev-docs:
+    program: hugo
+    args:
+      - serve
+      - -D
+    cwd: docs
