@@ -20,6 +20,6 @@
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.19",
-    "vite": "^8.0.10"
+    "vite": "^8.0.16"
   }
 }
