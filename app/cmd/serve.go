@@ -30,8 +30,16 @@ var serveCmd = &cobra.Command{
 
 		r := chi.NewRouter()
 		// global middleware
-		if appConfig.BehindProxy {
-			r.Use(middleware.RealIP)
+		if appConfig.Proxy.RealIPHeader != "" {
+			r.Use(middleware.ClientIPFromHeader(
+				appConfig.Proxy.RealIPHeader,
+				appConfig.Proxy.TrustedIp...,
+			))
+			log.Printf(
+				"using real-ip header '%s' from trusted ips: '%s'\n",
+				appConfig.Proxy.RealIPHeader,
+				strings.Join(appConfig.Proxy.TrustedIp, ","),
+			)
 		}
 		r.Use(middleware.Logger)
 		r.Use(middleware.Recoverer)

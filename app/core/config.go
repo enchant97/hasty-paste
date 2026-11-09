@@ -69,12 +69,18 @@ type ExpiryConfig struct {
 	Users     ExpiryTimeConfig `envPrefix:"USERS__"`
 }
 
+type ProxyConfig struct {
+	RealIPHeader string   `env:"REAL_IP_HEADER"`
+	TrustedIp    []string `env:"TRUSTED_IP"`
+}
+
 type AppConfig struct {
 	Dev                    DevConfig     `envPrefix:"DEV__"`
 	Bind                   BindConfig    `envPrefix:"BIND__"`
 	OIDC                   OIDCConfig    `envPrefix:"OIDC__"`
 	PublicURL              string        `env:"PUBLIC_URL,notEmpty"`
 	BehindProxy            bool          `env:"BEHIND_PROXY" envDefault:"false"`
+	Proxy                  ProxyConfig   `envPrefix:"PROXY__"`
 	DbUri                  string        `env:"DB_URI,notEmpty"`
 	AttachmentsPath        string        `env:"ATTACHMENTS_PATH,notEmpty"`
 	TokenSecret            Base64Decoded `env:"AUTH_TOKEN_SECRET,notEmpty"`
@@ -96,6 +102,9 @@ func (ac *AppConfig) SecureMode() bool {
 func (appConfig *AppConfig) ParseConfig() error {
 	if err := env.Parse(appConfig); err != nil {
 		return err
+	}
+	if appConfig.BehindProxy {
+		return fmt.Errorf("BEHIND_PROXY config is insecure, please see documentation for new `PROXY__` values")
 	}
 	if len(appConfig.TokenSecret) < 32 {
 		return fmt.Errorf("AUTH_TOKEN_SECRET length must be at least 32, got %d", len(appConfig.TokenSecret))
