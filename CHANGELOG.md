@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.0] - 2026-11-09
+### Changed
+- GHSA-g3gp-m83w-qmwv; replace real-ip usage with improved method
+- bump deps
+### Fixed
+- GHSA-g52v-2233-fcvj; CSRF on certain endpoints can result in account/paste deletion
+
 ## [2.4.1] - 2026-09-03
 ### Changed
 - bump deps
