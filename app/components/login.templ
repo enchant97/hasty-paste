@@ -1,8 +1,12 @@
 package components
 
-import "github.com/enchant97/hasty-paste/app/core"
+import (
+	"fmt"
 
-templ UserLoginPage(internalLoginEnabled bool, internalSignupEnabled bool, oidcConfig core.OIDCConfig) {
+    "github.com/enchant97/hasty-paste/app/core"
+)
+
+templ UserLoginPage(internalLoginEnabled bool, internalSignupEnabled bool, oidcConfig core.OIDCConfig, csrfToken string) {
 @base("Sign In") {
 @header()
 <div class="p-2">
@@ -10,6 +14,7 @@ templ UserLoginPage(internalLoginEnabled bool, internalSignupEnabled bool, oidcC
     if internalLoginEnabled {
     <form class="flex flex-col gap-2 max-w-md mx-auto" method="post"
         action="/login/_post">
+        <input type="hidden" name="csrfToken" value={csrfToken} />
         <label class="flex flex-col gap-2">
             <span class="label-text">Username</span>
             <input class="input" type="text" name="username" autocomplete="username" required />
@@ -20,14 +25,14 @@ templ UserLoginPage(internalLoginEnabled bool, internalSignupEnabled bool, oidcC
         </label>
         <button class="btn btn-primary" type="submit">Sign In</button>
         if oidcConfig.Enabled {
-        <a class="btn btn-primary" href="/sso/oidc">Sign In With { oidcConfig.Name }</a>
+        <a class="btn btn-primary" href={templ.URL(fmt.Sprintf("/sso/oidc?csrfToken=%s", csrfToken))}>Sign In With { oidcConfig.Name }</a>
         }
         if internalSignupEnabled {
         <a class="btn btn-neutral" href="/signup">Sign Up Instead?</a>
         }
     </form>
     } else if oidcConfig.Enabled {
-    <a class="btn btn-primary max-w-fit block mx-auto my-20" href="/sso/oidc">Sign In With { oidcConfig.Name }</a>
+    <a class="btn btn-primary" href={templ.URL(fmt.Sprintf("/sso/oidc?csrfToken=%s", csrfToken))}>Sign In With { oidcConfig.Name }</a>
     }
 </div>
 @footer()

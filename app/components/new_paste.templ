@@ -19,7 +19,7 @@ templ contentFormatList(id string) {
 	</datalist>
 }
 
-templ NewPastePage(attachmentsEnabled bool, defaultExpiry *time.Time) {
+templ NewPastePage(attachmentsEnabled bool, defaultExpiry *time.Time, csrfToken string) {
 	@base("Home") {
 		@header()
 		<div class="p-2">
@@ -30,6 +30,7 @@ templ NewPastePage(attachmentsEnabled bool, defaultExpiry *time.Time) {
 				enctype="multipart/form-data"
 				action="/new/_post"
 			>
+                <input type="hidden" name="csrfToken" value={csrfToken} />
 				<label class="flex flex-col gap-2">
 					<span class="label-text">Slug</span>
 					<input class="input" type="text" name="pasteSlug" placeholder="__RANDOM__"/>

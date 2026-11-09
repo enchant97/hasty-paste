@@ -62,7 +62,7 @@ templ header() {
             } else {
                 <a class="btn btn-neutral" href={ templ.URL(fmt.Sprintf("/@/%s",
                     currentUsername)) }>My Area</a>
-                <a class="btn btn-neutral" href="/logout">Sign Out</a>
+                <form action="/logout/_post" method="post"><button type="submit" class="btn btn-neutral">Sign Out</button></form>
             }
         </nav>
     </header>

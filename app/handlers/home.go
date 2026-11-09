@@ -59,8 +59,8 @@ func (h HomeHandler) Setup(
 		r.Get("/~/{pasteID}", h.GetPasteIDRedirect)
 		r.Get("/new", h.GetNewPastePage)
 		r.Post("/new/_post", h.PostNewPastePage)
-		r.Get("/manage/paste/{pasteID}/_delete", h.GetDeletePaste)
-		r.Get("/manage/user/_delete", h.GetDeleteUser)
+		r.Post("/manage/paste/{pasteID}/_delete", h.PostDeletePaste)
+		r.Post("/manage/user/_delete", h.PostDeleteUser)
 	})
 }
 
@@ -99,6 +99,10 @@ func (h *HomeHandler) GetNewPastePage(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
+
+	w.Header().Set("Cache-Control", "no-store")
+	csrfToken := GenerateCSRFToken(w, h.appConfig.SecureMode())
+
 	var defaultExpiry *time.Time
 	if h.authProvider.IsCurrentUserAnonymous(r) && h.appConfig.Expiry.Anonymous.Enabled {
 		t := makeExpiryTime(h.appConfig.Expiry.Anonymous)
@@ -111,6 +115,7 @@ func (h *HomeHandler) GetNewPastePage(w http.ResponseWriter, r *http.Request) {
 	templ.Handler(components.NewPastePage(
 		h.appConfig.AttachmentsEnabled,
 		defaultExpiry,
+		csrfToken,
 	)).ServeHTTP(w, r)
 }
 
@@ -131,6 +136,13 @@ func (h *HomeHandler) PostNewPastePage(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
+
+	csrfToken := r.PostFormValue("csrfToken")
+	if ConsumeCSRFToken(w, r, csrfToken, h.appConfig.SecureMode()) != nil {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
 	// Process all given attachments (if enabled)
 	var attachments []core.NewPasteFormAttachment
 	if h.appConfig.AttachmentsEnabled {
@@ -209,11 +221,18 @@ func (h *HomeHandler) PostNewPastePage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *HomeHandler) GetDeletePaste(w http.ResponseWriter, r *http.Request) {
+func (h *HomeHandler) PostDeletePaste(w http.ResponseWriter, r *http.Request) {
 	if h.authProvider.IsCurrentUserAnonymous(r) {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
+
+	csrfToken := r.PostFormValue("csrfToken")
+	if ConsumeCSRFToken(w, r, csrfToken, h.appConfig.SecureMode()) != nil {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
 	pasteID, err := uuid.Parse(r.PathValue("pasteID"))
 	if err != nil {
 		NotFoundErrorResponse(w, r)
@@ -226,11 +245,18 @@ func (h *HomeHandler) GetDeletePaste(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *HomeHandler) GetDeleteUser(w http.ResponseWriter, r *http.Request) {
+func (h *HomeHandler) PostDeleteUser(w http.ResponseWriter, r *http.Request) {
 	if h.authProvider.IsCurrentUserAnonymous(r) {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
+
+	csrfToken := r.PostFormValue("csrfToken")
+	if ConsumeCSRFToken(w, r, csrfToken, h.appConfig.SecureMode()) != nil {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
 	if err := h.service.DeleteUserByID(h.authProvider.GetCurrentUserID(r)); err != nil {
 		InternalErrorResponse(w, err)
 	} else {

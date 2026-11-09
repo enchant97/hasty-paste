@@ -22,19 +22,24 @@ func makePasteURL(ctx context.Context, username string, pasteSlug string) string
     return p
 }
 
-templ PastePage(username string, paste database.Paste, attachments []database.Attachment) {
+templ PastePage(username string, paste database.Paste, attachments []database.Attachment, csrfToken string) {
 	@base("Paste") {
 		@header()
 		<div data-paste-id={ paste.ID.String() } class="p-2 gap-2 flex flex-col">
             <h1 class="my-2 text-center">{ paste.Slug }</h1>
             if getCurrentUsername(ctx) != "anonymous" && getCurrentUsername(ctx) == username {
-                <div class="flex justify-center gap-2 mx-auto">
+                <form
+                    class="flex justify-center gap-2 mx-auto"
+                    method="post"
+                    action={ templ.URL(fmt.Sprintf("/manage/paste/%s/_delete", paste.ID)) }
+                >
+                    <input type="hidden" name="csrfToken" value={csrfToken} />
 					<label class="input input-confirm">
 						Delete Paste
 						<input class="input-confirm-request" type="checkbox"/>
-						<a class="btn btn-error input-confirm-confirm" href={ templ.URL(fmt.Sprintf("/manage/paste/%s/_delete", paste.ID)) }>Confirm Deletion</a>
+						<button class="btn btn-error input-confirm-confirm" type="submit">Confirm Deletion</button>
 					</label>
-                </div>
+                </form>
             }
 			<div class="rounded-2xl shadow-sm shadow-glass p-4">
 				<h2 class="my-2">Info</h2>

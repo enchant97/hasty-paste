@@ -87,7 +87,7 @@ func (h AuthHandler) Setup(
 		r.Use(sp.ProviderMiddleware)
 		r.Group(func(r chi.Router) {
 			r.Use(ap.RequireAuthenticationMiddleware)
-			r.Get("/logout", h.GetLogoutPage)
+			r.Post("/logout/_post", h.PostLogoutPage)
 		})
 		r.Group(func(r chi.Router) {
 			r.Use(ap.RequireNoAuthenticationMiddleware)
@@ -108,11 +108,20 @@ func (h AuthHandler) Setup(
 }
 
 func (h *AuthHandler) GetUserSignupPage(w http.ResponseWriter, r *http.Request) {
-	templ.Handler(components.UserSignupPage()).ServeHTTP(w, r)
+	w.Header().Set("Cache-Control", "no-store")
+	csrfToken := GenerateCSRFToken(w, h.appConfig.SecureMode())
+
+	templ.Handler(components.UserSignupPage(csrfToken)).ServeHTTP(w, r)
 }
 
 func (h *AuthHandler) PostUserSignupPage(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	csrfToken := r.PostFormValue("csrfToken")
+	if ConsumeCSRFToken(w, r, csrfToken, h.appConfig.SecureMode()) != nil {
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
@@ -151,15 +160,25 @@ func (h *AuthHandler) PostUserSignupPage(w http.ResponseWriter, r *http.Request)
 }
 
 func (h *AuthHandler) GetUserLoginPage(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Cache-Control", "no-store")
+	csrfToken := GenerateCSRFToken(w, h.appConfig.SecureMode())
+
 	templ.Handler(components.UserLoginPage(
 		h.appConfig.InternalAuthEnabled,
 		h.appConfig.SignupEnabled,
 		h.appConfig.OIDC,
+		csrfToken,
 	)).ServeHTTP(w, r)
 }
 
 func (h *AuthHandler) PostUserLoginPage(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	csrfToken := r.PostFormValue("csrfToken")
+	if ConsumeCSRFToken(w, r, csrfToken, h.appConfig.SecureMode()) != nil {
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
@@ -205,12 +224,22 @@ func (h *AuthHandler) PostUserLoginPage(w http.ResponseWriter, r *http.Request) 
 
 }
 
-func (h *AuthHandler) GetLogoutPage(w http.ResponseWriter, r *http.Request) {
+func (h *AuthHandler) PostLogoutPage(w http.ResponseWriter, r *http.Request) {
+	// this is not protected with a csrf token,
+	// but this is ok since it just causes the user to be signed-out.
+	// Also there are still Origin checks.
+
 	h.authProvider.ClearCookieAuthToken(w)
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
 func (h *AuthHandler) GetOIDCPage(w http.ResponseWriter, r *http.Request) {
+	csrfToken := r.URL.Query().Get("csrfToken")
+	if ConsumeCSRFToken(w, r, csrfToken, h.appConfig.SecureMode()) != nil {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
 	state := uuid.New().String()
 	http.SetCookie(w, &http.Cookie{
 		Name:     "OpenIdState",

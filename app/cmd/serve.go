@@ -2,9 +2,11 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
 	"log"
 	"net/http"
+	"strings"
+
+	"github.com/spf13/cobra"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -33,6 +35,11 @@ var serveCmd = &cobra.Command{
 		}
 		r.Use(middleware.Logger)
 		r.Use(middleware.Recoverer)
+		cop := http.NewCrossOriginProtection()
+		if err := cop.AddTrustedOrigin(strings.TrimSuffix(appConfig.PublicURL, "/")); err != nil {
+			log.Fatalln(err)
+		}
+		r.Use(cop.Handler)
 		r.Use(devProvider.ProviderMiddleware)
 		r.Use(configProvider.ProviderMiddleware)
 		// route handlers
@@ -40,7 +47,7 @@ var serveCmd = &cobra.Command{
 		devProvider.SetupHandlers(r)
 		handlers.ApiHandler{}.Setup(r, services.ApiService{}.New(&dao), appConfig, validate)
 		handlers.HomeHandler{}.Setup(r, services.HomeService{}.New(&dao, &sc), validate, &authenticationProvider, &sessionProvider, &appConfig)
-		handlers.UserHandler{}.Setup(r, services.UserService{}.New(&dao, &sc), validate, &authenticationProvider, &sessionProvider)
+		handlers.UserHandler{}.Setup(r, services.UserService{}.New(&dao, &sc), validate, &authenticationProvider, &sessionProvider, appConfig)
 		handlers.AuthHandler{}.Setup(r, appConfig, services.AuthService{}.New(&dao), validate, &authenticationProvider, &sessionProvider)
 
 		fmt.Println(`

@@ -7,6 +7,7 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/enchant97/hasty-paste/app/components"
+	"github.com/enchant97/hasty-paste/app/core"
 	"github.com/enchant97/hasty-paste/app/middleware"
 	"github.com/enchant97/hasty-paste/app/services"
 	"github.com/go-chi/chi/v5"
@@ -18,6 +19,7 @@ type UserHandler struct {
 	validator       *validator.Validate
 	authProvider    *middleware.AuthenticationProvider
 	sessionProvider *middleware.SessionProvider
+	appConfig       core.AppConfig
 }
 
 func (h UserHandler) Setup(
@@ -26,12 +28,14 @@ func (h UserHandler) Setup(
 	v *validator.Validate,
 	ap *middleware.AuthenticationProvider,
 	sp *middleware.SessionProvider,
+	appConfig core.AppConfig,
 ) {
 	h = UserHandler{
 		service:         service,
 		validator:       v,
 		authProvider:    ap,
 		sessionProvider: sp,
+		appConfig:       appConfig,
 	}
 	r.Group(func(r chi.Router) {
 		r.Use(ap.ProviderMiddleware)
@@ -47,7 +51,12 @@ func (h *UserHandler) GetPastes(w http.ResponseWriter, r *http.Request) {
 	if pastes, err := h.service.GetPastes(h.authProvider.GetCurrentUserID(r), username); err != nil {
 		InternalErrorResponse(w, err)
 	} else {
-		templ.Handler(components.PastesPage(username, pastes)).ServeHTTP(w, r)
+		csrfToken := ""
+		if username == h.authProvider.GetCurrentUsername(r) {
+			w.Header().Set("Cache-Control", "no-store")
+			csrfToken = GenerateCSRFToken(w, h.appConfig.SecureMode())
+		}
+		templ.Handler(components.PastesPage(username, pastes, csrfToken)).ServeHTTP(w, r)
 	}
 }
 
@@ -68,7 +77,14 @@ func (h *UserHandler) GetPaste(w http.ResponseWriter, r *http.Request) {
 		InternalErrorResponse(w, err)
 		return
 	}
-	templ.Handler(components.PastePage(username, paste, attachments)).ServeHTTP(w, r)
+
+	csrfToken := ""
+	if paste.OwnerID == h.authProvider.GetCurrentUserID(r) {
+		w.Header().Set("Cache-Control", "no-store")
+		csrfToken = GenerateCSRFToken(w, h.appConfig.SecureMode())
+	}
+
+	templ.Handler(components.PastePage(username, paste, attachments, csrfToken)).ServeHTTP(w, r)
 }
 
 func (h *UserHandler) GetPasteAttachment(w http.ResponseWriter, r *http.Request) {
