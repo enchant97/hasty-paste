@@ -51,9 +51,19 @@ Take a look at the [configuration]({{< ref configuration.md >}}) chapter to find
 
 > TIP: It is recommended to use a reverse proxy to provide https and a custom FQDN.
 
-## Easypanel (Unofficial)
+---
+
+## Unofficial
+
+{{< collapse title="Third-Party Methods" >}}
+{{% inner %}}
+
+### Easypanel (Unofficial)
 
 [Easypanel](https://easypanel.io) is a self-hosted Docker deployment platform, and Hasty Paste has a one-click deployment template there: https://easypanel.io/templates/hastypaste - it sets up the persistent data volume for you automatically.
 
-## Bare
+{{% /inner %}}
+{{< /collapse >}}
+
+### Bare
 Not officially supported, but you should be able to follow the steps that the Dockerfile performs.
