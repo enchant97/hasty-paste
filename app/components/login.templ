@@ -32,7 +32,7 @@ templ UserLoginPage(internalLoginEnabled bool, internalSignupEnabled bool, oidcC
         }
     </form>
     } else if oidcConfig.Enabled {
-    <a class="btn btn-primary" href={templ.URL(fmt.Sprintf("/sso/oidc?csrfToken=%s", csrfToken))}>Sign In With { oidcConfig.Name }</a>
+    <a class="btn btn-primary max-w-fit block mx-auto my-20" href={templ.URL(fmt.Sprintf("/sso/oidc?csrfToken=%s", csrfToken))}>Sign In With { oidcConfig.Name }</a>
     }
 </div>
 @footer()
