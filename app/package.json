@@ -6,8 +6,8 @@
   "license": "AGPL-3.0-only",
   "type": "module",
   "engines": {
-    "node": "^24.11",
-    "pnpm": "^11.24"
+    "node": "^24.21",
+    "pnpm": "^12.18"
   },
   "scripts": {
     "dev": "vite",
